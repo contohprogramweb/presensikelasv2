@@ -245,7 +245,7 @@ $(document).ready(function() {
                 $('#id_kelas').val(response.data.id_kelas);
                 $('#alamat').val(response.data.alamat);
                 $('#nama_ortu').val(response.data.nama_ortu);
-                $('#no_hp_orang_tua').val(response.data.no_hp_orang_tua);
+                $('#no_hp_orang_tua').val(response.data.no_hp_ortu);
                 $('#email').val(response.data.email || '');
                 $('#no_hp').val(response.data.no_hp || '');
                 $('#modalSiswa').modal('show');
