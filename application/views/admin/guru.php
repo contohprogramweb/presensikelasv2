@@ -176,19 +176,32 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.status) {
                     $('#modalGuru').modal('hide');
-                    table.ajax.reload();
-                    alert(response.message);
+                    table.ajax.reload(null, false);
                     // Update CSRF token
                     csrfHash = response.csrf_hash;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message,
+                        timer: 2000
+                    });
                 } else {
-                    alert(response.message);
                     // Update CSRF token even on error
                     csrfHash = response.csrf_hash;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Submit Error:', xhr.responseText);
-                alert('Terjadi kesalahan: ' + error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan pada sistem'
+                });
             }
         });
     });
@@ -220,18 +233,31 @@ $(document).ready(function() {
                 [csrfName]: csrfHash
             }, function(response) {
                 if (response.status) {
-                    table.ajax.reload();
-                    alert(response.message);
+                    table.ajax.reload(null, false);
                     // Update CSRF token
                     csrfHash = response.csrf_hash;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Terhapus',
+                        text: response.message,
+                        timer: 2000
+                    });
                 } else {
-                    alert(response.message);
                     // Update CSRF token even on error
                     csrfHash = response.csrf_hash;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
                 }
             }, 'json').fail(function(xhr, status, error) {
                 console.error('Delete Error:', xhr.responseText);
-                alert('Gagal menghapus: ' + error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal menghapus: ' + error
+                });
             });
         }
     });
