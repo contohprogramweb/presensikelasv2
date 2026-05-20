@@ -15,6 +15,7 @@ class Siswa extends MY_Controller {
     public function index()
     {
         $data['judul'] = 'Manajemen Siswa';
+        $data['tahun_ajaran'] = $this->tahun_ajaran_aktif;
         $this->load->view('templates/template', ['contents' => $this->load->view('admin/siswa', $data, TRUE)]);
     }
 
