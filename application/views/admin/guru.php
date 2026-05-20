@@ -196,7 +196,7 @@ $(document).ready(function() {
                 $('#modalTitle').text('Edit Guru');
                 $('#id').val(response.data.id);
                 $('#nip').val(response.data.nip);
-                $('#nama').val(response.data.nama);
+                $('#nama').val(response.data.nama_lengkap);
                 $('#jenis_kelamin').val(response.data.jenis_kelamin);
                 $('#email').val(response.data.email || '');
                 $('#no_hp').val(response.data.no_hp || '');
