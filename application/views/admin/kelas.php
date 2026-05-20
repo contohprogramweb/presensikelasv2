@@ -90,12 +90,17 @@ $(document).ready(function() {
     });
 
     // Load guru untuk select wali kelas
-    $.get('<?= site_url('admin/guru/ajax_list_guru_select') ?>', function(data) {
-        var options = '<option value="">-- Pilih Wali Kelas --</option>';
-        data.forEach(function(guru) {
-            options += '<option value="' + guru.id + '">' + guru.nama_lengkap + '</option>';
-        });
-        $('#id_wali_kelas').html(options);
+    $.ajax({
+        url: '<?= site_url('admin/guru/ajax_list_guru_select') ?>',
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            var options = '<option value="">-- Pilih Wali Kelas --</option>';
+            data.forEach(function(guru) {
+                options += '<option value="' + guru.id + '">' + guru.nama_lengkap + '</option>';
+            });
+            $('#id_wali_kelas').html(options);
+        }
     });
 
     // Submit form
@@ -120,6 +125,9 @@ $(document).ready(function() {
                 } else {
                     alert(response.message);
                 }
+            },
+            error: function(xhr, status, error) {
+                alert('Terjadi kesalahan: ' + error);
             }
         });
     });
@@ -127,13 +135,23 @@ $(document).ready(function() {
     // Edit button
     $(document).on('click', '.edit-btn', function() {
         var id = $(this).data('id');
-        $.get('<?= site_url('admin/kelas/ajax_edit') ?>/' + id, function(response) {
-            if (response.status) {
-                $('#modalTitle').text('Edit Kelas');
-                $('#id').val(response.data.id);
-                $('#nama_kelas').val(response.data.nama_kelas);
-                $('#id_wali_kelas').val(response.data.id_wali_kelas);
-                $('#modalKelas').modal('show');
+        $.ajax({
+            url: '<?= site_url('admin/kelas/ajax_edit') ?>/' + id,
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.status) {
+                    $('#modalTitle').text('Edit Kelas');
+                    $('#id').val(response.data.id);
+                    $('#nama_kelas').val(response.data.nama_kelas);
+                    $('#id_wali_kelas').val(response.data.id_wali_kelas);
+                    $('#modalKelas').modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Terjadi kesalahan: ' + error);
             }
         });
     });
@@ -142,15 +160,20 @@ $(document).ready(function() {
     $(document).on('click', '.delete-btn', function() {
         if (confirm('Apakah Anda yakin ingin menghapus kelas ini?')) {
             var id = $(this).data('id');
-            $.post('<?= site_url('admin/kelas/ajax_delete') ?>', {
-                id: id,
-                '<?= $csrf_name ?>': '<?= $csrf_hash ?>'
-            }, function(response) {
-                if (response.status) {
-                    table.ajax.reload();
-                    alert(response.message);
-                } else {
-                    alert(response.message);
+            $.ajax({
+                url: '<?= site_url('admin/kelas/ajax_delete') ?>',
+                type: 'POST',
+                data: { id: id },
+                success: function(response) {
+                    if (response.status) {
+                        table.ajax.reload();
+                        alert(response.message);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Terjadi kesalahan: ' + error);
                 }
             });
         }

@@ -20,7 +20,7 @@ class Kelas extends MY_Controller {
 
     public function ajax_list()
     {
-        $id_tahun_ajaran = $this->tahun_ajaran_aktif['id'] ?? null;
+        $id_tahun_ajaran = $this->tahun_ajaran_aktif->id ?? null;
         $list = $this->M_kelas->get_all($id_tahun_ajaran);
         
         $output = [
@@ -56,7 +56,7 @@ class Kelas extends MY_Controller {
         $data = [
             'nama_kelas' => $this->input->post('nama_kelas'),
             'id_wali_kelas' => $this->input->post('id_wali_kelas') ?: null,
-            'id_tahun_ajaran' => $this->tahun_ajaran_aktif['id']
+            'id_tahun_ajaran' => $this->tahun_ajaran_aktif->id
         ];
         
         if ($this->M_kelas->insert($data)) {
