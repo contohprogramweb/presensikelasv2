@@ -1,17 +1,17 @@
 ```
-# Compiled and build artifacts
-*.pyc
-__pycache__/
+# CodeIgniter specific ignores
+application/cache/
+application/logs/
+application/temp/
 
 # Dependencies
 vendor/
 node_modules/
-composer.lock
 
-# Logs and temp files
-*.log
+# Compiled/Generated files
+*.pyc
 *.tmp
-*.swp
+*.log
 
 # Environment
 .env
@@ -21,14 +21,14 @@ composer.lock
 # Editors
 .vscode/
 .idea/
+*.swp
 
-# OS generated files
+# OS
 .DS_Store
 Thumbs.db
 
-# CodeIgniter specific
-application/cache/
-application/logs/
-application/sessions/
-system/
+# Build artifacts
+dist/
+build/
+target/
 ```

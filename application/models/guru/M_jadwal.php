@@ -8,8 +8,21 @@ class M_jadwal extends CI_Model {
         parent::__construct();
     }
 
-    public function get_jadwal_guru($id_guru, $id_tahun_ajaran = null)
+    /**
+     * Get jadwal mengajar guru dengan join lengkap
+     */
+    public function get_jadwal_guru($id_user, $id_tahun_ajaran = null)
     {
+        // Dapatkan id_guru dari tb_guru berdasarkan id_user
+        $this->db->where('id_user', $id_user);
+        $guru = $this->db->get('tb_guru')->row();
+        
+        if (!$guru) {
+            return [];
+        }
+        
+        $id_guru = $guru->id;
+        
         $this->db->select('j.*, k.nama_kelas, m.nama_mapel');
         $this->db->from('tb_jadwal j');
         $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
@@ -18,12 +31,18 @@ class M_jadwal extends CI_Model {
         
         if ($id_tahun_ajaran) {
             $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
+        } else {
+            // Default tahun ajaran aktif
+            $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id ?? null);
         }
         
-        return $this->db->get()->result_array();
+        $this->db->order_by('FIELD(j.hari, "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu")');
+        $this->db->order_by('j.jam_mulai', 'ASC');
+        
+        return $this->db->get()->result();
     }
 
-    public function get_jadwal_hari_ini($id_guru)
+    public function get_jadwal_hari_ini($id_user)
     {
         $hari_indo = [
             'Sunday' => 'Minggu',
@@ -36,6 +55,16 @@ class M_jadwal extends CI_Model {
         ];
         $hari_ini = $hari_indo[date('l')];
         
+        // Dapatkan id_guru dari tb_guru berdasarkan id_user
+        $this->db->where('id_user', $id_user);
+        $guru = $this->db->get('tb_guru')->row();
+        
+        if (!$guru) {
+            return [];
+        }
+        
+        $id_guru = $guru->id;
+        
         $this->db->select('j.*, k.nama_kelas, m.nama_mapel');
         $this->db->from('tb_jadwal j');
         $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
@@ -44,7 +73,7 @@ class M_jadwal extends CI_Model {
         $this->db->where('j.hari', $hari_ini);
         $this->db->order_by('j.jam_mulai', 'ASC');
         
-        return $this->db->get()->result_array();
+        return $this->db->get()->result();
     }
 
     public function get_by_id($id)
