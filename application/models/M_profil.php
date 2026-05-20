@@ -76,4 +76,22 @@ class M_profil extends CI_Model {
         
         return $query->num_rows() > 0;
     }
+    
+    /**
+     * Get old photo filename for user
+     * @param int $id User ID
+     * @return string|null Photo filename or null if none
+     */
+    public function get_old_photo($id) {
+        $this->db->select('foto_profil');
+        $this->db->where('id', $id);
+        $query = $this->db->get('tb_user', 1);
+        
+        if ($query->num_rows() === 0) {
+            return null;
+        }
+        
+        $user = $query->row();
+        return $user->foto_profil;
+    }
 }
