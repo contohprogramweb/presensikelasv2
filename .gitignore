@@ -1,7 +1,4 @@
 ```
-# Database dump files
-*.sql
-
 # Environment files
 .env
 .env.local
@@ -12,43 +9,24 @@
 
 # Temporary files
 *.tmp
-*.temp
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Editor/IDE files
-.vscode/
-.idea/
 *.swp
 *.swo
 
 # Dependencies
 node_modules/
+vendor/
+
+# Build artifacts
+dist/
+build/
+target/
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-venv/
-env/
-ENV/
-
-# Build directories
-dist/
-build/
-*.egg-info/
-
-# Coverage reports
-.coverage
-htmlcov/
-coverage/
-
-# Python specific
-*.py[cod]
-*$py.class
-*.so
+*.py.class
 .Python
 env/
 venv/
@@ -64,31 +42,42 @@ coverage.xml
 *.cover
 *.log
 .git/
-.mypy_cache/
-.pytest_cache/
-.hypothesis/
+.svn/
+.hg/
+.DS_Store
+Thumbs.db
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+# PHP (for CodeIgniter project)
+application/cache/
+application/logs/
+application/temp/
+system/database/sessions/
+*.bak
+*.swp
+*~
+.project
+.settings/
+nbproject/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+*.komodotools
+*.externalToolBuilders/*
+*.launch
+*.tmproj
+*.xcworkspace
+xcuserdata/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 ```
