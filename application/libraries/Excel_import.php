@@ -4,8 +4,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * Excel Import Library
  * Wrapper untuk PhpSpreadsheet
+ * Pastikan composer sudah install: composer require phpoffice/phpspreadsheet
  */
-require_once APPPATH . 'third_party/phpspreadsheet/vendor/autoload.php';
+if (file_exists(APPPATH . 'vendor/autoload.php')) {
+    require_once APPPATH . 'vendor/autoload.php';
+} elseif (file_exists('vendor/autoload.php')) {
+    require_once 'vendor/autoload.php';
+} else {
+    // Fallback jika library tidak terinstall - tampilkan error yang jelas
+    show_error('Library PhpSpreadsheet belum terinstall. Jalankan: composer require phpoffice/phpspreadsheet');
+}
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
