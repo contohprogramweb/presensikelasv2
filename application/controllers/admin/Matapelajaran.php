@@ -1,0 +1,104 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Matapelajaran extends MY_Controller {
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->role_required = ['admin'];
+        $this->load->model('admin/M_matapelajaran');
+        $this->load->library('form_validation');
+    }
+
+    public function index()
+    {
+        $data['judul'] = 'Manajemen Mata Pelajaran';
+        $this->load->view('templates/template', ['contents' => $this->load->view('admin/matapelajaran', $data, TRUE)]);
+    }
+
+    public function ajax_list()
+    {
+        $list = $this->M_matapelajaran->get_all();
+        
+        $output = [
+            'draw' => 0,
+            'recordsTotal' => count($list),
+            'recordsFiltered' => count($list),
+            'data' => []
+        ];
+        
+        foreach ($list as $row) {
+            $output['data'][] = [
+                $row['nama_mapel'],
+                '<button class="btn btn-sm btn-warning edit-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-edit"></i></button>
+                 <button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-trash"></i></button>'
+            ];
+        }
+        
+        echo json_encode($output);
+    }
+
+    public function ajax_add()
+    {
+        $this->form_validation->set_rules('nama_mapel', 'Nama Mata Pelajaran', 'required|trim|is_unique[tb_mata_pelajaran.nama_mapel]');
+        
+        if ($this->form_validation->run() == FALSE) {
+            echo json_encode(['status' => false, 'message' => validation_errors()]);
+            return;
+        }
+        
+        $data = ['nama_mapel' => $this->input->post('nama_mapel')];
+        
+        if ($this->M_matapelajaran->insert($data)) {
+            log_aktivitas('INSERT', 'tb_mata_pelajaran', $this->db->insert_id(), 'Tambah mapel ' . $data['nama_mapel']);
+            echo json_encode(['status' => true, 'message' => 'Mata pelajaran berhasil ditambahkan']);
+        } else {
+            echo json_encode(['status' => false, 'message' => 'Gagal menambahkan mata pelajaran']);
+        }
+    }
+
+    public function ajax_edit($id)
+    {
+        $id_decrypted = decrypt_id($id);
+        $data = $this->M_matapelajaran->get_by_id($id_decrypted);
+        
+        if ($data) {
+            echo json_encode(['status' => true, 'data' => $data]);
+        } else {
+            echo json_encode(['status' => false, 'message' => 'Data tidak ditemukan']);
+        }
+    }
+
+    public function ajax_update()
+    {
+        $id = decrypt_id($this->input->post('id'));
+        $this->form_validation->set_rules('nama_mapel', 'Nama Mata Pelajaran', 'required|trim');
+        
+        if ($this->form_validation->run() == FALSE) {
+            echo json_encode(['status' => false, 'message' => validation_errors()]);
+            return;
+        }
+        
+        $data = ['nama_mapel' => $this->input->post('nama_mapel')];
+        
+        if ($this->M_matapelajaran->update($id, $data)) {
+            log_aktivitas('UPDATE', 'tb_mata_pelajaran', $id, 'Update mapel ' . $data['nama_mapel']);
+            echo json_encode(['status' => true, 'message' => 'Mata pelajaran berhasil diperbarui']);
+        } else {
+            echo json_encode(['status' => false, 'message' => 'Gagal memperbarui mata pelajaran']);
+        }
+    }
+
+    public function ajax_delete($id)
+    {
+        $id_decrypted = decrypt_id($id);
+        
+        if ($this->M_matapelajaran->delete($id_decrypted)) {
+            log_aktivitas('DELETE', 'tb_mata_pelajaran', $id_decrypted, 'Hapus mapel');
+            echo json_encode(['status' => true, 'message' => 'Mata pelajaran berhasil dihapus']);
+        } else {
+            echo json_encode(['status' => false, 'message' => 'Gagal menghapus mata pelajaran']);
+        }
+    }
+}

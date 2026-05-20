@@ -1,0 +1,76 @@
+```
+# CodeIgniter specific
+application/logs/
+application/cache/
+application/temp/
+
+# Dependencies
+vendor/
+node_modules/
+
+# Environment specific
+.env
+.env.local
+.env.*
+
+# Compiled/Generated files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Database
+*.sql
+*.db
+*.sqlite
+
+# Build artifacts
+build/
+dist/
+target/
+coverage/
+htmlcov/
+*.pyc
+__pycache__/
+*.class
+*.jar
+*.war
+*.ear
+*.dll
+*.so
+*.dylib
+
+# Compression archives
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```
