@@ -159,6 +159,22 @@ $(document).ready(function() {
                     alert('Terjadi kesalahan saat memuat data. Silakan refresh halaman.');
                     return data;
                 }
+            },
+            'error': function(xhr, error, thrown) {
+                console.error('AJAX Error:', error);
+                console.error('Status:', xhr.status);
+                console.error('Response Text:', xhr.responseText);
+                
+                var errorMsg = 'Gagal memuat data.';
+                if (xhr.status === 403) {
+                    errorMsg += ' Error 403: Forbidden - Mungkin masalah CSRF token.';
+                } else if (xhr.status === 500) {
+                    errorMsg += ' Error 500: Server error.';
+                } else if (xhr.responseText) {
+                    errorMsg += ' Detail: ' + xhr.responseText.substring(0, 200);
+                }
+                
+                alert(errorMsg);
             }
         },
         'pageLength': 10,
@@ -167,12 +183,7 @@ $(document).ready(function() {
         },
         'columnDefs': [
             {'orderable': false, 'targets': 7}
-        ],
-        'error': function(xhr, error, thrown) {
-            console.error('DataTables Error:', error);
-            console.error('Response:', xhr.responseText);
-            alert('Gagal memuat data: ' + error);
-        }
+        ]
     });
 
     // Load kelas select
