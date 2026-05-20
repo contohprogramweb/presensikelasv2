@@ -1,83 +1,36 @@
 ```
+# Cache and temporary data
+application/cache/
+application/logs/
+
+# Compressed archives
+*.zip
+
 # Environment files
 .env
 .env.local
 *.env.*
 
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
 # Logs
 *.log
 
-# Temporary files
-*.tmp
-*.swp
-*.swo
+# Build artifacts
+build/
+dist/
+target/
 
 # Dependencies
 node_modules/
 vendor/
-
-# Build artifacts
-dist/
-build/
-target/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.py.class
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git/
-.svn/
-.hg/
-.DS_Store
-Thumbs.db
-
-# PHP (for CodeIgniter project)
-application/cache/
-application/logs/
-application/temp/
-system/database/sessions/
-*.bak
-*.swp
-*~
-.project
-.settings/
-nbproject/
-
-# IDE
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-*.komodoproject
-*.komodotools
-*.externalToolBuilders/*
-*.launch
-*.tmproj
-*.xcworkspace
-xcuserdata/
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 ```
