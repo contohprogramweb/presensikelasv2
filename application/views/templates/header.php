@@ -18,6 +18,9 @@
     <!-- Custom CSS -->
     <link href="<?= base_url('assets/css/custom.css'); ?>" rel="stylesheet">
     
+    <!-- jQuery 3.7 (Moved to header for better compatibility) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    
     <style>
         :root {
             --primary-color: #0d6efd;
