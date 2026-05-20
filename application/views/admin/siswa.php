@@ -101,8 +101,8 @@
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="nama_orang_tua" class="form-label">Nama Orang Tua</label>
-                            <input type="text" class="form-control" id="nama_orang_tua" name="nama_orang_tua">
+                            <label for="nama_ortu" class="form-label">Nama Orang Tua</label>
+                            <input type="text" class="form-control" id="nama_ortu" name="nama_ortu">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="no_hp_orang_tua" class="form-label">No HP Orang Tua</label>
@@ -244,7 +244,7 @@ $(document).ready(function() {
                 $('#tanggal_lahir').val(response.data.tanggal_lahir);
                 $('#id_kelas').val(response.data.id_kelas);
                 $('#alamat').val(response.data.alamat);
-                $('#nama_orang_tua').val(response.data.nama_orang_tua);
+                $('#nama_ortu').val(response.data.nama_ortu);
                 $('#no_hp_orang_tua').val(response.data.no_hp_orang_tua);
                 $('#email').val(response.data.email || '');
                 $('#no_hp').val(response.data.no_hp || '');
