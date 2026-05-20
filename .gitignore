@@ -1,1 +1,1 @@
-(application/views/admin/siswa.php is a source code file, and there are no build artifacts, dependencies, or temporary files in the changes)
+Nothing needs to be added to .gitignore since the only change is adding a PHP view file (`application/views/admin/guru.php`), which is source code and should not be ignored.
