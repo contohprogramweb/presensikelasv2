@@ -83,8 +83,14 @@
 <script>
 var table;
 var save_method;
+var csrf_name = '<?= $csrf_name ?? '' ?>';
+var csrf_hash = '<?= $csrf_hash ?? '' ?>';
 
 $(document).ready(function() {
+    // Debug CSRF
+    console.log('CSRF Name:', csrf_name);
+    console.log('CSRF Hash:', csrf_hash);
+    
     // DataTables
     table = $('#table_tahunajaran').DataTable({
         processing: true,
@@ -98,20 +104,45 @@ $(document).ready(function() {
             url: '<?= site_url('admin/tahunajaran/ajax_list') ?>',
             type: 'POST',
             data: function(d) {
-                d['<?= $csrf_name ?>'] = $('input[name="<?= $csrf_name ?>"]').val();
+                if (csrf_name && csrf_hash) {
+                    d[csrf_name] = csrf_hash;
+                }
             },
             dataFilter: function(data) {
+                console.log('Raw response:', data);
                 try {
                     var json = jQuery.parseJSON(data);
+                    console.log('Parsed JSON:', json);
                     if (json.csrf_hash) {
                         csrf_hash = json.csrf_hash;
                         $('#csrf_token').val(json.csrf_hash);
+                        $('input[name="' + csrf_name + '"]').val(json.csrf_hash);
                     }
                     return JSON.stringify(json);
                 } catch(e) {
                     console.error('ajax_list response error:', data);
+                    console.error('Parse error:', e.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal memuat data: ' + e.message
+                    });
                     return JSON.stringify({draw:0, recordsTotal:0, recordsFiltered:0, data:[]});
                 }
+            },
+            error: function(xhr, error, thrown) {
+                console.error('AJAX error:', xhr.status, xhr.responseText);
+                let errorMsg = 'Gagal memuat data dari server';
+                if (xhr.status === 403) {
+                    errorMsg = 'Akses ditolak. Silakan refresh halaman.';
+                } else if (xhr.status === 500) {
+                    errorMsg = 'Terjadi kesalahan pada server.';
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMsg
+                });
             }
         },
         columns: [
@@ -122,7 +153,10 @@ $(document).ready(function() {
             {data: 4},
             {data: 5, orderable: false}
         ],
-        order: [[0, 'desc']]
+        order: [[0, 'desc']],
+        initComplete: function(settings, json) {
+            console.log('DataTable initialized with data:', json);
+        }
     });
 
     // Form submit
@@ -152,7 +186,8 @@ $(document).ready(function() {
                     });
                     table.ajax.reload(null, false);
                     // Update CSRF
-                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                    csrf_hash = response.csrf_hash;
+                    $('#csrf_token').val(response.csrf_hash);
                 } else {
                     if (response.error) {
                         $.each(response.error, function(key, val) {
@@ -200,7 +235,8 @@ function edit_tahunajaran(id) {
                 $('#modalLabel').text('Edit Tahun Ajaran');
                 $('#modal_form').modal('show');
                 // Update CSRF
-                $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                csrf_hash = response.csrf_hash;
+                $('#csrf_token').val(response.csrf_hash);
             }
         }
     });
@@ -221,7 +257,7 @@ function delete_tahunajaran(id) {
             $.ajax({
                 url: '<?= site_url('admin/tahunajaran/ajax_delete') ?>/' + id,
                 type: 'POST',
-                data: {'<?= $csrf_name ?>': $('input[name="<?= $csrf_name ?>"]').val()},
+                data: {[csrf_name]: csrf_hash},
                 dataType: 'json',
                 success: function(response) {
                     if (response.status) {
@@ -232,7 +268,8 @@ function delete_tahunajaran(id) {
                             timer: 2000
                         });
                         table.ajax.reload(null, false);
-                        $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                        csrf_hash = response.csrf_hash;
+                        $('#csrf_token').val(response.csrf_hash);
                     } else {
                         Swal.fire({
                             icon: 'error',
