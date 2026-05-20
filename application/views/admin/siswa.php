@@ -238,7 +238,7 @@ $(document).ready(function() {
                 $('#modalTitle').text('Edit Siswa');
                 $('#id').val(response.data.id);
                 $('#nis').val(response.data.nis);
-                $('#nama').val(response.data.nama);
+                $('#nama').val(response.data.nama_lengkap);
                 $('#jenis_kelamin').val(response.data.jenis_kelamin);
                 $('#tempat_lahir').val(response.data.tempat_lahir);
                 $('#tanggal_lahir').val(response.data.tanggal_lahir);
