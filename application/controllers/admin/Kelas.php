@@ -34,7 +34,8 @@ class Kelas extends MY_Controller {
             'draw'            => $draw,
             'recordsTotal'    => count($list),
             'recordsFiltered' => count($list),
-            'data'            => []
+            'data'            => [],
+            'csrf_hash'       => $this->security->get_csrf_hash()
         ];
 
         foreach ($list as $row) {
@@ -56,19 +57,27 @@ class Kelas extends MY_Controller {
 
     public function ajax_add()
     {
-        $this->form_validation->set_rules('nama_kelas', 'Nama Kelas', 'required|trim|is_unique[tb_kelas.nama_kelas]');
+        $this->form_validation->set_rules('nama_kelas', 'Nama Kelas', 'required|trim');
         $this->form_validation->set_rules('id_wali_kelas', 'Wali Kelas', 'trim');
 
         if ($this->form_validation->run() == FALSE) {
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => validation_errors()]));
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => validation_errors(),
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
             return;
         }
 
         // FIX #3: tahun_ajaran_aktif bisa null jika belum ada data, guard dulu
         if (!$this->tahun_ajaran_aktif) {
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => 'Tidak ada tahun ajaran aktif. Harap set tahun ajaran aktif terlebih dahulu.']));
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Tidak ada tahun ajaran aktif. Harap set tahun ajaran aktif terlebih dahulu.',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
             return;
         }
 
@@ -81,10 +90,18 @@ class Kelas extends MY_Controller {
         if ($this->M_kelas->insert($data)) {
             log_aktivitas('INSERT', 'tb_kelas', $this->db->insert_id(), 'Tambah kelas ' . $data['nama_kelas']);
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => true, 'message' => 'Kelas berhasil ditambahkan']));
+                ->set_output(json_encode([
+                    'status' => true, 
+                    'message' => 'Kelas berhasil ditambahkan',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         } else {
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => 'Gagal menambahkan kelas']));
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Gagal menambahkan kelas',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         }
     }
 
@@ -111,7 +128,11 @@ class Kelas extends MY_Controller {
 
         if ($this->form_validation->run() == FALSE) {
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => validation_errors()]));
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => validation_errors(),
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
             return;
         }
 
@@ -123,10 +144,18 @@ class Kelas extends MY_Controller {
         if ($this->M_kelas->update($id, $data)) {
             log_aktivitas('UPDATE', 'tb_kelas', $id, 'Update kelas ' . $data['nama_kelas']);
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => true, 'message' => 'Kelas berhasil diperbarui']));
+                ->set_output(json_encode([
+                    'status' => true, 
+                    'message' => 'Kelas berhasil diperbarui',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         } else {
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => 'Gagal memperbarui kelas']));
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Gagal memperbarui kelas',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         }
     }
 
@@ -137,10 +166,18 @@ class Kelas extends MY_Controller {
         if ($this->M_kelas->delete($id_decrypted)) {
             log_aktivitas('DELETE', 'tb_kelas', $id_decrypted, 'Hapus kelas');
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => true, 'message' => 'Kelas berhasil dihapus']));
+                ->set_output(json_encode([
+                    'status' => true, 
+                    'message' => 'Kelas berhasil dihapus',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         } else {
             $this->output->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => 'Gagal menghapus kelas']));
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Gagal menghapus kelas',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         }
     }
 	
