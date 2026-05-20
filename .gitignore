@@ -4,12 +4,9 @@
 __pycache__/
 *.o
 *.obj
-dist/
-build/
 
 # Dependencies
-.venv/
-venv/
+vendor/
 node_modules/
 
 # Logs and temp files
@@ -20,12 +17,29 @@ node_modules/
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Editors
 .vscode/
 .idea/
 
-# Original rules preserved
-*.log
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*~
+*.bak
+*.backup
+
+# PHP specific
+*.php~
+.php_cs
+.php_cs.dist
+
+# Web application specific
+application/cache/
+application/logs/
+application/temp/
+application/writable/
 ```

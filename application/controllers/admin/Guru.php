@@ -29,7 +29,7 @@ class Guru extends MY_Controller {
         ];
         
         foreach ($list as $row) {
-            $jk_badge = $row['jenis_kelamin'] == 'L' ? '<span class="badge bg-info">L</span>' : '<span class="badge bg-pink">P</span>';
+            $jk_badge = $row['jenis_kelamin'] == 'L' ? '<span class="badge bg-info">L</span>' : '<span class="badge bg-danger">P</span>';
             $status_badge = $row['user_status'] == 'aktif' ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Nonaktif</span>';
             
             $output['data'][] = [

@@ -25,7 +25,7 @@ class M_import extends CI_Model {
             $tempat_lahir = isset($row[3]) ? trim($row[3]) : '';
             $tanggal_lahir = isset($row[4]) ? $this->format_date($row[4]) : null;
             $alamat = isset($row[5]) ? trim($row[5]) : '';
-            $nama_orang_tua = isset($row[6]) ? trim($row[6]) : '';
+            $nama_ortu = isset($row[6]) ? trim($row[6]) : '';
             $no_hp_orang_tua = isset($row[7]) ? trim($row[7]) : '';
             
             // Skip header row or empty rows
@@ -67,7 +67,7 @@ class M_import extends CI_Model {
                 'tempat_lahir' => $tempat_lahir,
                 'tanggal_lahir' => $tanggal_lahir,
                 'alamat' => $alamat,
-                'nama_orang_tua' => $nama_orang_tua,
+                'nama_ortu' => $nama_ortu,
                 'no_hp_orang_tua' => $no_hp_orang_tua
             ];
             

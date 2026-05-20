@@ -35,7 +35,7 @@ class Siswa extends MY_Controller {
         ];
         
         foreach ($list as $index => $row) {
-            $jk_badge = $row['jenis_kelamin'] == 'L' ? '<span class="badge bg-info">L</span>' : '<span class="badge bg-pink">P</span>';
+            $jk_badge = $row['jenis_kelamin'] == 'L' ? '<span class="badge bg-info">L</span>' : '<span class="badge bg-danger">P</span>';
             $status_badge = $row['user_status'] == 'aktif' ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Nonaktif</span>';
             
             $output['data'][] = [
@@ -98,7 +98,7 @@ class Siswa extends MY_Controller {
             'tempat_lahir' => $this->input->post('tempat_lahir'),
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
             'alamat' => $this->input->post('alamat'),
-            'nama_orang_tua' => $this->input->post('nama_orang_tua'),
+            'nama_ortu' => $this->input->post('nama_ortu'),
             'no_hp_orang_tua' => $this->input->post('no_hp_orang_tua')
         ];
         
@@ -154,7 +154,7 @@ class Siswa extends MY_Controller {
             'tempat_lahir' => $this->input->post('tempat_lahir'),
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
             'alamat' => $this->input->post('alamat'),
-            'nama_orang_tua' => $this->input->post('nama_orang_tua'),
+            'nama_ortu' => $this->input->post('nama_ortu'),
             'no_hp_orang_tua' => $this->input->post('no_hp_orang_tua')
         ];
         
