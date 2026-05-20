@@ -8,6 +8,32 @@ class M_rekap extends CI_Model {
         parent::__construct();
     }
 
+    /**
+     * Get rekap presensi per siswa dalam periode tertentu (by kelas)
+     */
+    public function get_rekap_per_siswa($id_kelas, $start_date, $end_date)
+    {
+        $sql = "
+            SELECT 
+                s.id,
+                u.nama_lengkap as nama_siswa,
+                COALESCE(SUM(CASE WHEN p.status = 'Hadir' THEN 1 ELSE 0 END), 0) as hadir,
+                COALESCE(SUM(CASE WHEN p.status = 'Izin' THEN 1 ELSE 0 END), 0) as izin,
+                COALESCE(SUM(CASE WHEN p.status = 'Sakit' THEN 1 ELSE 0 END), 0) as sakit,
+                COALESCE(SUM(CASE WHEN p.status = 'Alpa' THEN 1 ELSE 0 END), 0) as alpa
+            FROM tb_siswa s
+            JOIN tb_user u ON u.id = s.id_user
+            LEFT JOIN tb_presensi p ON p.id_siswa = s.id 
+                AND p.tanggal >= ? 
+                AND p.tanggal <= ?
+            WHERE s.id_kelas = ?
+            GROUP BY s.id, u.nama_lengkap
+            ORDER BY u.nama_lengkap ASC
+        ";
+        
+        return $this->db->query($sql, [$start_date, $end_date, $id_kelas])->result();
+    }
+
     public function get_rekap_presensi($id_guru, $start_date, $end_date, $id_kelas = null)
     {
         $this->db->select('s.id, u.nama_lengkap as nama_siswa, k.nama_kelas');
