@@ -1,32 +1,27 @@
-```
-# Session files
-application/sessions/*
+```gitignore
+# Compiled and build artifacts
+*.pyc
+__pycache__/
 
-# Environment files
+# Dependencies
+vendor/
+composer.lock
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
 .env
 .env.local
 *.env.*
 
-# Logs
-*.log
-
-# IDE files
+# Editors
 .vscode/
 .idea/
 
-# OS files
+# OS generated files
 .DS_Store
 Thumbs.db
-
-# Temporary files
-*.tmp
-*.swp
-
-# Cache directories
-__pycache__/
-*.pyc
-
-# Build/dependency directories
-node_modules/
-vendor/
 ```
