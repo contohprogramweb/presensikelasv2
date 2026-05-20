@@ -27,6 +27,7 @@
                 <table id="tableSiswa" class="table table-bordered table-striped table-hover" style="width: 100%;">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>NIS</th>
                             <th>Nama</th>
                             <th>L/P</th>
@@ -143,7 +144,7 @@ $(document).ready(function() {
             'url': '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
         },
         'columnDefs': [
-            {'orderable': false, 'targets': 6}
+            {'orderable': false, 'targets': 7}
         ]
     });
 
@@ -174,8 +175,12 @@ $(document).ready(function() {
                     $('#modalSiswa').modal('hide');
                     table.ajax.reload();
                     alert(response.message);
+                    // Update CSRF token
+                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
                 } else {
                     alert(response.message);
+                    // Update CSRF token even on error
+                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
                 }
             }
         });
@@ -196,9 +201,13 @@ $(document).ready(function() {
                 $('#alamat').val(response.data.alamat);
                 $('#nama_orang_tua').val(response.data.nama_orang_tua);
                 $('#no_hp_orang_tua').val(response.data.no_hp_orang_tua);
+                $('#email').val(response.data.email || '');
+                $('#no_hp').val(response.data.no_hp || '');
                 $('#modalSiswa').modal('show');
+            } else {
+                alert(response.message);
             }
-        });
+        }, 'json');
     });
 
     $(document).on('click', '.delete-btn', function() {
@@ -211,10 +220,14 @@ $(document).ready(function() {
                 if (response.status) {
                     table.ajax.reload();
                     alert(response.message);
+                    // Update CSRF token
+                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
                 } else {
                     alert(response.message);
+                    // Update CSRF token even on error
+                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
                 }
-            });
+            }, 'json');
         }
     });
 });
