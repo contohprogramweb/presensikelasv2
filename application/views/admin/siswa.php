@@ -132,12 +132,34 @@
 
 <script>
 $(document).ready(function() {
+    // Get CSRF token from meta tag or hidden input
+    var csrfName = '<?= $csrf_name ?>';
+    var csrfHash = '<?= $csrf_hash ?>';
+    
     var table = $('#tableSiswa').DataTable({
         'processing': true,
         'serverSide': false,
         'ajax': {
             'url': '<?= site_url('admin/siswa/ajax_list') ?>',
-            'type': 'POST'
+            'type': 'POST',
+            'data': function(d) {
+                d[csrfName] = csrfHash;
+            },
+            'dataFilter': function(data){
+                try {
+                    var json = jQuery.parseJSON(data);
+                    // Update CSRF token for next request
+                    if(json.csrf_hash) {
+                        csrfHash = json.csrf_hash;
+                    }
+                    return data;
+                } catch(e) {
+                    console.error('Error parsing JSON:', data);
+                    console.error('Error:', e);
+                    alert('Terjadi kesalahan saat memuat data. Silakan refresh halaman.');
+                    return data;
+                }
+            }
         },
         'pageLength': 10,
         'language': {
@@ -145,7 +167,12 @@ $(document).ready(function() {
         },
         'columnDefs': [
             {'orderable': false, 'targets': 7}
-        ]
+        ],
+        'error': function(xhr, error, thrown) {
+            console.error('DataTables Error:', error);
+            console.error('Response:', xhr.responseText);
+            alert('Gagal memuat data: ' + error);
+        }
     });
 
     // Load kelas select
@@ -161,6 +188,9 @@ $(document).ready(function() {
         e.preventDefault();
         
         var formData = new FormData(this);
+        // Add current CSRF token
+        formData.append(csrfName, csrfHash);
+        
         var url = $('#id').val() ? '<?= site_url('admin/siswa/ajax_update') ?>' : '<?= site_url('admin/siswa/ajax_add') ?>';
         
         $.ajax({
@@ -176,12 +206,16 @@ $(document).ready(function() {
                     table.ajax.reload();
                     alert(response.message);
                     // Update CSRF token
-                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                    csrfHash = response.csrf_hash;
                 } else {
                     alert(response.message);
                     // Update CSRF token even on error
-                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                    csrfHash = response.csrf_hash;
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Submit Error:', xhr.responseText);
+                alert('Terjadi kesalahan: ' + error);
             }
         });
     });
@@ -215,19 +249,22 @@ $(document).ready(function() {
             var id = $(this).data('id');
             $.post('<?= site_url('admin/siswa/ajax_delete') ?>', {
                 id: id,
-                '<?= $csrf_name ?>': '<?= $csrf_hash ?>'
+                [csrfName]: csrfHash
             }, function(response) {
                 if (response.status) {
                     table.ajax.reload();
                     alert(response.message);
                     // Update CSRF token
-                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                    csrfHash = response.csrf_hash;
                 } else {
                     alert(response.message);
                     // Update CSRF token even on error
-                    $('input[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                    csrfHash = response.csrf_hash;
                 }
-            }, 'json');
+            }, 'json').fail(function(xhr, status, error) {
+                console.error('Delete Error:', xhr.responseText);
+                alert('Gagal menghapus: ' + error);
+            });
         }
     });
 });
