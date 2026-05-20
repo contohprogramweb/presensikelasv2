@@ -39,6 +39,7 @@ class Kelas extends MY_Controller {
 
         foreach ($list as $row) {
             $output['data'][] = [
+                '', // Kolom nomor akan di-render oleh DataTables
                 $row['nama_kelas'],
                 $row['wali_nama'] ?? '-',
                 $row['tahun_ajaran'] . '/' . $row['semester'],

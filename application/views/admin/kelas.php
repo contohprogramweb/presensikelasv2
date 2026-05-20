@@ -22,6 +22,7 @@
                 <table id="tableKelas" class="table table-bordered table-striped table-hover" style="width: 100%;">
                     <thead class="table-light">
                         <tr>
+                            <th width="5%">No</th>
                             <th>Nama Kelas</th>
                             <th>Wali Kelas</th>
                             <th>Tahun Ajaran</th>
@@ -109,7 +110,19 @@ $(document).ready(function() {
             'url': '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
         },
         'columnDefs': [
-            {'orderable': false, 'targets': 3}
+            {
+                'orderable': false, 
+                'targets': 4,
+                'render': function(data, type, row, meta) {
+                    return data;
+                }
+            },
+            {
+                'targets': 0,
+                'render': function(data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            }
         ]
     });
 
