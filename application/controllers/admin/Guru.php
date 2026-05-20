@@ -34,7 +34,7 @@ class Guru extends MY_Controller {
             
             $output['data'][] = [
                 $row['nip'],
-                $row['nama'],
+                $row['nama_lengkap'],
                 $jk_badge,
                 $row['no_hp'] ?? '-',
                 $row['username'],
@@ -80,14 +80,14 @@ class Guru extends MY_Controller {
         $guru_data = [
             'nip' => $this->input->post('nip'),
             'id_user' => $id_user,
-            'nama' => $this->input->post('nama'),
+            'nama_lengkap' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'alamat' => $this->input->post('alamat'),
             'no_hp' => $this->input->post('no_hp')
         ];
         
         if ($this->M_guru->insert($guru_data)) {
-            log_aktivitas('INSERT', 'tb_guru', $this->db->insert_id(), 'Tambah guru ' . $guru_data['nama']);
+            log_aktivitas('INSERT', 'tb_guru', $this->db->insert_id(), 'Tambah guru ' . $guru_data['nama_lengkap']);
             echo json_encode(['status' => true, 'message' => 'Guru berhasil ditambahkan']);
         } else {
             // Rollback user
@@ -122,7 +122,7 @@ class Guru extends MY_Controller {
         
         $guru_data = [
             'nip' => $this->input->post('nip'),
-            'nama' => $this->input->post('nama'),
+            'nama_lengkap' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'alamat' => $this->input->post('alamat'),
             'no_hp' => $this->input->post('no_hp')
@@ -144,7 +144,7 @@ class Guru extends MY_Controller {
         $this->db->trans_complete();
         
         if ($this->db->trans_status()) {
-            log_aktivitas('UPDATE', 'tb_guru', $id, 'Update guru ' . $guru_data['nama']);
+            log_aktivitas('UPDATE', 'tb_guru', $id, 'Update guru ' . $guru_data['nama_lengkap']);
             echo json_encode(['status' => true, 'message' => 'Guru berhasil diperbarui']);
         } else {
             echo json_encode(['status' => false, 'message' => 'Gagal memperbarui guru']);
