@@ -33,6 +33,7 @@ class Guru extends MY_Controller {
             $status_badge = $row['user_status'] == 'aktif' ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Nonaktif</span>';
             
             $output['data'][] = [
+                '',
                 $row['nip'],
                 $row['nama'],
                 $jk_badge,
