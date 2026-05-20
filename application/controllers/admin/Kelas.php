@@ -81,9 +81,22 @@ class Kelas extends MY_Controller {
             return;
         }
 
+        $id_wali_kelas = $this->input->post('id_wali_kelas') ?: null;
+
+        // Validasi: Cek apakah guru sudah menjadi wali kelas di tahun ajaran sekarang
+        if ($id_wali_kelas && $this->M_kelas->is_guru_already_wali($id_wali_kelas, $this->tahun_ajaran_aktif->id)) {
+            $this->output->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Guru telah menjadi wali kelas lain.',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
+            return;
+        }
+
         $data = [
             'nama_kelas'      => $this->input->post('nama_kelas'),
-            'id_wali_kelas'   => $this->input->post('id_wali_kelas') ?: null,
+            'id_wali_kelas'   => $id_wali_kelas,
             'id_tahun_ajaran' => $this->tahun_ajaran_aktif->id
         ];
 
@@ -136,9 +149,33 @@ class Kelas extends MY_Controller {
             return;
         }
 
+        // FIX: tahun_ajaran_aktif bisa null jika belum ada data, guard dulu
+        if (!$this->tahun_ajaran_aktif) {
+            $this->output->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Tidak ada tahun ajaran aktif. Harap set tahun ajaran aktif terlebih dahulu.',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
+            return;
+        }
+
+        $id_wali_kelas = $this->input->post('id_wali_kelas') ?: null;
+
+        // Validasi: Cek apakah guru sudah menjadi wali kelas di tahun ajaran sekarang (kecuali kelas yang sedang diedit)
+        if ($id_wali_kelas && $this->M_kelas->is_guru_already_wali($id_wali_kelas, $this->tahun_ajaran_aktif->id, $id)) {
+            $this->output->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Guru telah menjadi wali kelas lain.',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
+            return;
+        }
+
         $data = [
             'nama_kelas'    => $this->input->post('nama_kelas'),
-            'id_wali_kelas' => $this->input->post('id_wali_kelas') ?: null
+            'id_wali_kelas' => $id_wali_kelas
         ];
 
         if ($this->M_kelas->update($id, $data)) {

@@ -53,4 +53,28 @@ class M_kelas extends CI_Model {
         $this->db->where('u.status', 'aktif');
         return $this->db->get()->result_array();
     }
+
+    /**
+     * Cek apakah guru sudah menjadi wali kelas di tahun ajaran tertentu
+     * @param int $id_guru ID guru
+     * @param int $id_tahun_ajaran ID tahun ajaran
+     * @param int|null $exclude_id ID kelas yang dikecualikan (untuk update)
+     * @return bool true jika guru sudah menjadi wali kelas lain
+     */
+    public function is_guru_already_wali($id_guru, $id_tahun_ajaran, $exclude_id = null)
+    {
+        if (!$id_guru) {
+            return false; // Tidak ada wali kelas, jadi tidak konflik
+        }
+
+        $this->db->from($this->table);
+        $this->db->where('id_wali_kelas', $id_guru);
+        $this->db->where('id_tahun_ajaran', $id_tahun_ajaran);
+        
+        if ($exclude_id) {
+            $this->db->where('id !=', $exclude_id);
+        }
+
+        return $this->db->count_all_results() > 0;
+    }
 }
