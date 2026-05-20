@@ -1,36 +1,32 @@
 ```
-# Cache and temporary data
-application/cache/
-application/logs/
-
-# Compressed archives
-*.zip
+# Session files
+application/sessions/*
 
 # Environment files
 .env
 .env.local
 *.env.*
 
-# IDE and editor files
+# Logs
+*.log
+
+# IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
-*.tmp
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Temporary files
+*.tmp
+*.swp
 
-# Build artifacts
-build/
-dist/
-target/
+# Cache directories
+__pycache__/
+*.pyc
 
-# Dependencies
+# Build/dependency directories
 node_modules/
 vendor/
 ```
