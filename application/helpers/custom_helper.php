@@ -189,19 +189,30 @@ if (!function_exists('encrypt_id')) {
 if (!function_exists('decrypt_id')) {
     function decrypt_id($encrypted_id) {
         $salt = 'smp_galang_kasih_2025';
-        $decoded = base64_decode(str_replace(array('-', '_', '.'), array('+', '/', '='), $encrypted_id));
         
-        if ($decoded === false) {
+        // Validasi input
+        if (empty($encrypted_id) || !is_string($encrypted_id)) {
             return false;
         }
         
-        $parts = explode('|', $decoded);
-        
-        if (count($parts) !== 2 || $parts[0] !== $salt) {
+        try {
+            $decoded = base64_decode(str_replace(array('-', '_', '.'), array('+', '/', '='), $encrypted_id), true);
+            
+            if ($decoded === false || empty($decoded)) {
+                return false;
+            }
+            
+            $parts = explode('|', $decoded);
+            
+            if (count($parts) !== 2 || $parts[0] !== $salt) {
+                return false;
+            }
+            
+            return (int)$parts[1];
+        } catch (Exception $e) {
+            log_message('error', 'Decrypt ID error: ' . $e->getMessage());
             return false;
         }
-        
-        return (int)$parts[1];
     }
 }
 
