@@ -99,7 +99,7 @@ class Siswa extends MY_Controller {
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
             'alamat' => $this->input->post('alamat'),
             'nama_ortu' => $this->input->post('nama_ortu'),
-            'no_hp_orang_tua' => $this->input->post('no_hp_orang_tua')
+            'no_hp_ortu' => $this->input->post('no_hp_orang_tua')
         ];
         
         if ($this->M_siswa->insert($siswa_data)) {
@@ -155,7 +155,7 @@ class Siswa extends MY_Controller {
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
             'alamat' => $this->input->post('alamat'),
             'nama_ortu' => $this->input->post('nama_ortu'),
-            'no_hp_orang_tua' => $this->input->post('no_hp_orang_tua')
+            'no_hp_ortu' => $this->input->post('no_hp_orang_tua')
         ];
         
         // Update user info

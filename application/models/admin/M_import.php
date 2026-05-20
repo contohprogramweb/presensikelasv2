@@ -68,7 +68,7 @@ class M_import extends CI_Model {
                 'tanggal_lahir' => $tanggal_lahir,
                 'alamat' => $alamat,
                 'nama_ortu' => $nama_ortu,
-                'no_hp_orang_tua' => $no_hp_orang_tua
+                'no_hp_ortu' => $no_hp_orang_tua
             ];
             
             if ($this->db->insert('tb_siswa', $siswa_data)) {
