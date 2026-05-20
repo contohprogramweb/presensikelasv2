@@ -24,6 +24,7 @@
                 <table id="tableGuru" class="table table-bordered table-striped table-hover" style="width: 100%;">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>NIP</th>
                             <th>Nama</th>
                             <th>L/P</th>
@@ -149,8 +150,11 @@ $(document).ready(function() {
             'url': '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
         },
         'columnDefs': [
-            {'orderable': false, 'targets': 6}
-        ]
+            {'orderable': false, 'targets': 7}
+        ],
+        'createdRow': function(row, data, dataIndex) {
+            $('td:eq(0)', row).html(dataIndex + 1);
+        }
     });
 
     $('#formGuru').submit(function(e) {
