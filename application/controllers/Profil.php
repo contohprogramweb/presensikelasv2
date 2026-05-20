@@ -89,6 +89,25 @@ class Profil extends MY_Controller {
             }
             
             $upload_data = $this->upload->data();
+            
+            // Additional MIME type validation for security
+            $allowed_mime_types = array('image/jpeg', 'image/png', 'image/jpg');
+            $file_info = new finfo(FILEINFO_MIME_TYPE);
+            $mime_type = $file_info->file($config['upload_path'] . $upload_data['file_name']);
+            
+            if (!in_array($mime_type, $allowed_mime_types)) {
+                // Delete invalid file
+                unlink($config['upload_path'] . $upload_data['file_name']);
+                $this->json_response(array('status' => false, 'message' => 'Tipe file tidak diizinkan. Hanya JPG dan PNG yang diperbolehkan.'), 400);
+                return;
+            }
+            
+            // Get old photo to delete
+            $old_photo = $this->M_profil->get_old_photo($user_id);
+            if ($old_photo && file_exists($config['upload_path'] . $old_photo)) {
+                unlink($config['upload_path'] . $old_photo);
+            }
+            
             $data['foto_profil'] = $upload_data['file_name'];
             
             // Resize image to 300x300

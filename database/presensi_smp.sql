@@ -284,15 +284,15 @@ INSERT INTO `tb_mata_pelajaran` (`kode_mapel`, `nama_mapel`, `kategori`) VALUES
 
 -- 3. User Admin
 INSERT INTO `tb_user` (`username`, `password`, `role`, `nama_lengkap`, `email`, `status`) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Administrator', 'admin@smp.test', 'aktif');
+('admin', '$2b$10$G9rtb1rTdDYTpgjNtvu2YOUy3E2M.OwWqEeFNcjPZIXuK/9A0cena', 'admin', 'Administrator', 'admin@smp.test', 'aktif');
 
 -- 4. User Kepala Sekolah
 INSERT INTO `tb_user` (`username`, `password`, `role`, `nama_lengkap`, `email`, `status`) VALUES
-('kepsek', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', 'kepsek', 'Kepala Sekolah', 'kepsek@smp.test', 'aktif');
+('kepsek', '$2b$10$4tM/hpNixUFgd.OpPgtWiOKjDstRDyTVb2HQ5ixvdak2WIUHlvqQy', 'kepsek', 'Kepala Sekolah', 'kepsek@smp.test', 'aktif');
 
 -- 5. User Guru + Data Guru
 INSERT INTO `tb_user` (`username`, `password`, `role`, `nama_lengkap`, `email`, `status`) VALUES
-('guru001', '$2y$10$rBWJfLpXzV8qTqZqKqYwquMqKqYwquMqKqYwquMqKqYwquMqKqYwq', 'guru', 'Budi Santoso', 'guru001@smp.test', 'aktif');
+('guru001', '$2b$10$5mzn3dGsaQl8tanvILlmYuqsWgEbn7MK0/14yJftECM0/m/XQnTK.', 'guru', 'Budi Santoso', 'guru001@smp.test', 'aktif');
 
 INSERT INTO `tb_guru` (`id_user`, `nip`, `nama_lengkap`, `jenis_kelamin`, `no_hp`, `alamat`) VALUES
 (LAST_INSERT_ID(), '198501012010011001', 'Budi Santoso', 'L', '081234567890', 'Jl. Pendidikan No. 1, Ubung');
@@ -303,8 +303,8 @@ INSERT INTO `tb_kelas` (`nama_kelas`, `id_wali_kelas`, `id_tahun_ajaran`) VALUES
 
 -- 7. User Siswa + Data Siswa
 INSERT INTO `tb_user` (`username`, `password`, `role`, `nama_lengkap`, `email`, `status`) VALUES
-('12345', '$2y$10$rBWJfLpXzV8qTqZqKqYwquMqKqYwquMqKqYwquMqKqYwquMqKqYwq', 'siswa', 'Ahmad Rizki', 'ahmad@test.com', 'aktif'),
-('12346', '$2y$10$rBWJfLpXzV8qTqZqKqYwquMqKqYwquMqKqYwquMqKqYwquMqKqYwq', 'siswa', 'Siti Nurhaliza', 'siti@test.com', 'aktif');
+('12345', '$2b$10$gcLukpznSAlFLaNXUPReieD0WVG50AEFaEsss15ZlOccMXtZv4wmC', 'siswa', 'Ahmad Rizki', 'ahmad@test.com', 'aktif'),
+('12346', '$2b$10$gcLukpznSAlFLaNXUPReieD0WVG50AEFaEsss15ZlOccMXtZv4wmC', 'siswa', 'Siti Nurhaliza', 'siti@test.com', 'aktif');
 
 INSERT INTO `tb_siswa` (`id_user`, `nis`, `nama_lengkap`, `jenis_kelamin`, `tempat_lahir`, `tanggal_lahir`, `alamat`, `nama_ortu`, `no_hp_ortu`, `id_kelas`) VALUES
 (3, '12345', 'Ahmad Rizki', 'L', 'Denpasar', '2012-05-15', 'Jl. Mawar No. 10', 'Rizki Pratama', '081234567891', 1),
@@ -315,5 +315,33 @@ INSERT INTO `tb_jadwal` (`id_guru`, `id_kelas`, `id_mapel`, `id_tahun_ajaran`, `
 (1, 1, 1, 1, 'Senin', '07:00:00', '08:30:00', 'Ruang 1'),
 (1, 1, 2, 1, 'Selasa', '07:00:00', '08:30:00', 'Ruang 1'),
 (1, 1, 3, 1, 'Rabu', '07:00:00', '08:30:00', 'Ruang 1');
+
+-- ===========================================================
+-- INDEX TAMBAHAN UNTUK PERFORMA (Optimasi Query)
+-- ===========================================================
+-- Index untuk pencarian presensi berdasarkan tanggal dan kelas
+CREATE INDEX idx_presensi_tanggal ON tb_presensi(tanggal);
+CREATE INDEX idx_presensi_kelas ON tb_presensi(id_kelas);
+CREATE INDEX idx_presensi_siswa ON tb_presensi(id_siswa);
+
+-- Index untuk pencarian riwayat presensi
+CREATE INDEX idx_riwayat_presensi_tanggal ON tb_riwayat_presensi(tanggal);
+CREATE INDEX idx_riwayat_presensi_siswa ON tb_riwayat_presensi(id_siswa);
+
+-- Index untuk pencarian jadwal
+CREATE INDEX idx_jadwal_guru ON tb_jadwal(id_guru);
+CREATE INDEX idx_jadwal_kelas ON tb_jadwal(id_kelas);
+CREATE INDEX idx_jadwal_hari ON tb_jadwal(hari);
+
+-- Index untuk pencarian user berdasarkan role dan status
+CREATE INDEX idx_user_role ON tb_user(role);
+CREATE INDEX idx_user_status ON tb_user(status);
+
+-- Index untuk pencarian siswa berdasarkan kelas
+CREATE INDEX idx_siswa_kelas ON tb_siswa(id_kelas);
+
+-- Index untuk log aktivitas
+CREATE INDEX idx_log_activity_waktu ON tb_log_aktivitas(waktu);
+CREATE INDEX idx_log_activity_user ON tb_log_aktivitas(id_user);
 
 COMMIT;
