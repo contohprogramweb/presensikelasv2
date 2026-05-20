@@ -19,6 +19,8 @@ class Guru extends MY_Controller {
 
     public function ajax_list()
     {
+        $this->output->set_content_type('application/json');
+        
         $list = $this->M_guru->get_all_datatables();
         
         $output = [
@@ -49,6 +51,8 @@ class Guru extends MY_Controller {
 
     public function ajax_add()
     {
+        $this->output->set_content_type('application/json');
+        
         $this->form_validation->set_rules('nip', 'NIP', 'required|trim|is_unique[tb_guru.nip]');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'required|in_list[L,P]');
@@ -99,6 +103,8 @@ class Guru extends MY_Controller {
 
     public function ajax_edit($id)
     {
+        $this->output->set_content_type('application/json');
+        
         $id_decrypted = decrypt_id($id);
         $data = $this->M_guru->get_by_id($id_decrypted);
         
@@ -111,6 +117,8 @@ class Guru extends MY_Controller {
 
     public function ajax_update()
     {
+        $this->output->set_content_type('application/json');
+        
         $id = decrypt_id($this->input->post('id'));
         $this->form_validation->set_rules('nip', 'NIP', 'required|trim');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
@@ -153,6 +161,8 @@ class Guru extends MY_Controller {
 
     public function ajax_delete($id)
     {
+        $this->output->set_content_type('application/json');
+        
         $id_decrypted = decrypt_id($id);
         $guru = $this->M_guru->get_by_id($id_decrypted);
         
@@ -172,6 +182,8 @@ class Guru extends MY_Controller {
 
     public function ajax_list_guru_select()
     {
+        $this->output->set_content_type('application/json');
+        
         $this->db->select('g.id, u.nama_lengkap');
         $this->db->from('tb_guru g');
         $this->db->join('tb_user u', 'u.id = g.id_user');
