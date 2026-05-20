@@ -1,26 +1,29 @@
 ```
-# Compiled and build artifacts
-*.pyc
-__pycache__/
+# CodeIgniter specific ignores
+application/cache/
+application/logs/
+application/temp/
 
 # Dependencies
-.venv/
-venv/
+vendor/
+node_modules/
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# Environment
+# Environment specific
 .env
 .env.local
 .env.*
 
-# Editors
+# IDE and editor files
 .vscode/
 .idea/
+*.swp
+*.swo
+*.tmp
 
-# Original rules preserved
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
 *.log
 ```
