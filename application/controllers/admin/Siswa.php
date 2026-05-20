@@ -23,18 +23,23 @@ class Siswa extends MY_Controller {
         $id_tahun_ajaran = $this->tahun_ajaran_aktif['id'] ?? null;
         $list = $this->M_siswa->get_all_datatables($id_tahun_ajaran);
         
+        // FIX #1: draw harus dari POST['draw'] (integer), bukan hardcode 0
+        $draw = isset($_POST['draw']) ? (int)$_POST['draw'] : 1;
+
         $output = [
-            'draw' => 0,
-            'recordsTotal' => count($list),
+            'draw'            => $draw,
+            'recordsTotal'    => count($list),
             'recordsFiltered' => count($list),
-            'data' => []
+            'data'            => [],
+            'csrf_hash'       => $this->security->get_csrf_hash()
         ];
         
-        foreach ($list as $row) {
+        foreach ($list as $index => $row) {
             $jk_badge = $row['jenis_kelamin'] == 'L' ? '<span class="badge bg-info">L</span>' : '<span class="badge bg-pink">P</span>';
             $status_badge = $row['user_status'] == 'aktif' ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Nonaktif</span>';
             
             $output['data'][] = [
+                ($index + 1),
                 $row['nis'],
                 $row['nama'],
                 $jk_badge,
@@ -46,7 +51,10 @@ class Siswa extends MY_Controller {
             ];
         }
         
-        echo json_encode($output);
+        // FIX #2: set Content-Type JSON agar tidak ada HTML output sebelum JSON
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($output));
     }
 
     public function ajax_add()
@@ -56,7 +64,9 @@ class Siswa extends MY_Controller {
         $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'required|in_list[L,P]');
         
         if ($this->form_validation->run() == FALSE) {
-            echo json_encode(['status' => false, 'message' => validation_errors()]);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => validation_errors(), 'csrf_hash' => $this->security->get_csrf_hash()]));
             return;
         }
         
@@ -94,12 +104,16 @@ class Siswa extends MY_Controller {
         
         if ($this->M_siswa->insert($siswa_data)) {
             log_aktivitas('INSERT', 'tb_siswa', $this->db->insert_id(), 'Tambah siswa ' . $siswa_data['nama']);
-            echo json_encode(['status' => true, 'message' => 'Siswa berhasil ditambahkan']);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => true, 'message' => 'Siswa berhasil ditambahkan', 'csrf_hash' => $this->security->get_csrf_hash()]));
         } else {
             // Rollback user
             $this->db->where('id', $id_user);
             $this->db->delete('tb_user');
-            echo json_encode(['status' => false, 'message' => 'Gagal menambahkan siswa']);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => 'Gagal menambahkan siswa', 'csrf_hash' => $this->security->get_csrf_hash()]));
         }
     }
 
@@ -109,9 +123,13 @@ class Siswa extends MY_Controller {
         $data = $this->M_siswa->get_by_id($id_decrypted);
         
         if ($data) {
-            echo json_encode(['status' => true, 'data' => $data]);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => true, 'data' => $data]));
         } else {
-            echo json_encode(['status' => false, 'message' => 'Data tidak ditemukan']);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => 'Data tidak ditemukan']));
         }
     }
 
@@ -122,7 +140,9 @@ class Siswa extends MY_Controller {
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         
         if ($this->form_validation->run() == FALSE) {
-            echo json_encode(['status' => false, 'message' => validation_errors()]);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => validation_errors(), 'csrf_hash' => $this->security->get_csrf_hash()]));
             return;
         }
         
@@ -155,9 +175,13 @@ class Siswa extends MY_Controller {
         
         if ($this->db->trans_status()) {
             log_aktivitas('UPDATE', 'tb_siswa', $id, 'Update siswa ' . $siswa_data['nama']);
-            echo json_encode(['status' => true, 'message' => 'Siswa berhasil diperbarui']);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => true, 'message' => 'Siswa berhasil diperbarui', 'csrf_hash' => $this->security->get_csrf_hash()]));
         } else {
-            echo json_encode(['status' => false, 'message' => 'Gagal memperbarui siswa']);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => 'Gagal memperbarui siswa', 'csrf_hash' => $this->security->get_csrf_hash()]));
         }
     }
 
@@ -174,9 +198,21 @@ class Siswa extends MY_Controller {
         
         if ($this->db->trans_status()) {
             log_aktivitas('DELETE', 'tb_siswa', $id_decrypted, 'Hapus siswa');
-            echo json_encode(['status' => true, 'message' => 'Siswa berhasil dihapus']);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => true, 
+                    'message' => 'Siswa berhasil dihapus',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         } else {
-            echo json_encode(['status' => false, 'message' => 'Gagal menghapus siswa']);
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Gagal menghapus siswa',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
         }
     }
 
@@ -184,6 +220,8 @@ class Siswa extends MY_Controller {
     {
         $id_tahun_ajaran = $this->tahun_ajaran_aktif['id'] ?? null;
         $kelas = $this->M_siswa->get_kelas_for_select($id_tahun_ajaran);
-        echo json_encode($kelas);
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($kelas));
     }
 }

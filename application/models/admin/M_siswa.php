@@ -26,7 +26,11 @@ class M_siswa extends CI_Model {
 
     public function get_by_id($id)
     {
-        return $this->db->get_where($this->table, ['id' => $id])->row_array();
+        $this->db->select('s.*, u.email, u.no_hp');
+        $this->db->from($this->table . ' s');
+        $this->db->join('tb_user u', 'u.id = s.id_user');
+        $this->db->where('s.id', $id);
+        return $this->db->get()->row_array();
     }
 
     public function insert($data)
