@@ -239,28 +239,47 @@ class Jadwal extends MY_Controller {
     public function ajax_get_dropdown() {
         $type = $this->input->get('type');
         
+        // Debug log
+        error_log("Dropdown type requested: " . $type);
+        
         $data = array();
+        
+        if (empty($type)) {
+            $this->output->set_content_type('application/json')->set_output(json_encode(['results' => []]));
+            return;
+        }
         
         switch ($type) {
             case 'kelas':
                 $result = $this->M_kelas->get_active_classes();
-                foreach ($result as $item) {
-                    $data[] = array('id' => $item->id, 'text' => $item->nama_kelas);
+                if ($result) {
+                    foreach ($result as $item) {
+                        $data[] = array('id' => $item->id, 'text' => $item->nama_kelas);
+                    }
                 }
                 break;
             case 'guru':
                 $result = $this->M_guru->get_active_teachers();
-                foreach ($result as $item) {
-                    $data[] = array('id' => $item->id, 'text' => $item->nama_guru);
+                if ($result) {
+                    foreach ($result as $item) {
+                        $data[] = array('id' => $item->id, 'text' => $item->nama_guru);
+                    }
                 }
                 break;
             case 'mapel':
                 $result = $this->M_matapelajaran->get_active_subjects();
-                foreach ($result as $item) {
-                    $data[] = array('id' => $item->id, 'text' => $item->nama_mapel);
+                if ($result) {
+                    foreach ($result as $item) {
+                        $data[] = array('id' => $item->id, 'text' => $item->nama_mapel);
+                    }
                 }
                 break;
+            default:
+                error_log("Unknown dropdown type: " . $type);
+                break;
         }
+        
+        error_log("Dropdown data count for {$type}: " . count($data));
         
         $this->output->set_content_type('application/json')->set_output(json_encode(['results' => $data]));
     }
