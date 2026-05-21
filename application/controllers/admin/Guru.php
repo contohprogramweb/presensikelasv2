@@ -41,6 +41,18 @@ class Guru extends MY_Controller {
             $jk_badge = $row['jenis_kelamin'] == 'L' ? '<span class="badge bg-info">L</span>' : '<span class="badge bg-danger">P</span>';
             $status_badge = $row['user_status'] == 'aktif' ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Nonaktif</span>';
             
+            // Cek apakah guru bisa dihapus
+            $can_delete_info = $this->M_guru->can_guru_be_deleted($row['id']);
+            $delete_button = '';
+            
+            if ($can_delete_info['can_delete']) {
+                $delete_button = '<button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-trash"></i></button>';
+            } else {
+                // Guru tidak bisa dihapus, buat tooltip dengan alasan
+                $reason_text = implode(', ', $can_delete_info['reasons']);
+                $delete_button = '<button class="btn btn-sm btn-secondary" disabled title="' . htmlspecialchars($reason_text) . '"><i class="fas fa-trash"></i></button>';
+            }
+            
             $output['data'][] = [
                 '',
                 $row['nip'],
@@ -50,7 +62,7 @@ class Guru extends MY_Controller {
                 $row['username'],
                 $status_badge,
                 '<button class="btn btn-sm btn-warning edit-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-edit"></i></button>
-                 <button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-trash"></i></button>'
+                 ' . $delete_button
             ];
         }
         
