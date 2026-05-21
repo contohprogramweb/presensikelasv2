@@ -20,7 +20,11 @@ class M_guru extends CI_Model {
 
     public function get_by_id($id)
     {
-        return $this->db->get_where($this->table, ['id' => $id])->row_array();
+        $this->db->select('g.*, u.email, u.nama_lengkap as user_nama');
+        $this->db->from($this->table . ' g');
+        $this->db->join('tb_user u', 'u.id = g.id_user');
+        $this->db->where('g.id', $id);
+        return $this->db->get()->row_array();
     }
 
     public function insert($data)
