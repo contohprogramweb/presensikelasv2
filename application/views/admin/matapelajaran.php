@@ -35,6 +35,9 @@
     </div>
 </div>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Modal Add/Edit -->
 <div class="modal fade" id="modalMapel" tabindex="-1">
     <div class="modal-dialog">
@@ -111,9 +114,17 @@ $(document).ready(function() {
                 if (response.status) {
                     $('#modalMapel').modal('hide');
                     table.ajax.reload();
-                    alert(response.message);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message
+                    });
                 } else {
-                    alert(response.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
                 }
             }
         });
@@ -133,20 +144,39 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '.delete-btn', function() {
-        if (confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')) {
-            var id = $(this).data('id');
-            $.post('<?= site_url('admin/matapelajaran/ajax_delete') ?>', {
-                id: id,
-                '<?= $csrf_name ?>': '<?= $csrf_hash ?>'
-            }, function(response) {
-                if (response.status) {
-                    table.ajax.reload();
-                    alert(response.message);
-                } else {
-                    alert(response.message);
-                }
-            });
-        }
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data mata pelajaran ini akan dihapus!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var id = $(this).data('id');
+                $.post('<?= site_url('admin/matapelajaran/ajax_delete') ?>', {
+                    id: id,
+                    '<?= $csrf_name ?>': '<?= $csrf_hash ?>'
+                }, function(response) {
+                    if (response.status) {
+                        table.ajax.reload();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: response.message
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: response.message
+                        });
+                    }
+                });
+            }
+        });
     });
 });
 
