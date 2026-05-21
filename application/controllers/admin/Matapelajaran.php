@@ -91,15 +91,20 @@ class Matapelajaran extends MY_Controller {
         }
     }
 
-    public function ajax_edit($id)
+    public function ajax_edit()
     {
+        $id = $this->input->post('id');
+        if (!$id) {
+            $id = $this->uri->segment(4);
+        }
+        
         $id_decrypted = decrypt_id($id);
         $data = $this->M_matapelajaran->get_by_id($id_decrypted);
         
         if ($data) {
-            echo json_encode(['status' => true, 'data' => $data]);
+            $this->output->set_content_type('application/json')->set_output(json_encode(['status' => true, 'data' => $data]));
         } else {
-            echo json_encode(['status' => false, 'message' => 'Data tidak ditemukan']);
+            $this->output->set_content_type('application/json')->set_output(json_encode(['status' => false, 'message' => 'Data tidak ditemukan']));
         }
     }
 
@@ -127,8 +132,15 @@ class Matapelajaran extends MY_Controller {
         }
     }
 
-    public function ajax_delete($id)
+    public function ajax_delete()
     {
+        $id = $this->input->post('id');
+        
+        if (!$id) {
+            echo json_encode(['status' => false, 'message' => 'ID tidak valid']);
+            return;
+        }
+        
         $id_decrypted = decrypt_id($id);
         
         if ($this->M_matapelajaran->delete($id_decrypted)) {

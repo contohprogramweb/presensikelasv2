@@ -132,13 +132,28 @@ $(document).ready(function() {
 
     $(document).on('click', '.edit-btn', function() {
         var id = $(this).data('id');
-        $.get('<?= site_url('admin/matapelajaran/ajax_edit') ?>/' + id, function(response) {
-            if (response.status) {
-                $('#modalTitle').text('Edit Mata Pelajaran');
-                $('#id').val(response.data.id);
-                $('#kode_mapel').val(response.data.kode_mapel);
-                $('#nama_mapel').val(response.data.nama_mapel);
-                $('#modalMapel').modal('show');
+        $.ajax({
+            url: '<?= site_url('admin/matapelajaran/ajax_edit') ?>',
+            type: 'POST',
+            data: { 
+                id: id,
+                '<?= $csrf_name ?>': '<?= $csrf_hash ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status) {
+                    $('#modalTitle').text('Edit Mata Pelajaran');
+                    $('#id').val(response.data.id);
+                    $('#kode_mapel').val(response.data.kode_mapel);
+                    $('#nama_mapel').val(response.data.nama_mapel);
+                    $('#modalMapel').modal('show');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
+                }
             }
         });
     });
