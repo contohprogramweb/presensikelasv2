@@ -68,4 +68,11 @@ class M_siswa extends CI_Model {
         }
         return $this->db->get($this->table)->num_rows() > 0;
     }
+
+    public function is_siswa_in_riwayat($id_siswa)
+    {
+        $this->db->where('id_siswa', $id_siswa);
+        $this->db->from('tb_riwayat_kelas');
+        return $this->db->count_all_results() > 0;
+    }
 }

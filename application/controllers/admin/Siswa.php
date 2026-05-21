@@ -38,6 +38,12 @@ class Siswa extends MY_Controller {
             $jk_badge = $row['jenis_kelamin'] == 'L' ? '<span class="badge bg-info">L</span>' : '<span class="badge bg-danger">P</span>';
             $status_badge = $row['user_status'] == 'aktif' ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Nonaktif</span>';
             
+            // Check if siswa is in riwayat kelas
+            $is_in_riwayat = $this->M_siswa->is_siswa_in_riwayat($row['id']);
+            
+            // Disable delete button if siswa is in riwayat
+            $delete_button = '<button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"' . ($is_in_riwayat ? ' disabled title="Siswa tidak dapat dihapus karena masih ada di riwayat kelas"' : '') . '><i class="fas fa-trash"></i></button>';
+            
             $output['data'][] = [
                 ($index + 1),
                 $row['nis'],
@@ -47,7 +53,7 @@ class Siswa extends MY_Controller {
                 $row['username'],
                 $status_badge,
                 '<button class="btn btn-sm btn-warning edit-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-edit"></i></button>
-                 <button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-trash"></i></button>'
+                 ' . $delete_button
             ];
         }
         
