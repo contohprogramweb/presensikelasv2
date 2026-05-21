@@ -1,1 +1,1 @@
-Nothing needs to be added to .gitignore since the only modified file is a PHP source file (`application/views/admin/jadwal.php`) which should not be ignored.
+Nothing should be ignored based on the provided file changes, as only a PHP view file was modified and no build artifacts, dependencies, or temporary files were detected.
