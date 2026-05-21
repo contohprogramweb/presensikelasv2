@@ -96,54 +96,15 @@ class Auth extends CI_Controller {
             log_aktivitas('logout', 'tb_user', $user_id, 'User logout');
         }
         
-        // Get session ID before destroying
-        $session_id = session_id();
-        
-        // Unset all session data first
+        // Destroy session completely - this will also delete from database
         $this->session->sess_destroy();
-        
-        // Explicitly unset the logged_in flag
-        $this->session->unset_userdata('logged_in');
-        $this->session->unset_userdata('id');
-        $this->session->unset_userdata('username');
-        $this->session->unset_userdata('role');
-        $this->session->unset_userdata('nama_lengkap');
-        $this->session->unset_userdata('email');
-        $this->session->unset_userdata('foto_profil');
-        $this->session->unset_userdata('last_activity');
-        
-        // Delete the session file manually (for files driver)
-        $session_path = APPPATH . 'sessions/';
-        if (is_dir($session_path)) {
-            $session_file = $session_path . 'ci_session' . $session_id;
-            if (file_exists($session_file)) {
-                @unlink($session_file);
-            }
-        }
-        
-        // Clear the session cookie with proper parameters
-        $ci_session_name = session_name();
-        if (isset($_COOKIE[$ci_session_name])) {
-            setcookie($ci_session_name, '', time() - 3600, '/', ini_get('session.cookie_domain'), false, true);
-        }
-        
-        // Also clear ci_session cookie (CodeIgniter default)
-        if (isset($_COOKIE['ci_session'])) {
-            setcookie('ci_session', '', time() - 3600, '/');
-        }
         
         // Prevent caching
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
         $this->output->set_header('Expires: 0');
         
-        // Clear any output buffer
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-        
         // Force redirect to login page
         redirect('auth/login');
-        exit;
     }
 }
