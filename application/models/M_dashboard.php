@@ -165,6 +165,33 @@ class M_dashboard extends CI_Model {
         $this->db->where('status_aktif', 1);
         $stats['total_guru'] = $this->db->count_all_results('tb_guru');
         
+        // Total kelas
+        $this->db->where('status_aktif', 1);
+        $stats['total_kelas'] = $this->db->count_all_results('tb_kelas');
+        
+        // Ringkasan presensi hari ini (hadir, izin, sakit, alpa)
+        $today = date('Y-m-d');
+        $this->db->select('status, COUNT(*) as jumlah');
+        $this->db->where('tanggal', $today);
+        $this->db->group_by('status');
+        $query = $this->db->get('tb_presensi');
+        
+        $ringkasan = array(
+            'hadir' => 0,
+            'izin' => 0,
+            'sakit' => 0,
+            'alpa' => 0
+        );
+        
+        foreach ($query->result() as $row) {
+            $status_lower = strtolower($row->status);
+            if (isset($ringkasan[$status_lower])) {
+                $ringkasan[$status_lower] = $row->jumlah;
+            }
+        }
+        
+        $stats['ringkasan_hari_ini'] = $ringkasan;
+        
         return $stats;
     }
 }
