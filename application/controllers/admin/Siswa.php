@@ -40,9 +40,18 @@ class Siswa extends MY_Controller {
             
             // Check if siswa is in riwayat kelas
             $is_in_riwayat = $this->M_siswa->is_siswa_in_riwayat($row['id']);
+             
             
-            // Disable delete button if siswa is in riwayat
-            $delete_button = '<button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"' . ($is_in_riwayat ? ' disabled title="Siswa tidak dapat dihapus karena masih ada di riwayat kelas"' : '') . '><i class="fas fa-trash"></i></button>';
+            if ($is_in_riwayat) {
+               $reason_text = 'Siswa tidak dapat dihapus karena masih ada di riwayat kelas';
+                $delete_button = '<button class="btn btn-sm btn-secondary" disabled title="' . htmlspecialchars($reason_text) . '"><i class="fas fa-trash"></i></button>';
+            } else {
+                // Guru tidak bisa dihapus, buat tooltip dengan alasan
+                 $delete_button = '<button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-trash"></i></button>';
+				 
+				 
+            }
+
             
             $output['data'][] = [
                 ($index + 1),
