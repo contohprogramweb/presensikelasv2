@@ -107,7 +107,8 @@ class Guru extends MY_Controller {
             'nama_lengkap' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'alamat' => $this->input->post('alamat'),
-            'no_hp' => $this->input->post('no_hp')
+            'no_hp' => $this->input->post('no_hp'),
+			'created_at' => date("Y-m-d H:i:s")
         ];
         
         if ($this->M_guru->insert($guru_data)) {
@@ -173,7 +174,8 @@ class Guru extends MY_Controller {
             'nama_lengkap' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'alamat' => $this->input->post('alamat'),
-            'no_hp' => $this->input->post('no_hp')
+            'no_hp' => $this->input->post('no_hp'),
+			'updated_at' => date("Y-m-d H:i:s")
         ];
         
         // Update user info
