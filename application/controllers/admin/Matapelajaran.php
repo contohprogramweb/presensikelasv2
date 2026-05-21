@@ -110,12 +110,39 @@ class Matapelajaran extends MY_Controller {
 
     public function ajax_update()
     {
-        $id = decrypt_id($this->input->post('id'));
+        $id_encrypted = $this->input->post('id');
+        
+        if (!$id_encrypted) {
+            echo json_encode(['status' => false, 'message' => 'ID tidak valid']);
+            return;
+        }
+        
+        $id = decrypt_id($id_encrypted);
+        
         $this->form_validation->set_rules('kode_mapel', 'Kode Mata Pelajaran', 'required|trim');
         $this->form_validation->set_rules('nama_mapel', 'Nama Mata Pelajaran', 'required|trim');
         
         if ($this->form_validation->run() == FALSE) {
             echo json_encode(['status' => false, 'message' => validation_errors()]);
+            return;
+        }
+        
+        // Check if kode_mapel or nama_mapel already exists (excluding current record)
+        $this->db->where('kode_mapel', $this->input->post('kode_mapel'));
+        $this->db->where('id !=', $id);
+        $check_kode = $this->db->get('tb_mata_pelajaran')->row();
+        
+        if ($check_kode) {
+            echo json_encode(['status' => false, 'message' => 'Kode mata pelajaran sudah digunakan']);
+            return;
+        }
+        
+        $this->db->where('nama_mapel', $this->input->post('nama_mapel'));
+        $this->db->where('id !=', $id);
+        $check_nama = $this->db->get('tb_mata_pelajaran')->row();
+        
+        if ($check_nama) {
+            echo json_encode(['status' => false, 'message' => 'Nama mata pelajaran sudah digunakan']);
             return;
         }
         
