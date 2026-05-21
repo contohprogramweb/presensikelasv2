@@ -36,6 +36,14 @@
         
         body {
             background-color: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        .content-wrapper {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            margin-top: 56px;
+            transition: all 0.3s;
         }
         
         .navbar {
@@ -142,13 +150,16 @@
             padding: 16px 20px;
             background-color: #fff;
             border-top: 1px solid #e9ecef;
-            position: relative;
-            z-index: 1;
+            position: sticky;
+            bottom: 0;
+            width: calc(100% - var(--sidebar-width));
+            z-index: 100;
         }
 
         @media (max-width: 768px) {
             .main-footer {
                 margin-left: 0;
+                width: 100%;
             }
         }
 
