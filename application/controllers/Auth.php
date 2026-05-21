@@ -91,15 +91,30 @@ class Auth extends CI_Controller {
     public function logout() {
         // Log activity before logout
         if ($this->session->userdata('logged_in')) {
-            log_aktivitas('logout', 'tb_user', $this->session->userdata('id'), 'User logout');
+            $user_id = $this->session->userdata('id');
+            $this->load->model('M_logaktivitas');
+            log_aktivitas('logout', 'tb_user', $user_id, 'User logout');
         }
         
-        // Destroy session completely - remove all session data
+        // Unset all session data first
         $this->session->sess_destroy();
         
-        // Also clear the session cookie explicitly
-        $this->input->set_cookie('ci_session', '', -1);
-        setcookie('ci_session', '', time() - 3600, '/');
+        // Explicitly unset the logged_in flag
+        $this->session->unset_userdata('logged_in');
+        $this->session->unset_userdata('id');
+        $this->session->unset_userdata('username');
+        $this->session->unset_userdata('role');
+        
+        // Clear the session cookie with proper parameters
+        $ci_session_name = session_name();
+        if (isset($_COOKIE[$ci_session_name])) {
+            setcookie($ci_session_name, '', time() - 3600, '/', ini_get('session.cookie_domain'), false, true);
+        }
+        
+        // Also clear ci_session cookie (CodeIgniter default)
+        if (isset($_COOKIE['ci_session'])) {
+            setcookie('ci_session', '', time() - 3600, '/');
+        }
         
         // Prevent caching
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -107,10 +122,12 @@ class Auth extends CI_Controller {
         $this->output->set_header('Expires: 0');
         
         // Clear any output buffer
-        ob_end_clean();
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
         
-        // Force redirect to login page with full URL
-        redirect('auth/login', 'location');
+        // Force redirect to login page
+        header('Location: ' . site_url('auth/login'));
         exit;
     }
 }
