@@ -72,7 +72,7 @@ class M_siswa extends CI_Model {
     public function is_siswa_in_riwayat($id_siswa)
     {
         $this->db->where('id_siswa', $id_siswa);
-        $this->db->from('tb_riwayat_kelas');
-        return $this->db->count_all_results() > 0;
+        $query = $this->db->get('tb_riwayat_kelas');
+        return $query->num_rows() > 0;
     }
 }
