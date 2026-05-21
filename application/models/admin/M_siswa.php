@@ -93,10 +93,10 @@ class M_siswa extends CI_Model {
 
     public function get_all_students()
     {
-        $this->db->select('s.id, s.nis, u.nama_lengkap as nama_siswa, s.jenis_kelamin');
+        $this->db->select('s.id, s.nis, COALESCE(u.nama_lengkap, s.nama_lengkap) as nama_siswa, s.jenis_kelamin');
         $this->db->from('tb_siswa s');
-        $this->db->join('tb_user u', 'u.id = s.id_user');
-        $this->db->order_by('u.nama_lengkap', 'ASC');
+        $this->db->join('tb_user u', 'u.id = s.id_user', 'left');
+        $this->db->order_by('COALESCE(u.nama_lengkap, s.nama_lengkap)', 'ASC');
         
         return $this->db->get()->result();
     }

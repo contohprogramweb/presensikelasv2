@@ -91,7 +91,7 @@ class Kelassiswa extends MY_Controller {
         $sudah_ditempatkan = $this->M_kelassiswa->get_siswa_by_kelas($id_kelas);
         $placed_ids = array();
         foreach ($sudah_ditempatkan as $s) {
-            $placed_ids[] = $s->id_siswa;
+            $placed_ids[] = $s->id;
         }
         
         // Get semua siswa

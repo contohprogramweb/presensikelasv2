@@ -1,1 +1,40 @@
-Nothing should be ignored based on the provided file changes, as only a PHP view file was modified and no build artifacts, dependencies, or temporary files were detected.
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+vendor/
+composer.lock
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Build directories (if present)
+build/
+dist/
+target/
+```
