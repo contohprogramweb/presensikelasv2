@@ -153,6 +153,23 @@ class Siswa extends MY_Controller {
     public function ajax_update()
     {
         $id = decrypt_id($this->input->post('id'));
+        
+        if (!$id) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => 'ID siswa tidak valid', 'csrf_hash' => $this->security->get_csrf_hash()]));
+            return;
+        }
+        
+        $siswa = $this->M_siswa->get_by_id($id);
+        
+        if (!$siswa) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => 'Data siswa tidak ditemukan', 'csrf_hash' => $this->security->get_csrf_hash()]));
+            return;
+        }
+        
         $this->form_validation->set_rules('nis', 'NIS', 'required|trim');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         
@@ -163,17 +180,26 @@ class Siswa extends MY_Controller {
             return;
         }
         
+        // Check NIS uniqueness (exclude current student)
+        $nis = $this->input->post('nis');
+        if ($this->M_siswa->check_nis_exists($nis, $id)) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => 'NIS sudah digunakan oleh siswa lain', 'csrf_hash' => $this->security->get_csrf_hash()]));
+            return;
+        }
+        
         $siswa_data = [
-            'nis' => $this->input->post('nis'),
+            'nis' => $nis,
             'id_kelas' => $this->input->post('id_kelas') ?: null,
-			'nama_lengkap' => $this->input->post('nama'),
+            'nama_lengkap' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'tempat_lahir' => $this->input->post('tempat_lahir'),
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
             'alamat' => $this->input->post('alamat'),
             'nama_ortu' => $this->input->post('nama_ortu'),
             'no_hp_ortu' => $this->input->post('no_hp_orang_tua'),
-			'updated_at' => date("Y-m-d H:i:s")
+            'updated_at' => date("Y-m-d H:i:s")
         ];
         
         // Update user info
@@ -182,8 +208,6 @@ class Siswa extends MY_Controller {
             'email' => $this->input->post('email'),
             'no_hp' => $this->input->post('no_hp')
         ];
-        
-        $siswa = $this->M_siswa->get_by_id($id);
         
         $this->db->trans_start();
         $this->M_siswa->update($id, $siswa_data);
@@ -203,19 +227,54 @@ class Siswa extends MY_Controller {
         }
     }
 
-    public function ajax_delete($id)
+    public function ajax_delete()
     {
-        $id_decrypted = decrypt_id($id);
-        $siswa = $this->M_siswa->get_by_id($id_decrypted);
+        $id = decrypt_id($this->input->post('id'));
+        
+        if (!$id) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'ID siswa tidak valid',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
+            return;
+        }
+        
+        $siswa = $this->M_siswa->get_by_id($id);
+        
+        if (!$siswa) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Data siswa tidak ditemukan',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
+            return;
+        }
+        
+        // Check if siswa is in riwayat
+        if ($this->M_siswa->is_siswa_in_riwayat($id)) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => false, 
+                    'message' => 'Siswa tidak dapat dihapus karena masih ada di riwayat kelas',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]));
+            return;
+        }
         
         $this->db->trans_start();
-        $this->M_siswa->delete($id_decrypted);
+        $this->M_siswa->delete($id);
         $this->db->where('id', $siswa['id_user']);
         $this->db->delete('tb_user');
         $this->db->trans_complete();
         
         if ($this->db->trans_status()) {
-            log_aktivitas('DELETE', 'tb_siswa', $id_decrypted, 'Hapus siswa');
+            log_aktivitas('DELETE', 'tb_siswa', $id, 'Hapus siswa ' . $siswa['nama_lengkap']);
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode([
