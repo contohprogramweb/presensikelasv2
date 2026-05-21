@@ -19,17 +19,42 @@ class Matapelajaran extends MY_Controller {
 
     public function ajax_list()
     {
-        $list = $this->M_matapelajaran->get_all();
+        // Get DataTables parameters
+        $draw = intval($this->input->post('draw'));
+        $start = intval($this->input->post('start'));
+        $length = intval($this->input->post('length'));
+        $search = $this->input->post('search')['value'];
         
+        // Get all data
+        $all_data = $this->M_matapelajaran->get_all();
+        
+        // Apply search filter if exists
+        $filtered_data = $all_data;
+        if (!empty($search)) {
+            $filtered_data = array_filter($all_data, function($row) use ($search) {
+                return stripos($row['nama_mapel'], $search) !== false;
+            });
+            $filtered_data = array_values($filtered_data);
+        }
+        
+        // Apply pagination
+        if ($length > 0) {
+            $paginated_data = array_slice($filtered_data, $start, $length);
+        } else {
+            $paginated_data = $filtered_data;
+        }
+        
+        // Format output for DataTables
         $output = [
-            'draw' => 0,
-            'recordsTotal' => count($list),
-            'recordsFiltered' => count($list),
+            'draw' => $draw,
+            'recordsTotal' => count($all_data),
+            'recordsFiltered' => count($filtered_data),
             'data' => []
         ];
         
-        foreach ($list as $row) {
+        foreach ($paginated_data as $row) {
             $output['data'][] = [
+                '', // Nomor akan di-generate oleh DataTables
                 $row['nama_mapel'],
                 '<button class="btn btn-sm btn-warning edit-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-edit"></i></button>
                  <button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-trash"></i></button>'

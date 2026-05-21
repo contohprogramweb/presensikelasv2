@@ -22,6 +22,7 @@
                 <table id="tableMapel" class="table table-bordered table-striped table-hover" style="width: 100%;">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>Nama Mata Pelajaran</th>
                             <th>Aksi</th>
                         </tr>
@@ -75,7 +76,14 @@ $(document).ready(function() {
             'url': '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
         },
         'columnDefs': [
-            {'orderable': false, 'targets': 1}
+            {
+                'targets': 0,
+                'orderable': false,
+                'render': function(data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            {'orderable': false, 'targets': 2}
         ]
     });
 
