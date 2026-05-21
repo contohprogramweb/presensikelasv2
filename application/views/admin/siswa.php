@@ -200,11 +200,13 @@ $(document).ready(function() {
                     });
                 }
                 $('#id_kelas').html(options);
+                console.log('Kelas loaded:', data);
             },
             error: function(xhr, status, error) {
                 console.error('Error loading kelas:', error);
+                console.error('Status:', xhr.status);
                 console.error('Response:', xhr.responseText);
-                // Don't show alert for now, just log
+                alert('Gagal memuat data kelas: ' + xhr.status + ' - ' + xhr.responseText.substring(0, 100));
             }
         });
     }

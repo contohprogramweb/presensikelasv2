@@ -9,6 +9,7 @@ class Siswa extends MY_Controller {
         $this->role_required = ['admin'];
         $this->load->model('admin/M_siswa');
         $this->load->model('admin/M_kelas');
+        $this->load->model('M_dashboard');
         $this->load->library('form_validation');
     }
 
@@ -20,7 +21,8 @@ class Siswa extends MY_Controller {
 
     public function ajax_list()
     {
-        $id_tahun_ajaran = $this->tahun_ajaran_aktif['id'] ?? null;
+        // $this->tahun_ajaran_aktif is an object from MY_Controller (returns row())
+        $id_tahun_ajaran = isset($this->tahun_ajaran_aktif->id) ? $this->tahun_ajaran_aktif->id : null;
         $list = $this->M_siswa->get_all_datatables($id_tahun_ajaran);
         
         // FIX #1: draw harus dari POST['draw'] (integer), bukan hardcode 0
@@ -47,7 +49,7 @@ class Siswa extends MY_Controller {
             $output['data'][] = [
                 ($index + 1),
                 $row['nis'],
-                $row['nama'],
+                $row['nama_display'],
                 $jk_badge,
                 $row['nama_kelas'] ?? '-',
                 $row['username'],
@@ -99,7 +101,6 @@ class Siswa extends MY_Controller {
             'nis' => $this->input->post('nis'),
             'id_user' => $id_user,
             'id_kelas' => $this->input->post('id_kelas') ?: null,
-            'nama' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'tempat_lahir' => $this->input->post('tempat_lahir'),
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
@@ -109,7 +110,7 @@ class Siswa extends MY_Controller {
         ];
         
         if ($this->M_siswa->insert($siswa_data)) {
-            log_aktivitas('INSERT', 'tb_siswa', $this->db->insert_id(), 'Tambah siswa ' . $siswa_data['nama']);
+            log_aktivitas('INSERT', 'tb_siswa', $this->db->insert_id(), 'Tambah siswa ' . $user_data['nama_lengkap']);
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['status' => true, 'message' => 'Siswa berhasil ditambahkan', 'csrf_hash' => $this->security->get_csrf_hash()]));
@@ -155,7 +156,6 @@ class Siswa extends MY_Controller {
         $siswa_data = [
             'nis' => $this->input->post('nis'),
             'id_kelas' => $this->input->post('id_kelas') ?: null,
-            'nama' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'tempat_lahir' => $this->input->post('tempat_lahir'),
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
@@ -180,7 +180,7 @@ class Siswa extends MY_Controller {
         $this->db->trans_complete();
         
         if ($this->db->trans_status()) {
-            log_aktivitas('UPDATE', 'tb_siswa', $id, 'Update siswa ' . $siswa_data['nama']);
+            log_aktivitas('UPDATE', 'tb_siswa', $id, 'Update siswa ' . $user_data['nama_lengkap']);
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['status' => true, 'message' => 'Siswa berhasil diperbarui', 'csrf_hash' => $this->security->get_csrf_hash()]));
@@ -224,11 +224,11 @@ class Siswa extends MY_Controller {
 
     public function get_kelas_select()
     {
-        $id_tahun_ajaran = $this->tahun_ajaran_aktif['id'] ?? null;
+        // $this->tahun_ajaran_aktif is an object from MY_Controller (returns row())
+        $id_tahun_ajaran = isset($this->tahun_ajaran_aktif->id) ? $this->tahun_ajaran_aktif->id : null;
         
         // Fallback: if no active year, get the latest year
         if (!$id_tahun_ajaran) {
-            $this->load->model('M_dashboard');
             $tahun_terbaru = $this->M_dashboard->get_tahun_ajaran_terbaru();
             if ($tahun_terbaru) {
                 $id_tahun_ajaran = $tahun_terbaru->id;
