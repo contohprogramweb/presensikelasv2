@@ -156,10 +156,14 @@ $(document).ready(function() {
             }
         },
         columns: [
-            {data: null, orderable: false},
+            {data: 'DT_RowIndex', orderable: false, render: function(data, type, row, meta) {
+                return meta.row + meta.settings._iDisplayStart + 1;
+            }},
             {data: 'nama_kelas'},
             {data: 'hari'},
-            {data: 'jam'},
+            {data: null, render: function(data, type, row) {
+                return row.jam_mulai + ' - ' + row.jam_selesai;
+            }},
             {data: 'nama_mapel'},
             {data: 'nama_guru'},
             {data: 'tahun_ajaran'},

@@ -57,26 +57,23 @@ class Jadwal extends MY_Controller {
     public function ajax_list() {
         $list = $this->M_jadwal->get_datatables($this->tahun_ajaran_aktif->id);
         $data = array();
-        $no = $_POST['start'];
         
         foreach ($list as $item) {
-            $no++;
-            $row = array();
-            $row[] = $no;
-            $row[] = $item->nama_kelas;
-            $row[] = $item->hari;
-            $row[] = $item->jam_mulai . ' - ' . $item->jam_selesai;
-            $row[] = $item->nama_mapel;
-            $row[] = $item->nama_guru;
-            $row[] = $item->tahun_ajaran;
+            $row = new stdClass();
+            $row->DT_RowIndex = count($data);
+            $row->nama_kelas = $item->nama_kelas;
+            $row->hari = $item->hari;
+            $row->jam_mulai = $item->jam_mulai;
+            $row->jam_selesai = $item->jam_selesai;
+            $row->nama_mapel = $item->nama_mapel;
+            $row->nama_guru = $item->nama_guru;
+            $row->tahun_ajaran = $item->tahun_ajaran;
             
             // Action buttons
-            $action = '<div class="btn-group" role="group">';
-            $action .= '<button type="button" class="btn btn-sm btn-info" onclick="edit_jadwal(\'' . encrypt_id($item->id) . '\')" title="Edit"><i class="fas fa-edit"></i></button>';
-            $action .= ' <button type="button" class="btn btn-sm btn-danger" onclick="delete_jadwal(\'' . encrypt_id($item->id) . '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
-            $action .= '</div>';
-            
-            $row[] = $action;
+            $row->action = '<div class="btn-group" role="group">';
+            $row->action .= '<button type="button" class="btn btn-sm btn-info" onclick="edit_jadwal(\'' . encrypt_id($item->id) . '\')" title="Edit"><i class="fas fa-edit"></i></button>';
+            $row->action .= ' <button type="button" class="btn btn-sm btn-danger" onclick="delete_jadwal(\'' . encrypt_id($item->id) . '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
+            $row->action .= '</div>';
             
             $data[] = $row;
         }
@@ -103,7 +100,7 @@ class Jadwal extends MY_Controller {
             'id_kelas' => $this->input->post('id_kelas'),
             'id_guru' => $this->input->post('id_guru'),
             'id_mapel' => $this->input->post('id_mapel'),
-            'id_tahun_ajaran' => $this->tahun_ajaran_aktif,
+            'id_tahun_ajaran' => $this->tahun_ajaran_aktif->id,
             'hari' => $this->input->post('hari'),
             'jam_mulai' => $this->input->post('jam_mulai'),
             'jam_selesai' => $this->input->post('jam_selesai'),
