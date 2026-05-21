@@ -203,8 +203,13 @@ $(document).ready(function() {
         language: {
             noResults: function() {
                 return "Tidak ada data ditemukan";
+            },
+            searching: function() {
+                return "Sedang mencari...";
             }
-        }
+        },
+        placeholder: '-- Pilih --',
+        allowClear: true
     });
 
     // Load initial options for Select2 when page loads
@@ -230,11 +235,11 @@ function load_dropdown_options() {
                     options += '<option value="' + item.id + '">' + item.text + '</option>';
                 });
             }
-            $('#id_kelas').html(options);
+            $('#id_kelas').html(options).trigger('change.select2');
         },
         error: function(xhr, status, error) {
             console.error('Error loading kelas:', error);
-            $('#id_kelas').html('<option value="">-- Pilih Kelas --</option>');
+            $('#id_kelas').html('<option value="">-- Pilih Kelas --</option>').trigger('change.select2');
         }
     });
 
@@ -246,16 +251,16 @@ function load_dropdown_options() {
         success: function(response) {
             var options = '<option value="">-- Pilih Guru --</option>';
             var results = response.results || response;
-            if (results && results.length > 0) {
+            if (results && Array.isArray(results) && results.length > 0) {
                 $.each(results, function(i, item) {
                     options += '<option value="' + item.id + '">' + item.text + '</option>';
                 });
             }
-            $('#id_guru').html(options);
+            $('#id_guru').html(options).trigger('change.select2');
         },
         error: function(xhr, status, error) {
             console.error('Error loading guru:', error);
-            $('#id_guru').html('<option value="">-- Pilih Guru --</option>');
+            $('#id_guru').html('<option value="">-- Pilih Guru --</option>').trigger('change.select2');
         }
     });
 
@@ -267,16 +272,16 @@ function load_dropdown_options() {
         success: function(response) {
             var options = '<option value="">-- Pilih Mata Pelajaran --</option>';
             var results = response.results || response;
-            if (results && results.length > 0) {
+            if (results && Array.isArray(results) && results.length > 0) {
                 $.each(results, function(i, item) {
                     options += '<option value="' + item.id + '">' + item.text + '</option>';
                 });
             }
-            $('#id_mapel').html(options);
+            $('#id_mapel').html(options).trigger('change.select2');
         },
         error: function(xhr, status, error) {
             console.error('Error loading mapel:', error);
-            $('#id_mapel').html('<option value="">-- Pilih Mata Pelajaran --</option>');
+            $('#id_mapel').html('<option value="">-- Pilih Mata Pelajaran --</option>').trigger('change.select2');
         }
     });
 }

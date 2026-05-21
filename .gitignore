@@ -1,5 +1,21 @@
-(application/models/admin/M_guru.php, application/models/admin/M_kelas.php, application/models/admin/M_matapelajaran.php, application/views/admin/jadwal.php
+# Compiled and build artifacts
+*.pyc
+__pycache__/
 
-###current .gitignore Content
+# Dependencies
+venv/
+.venv/
 
-Your output: Only the optimized .gitignore content (or empty if no ignores needed).
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
