@@ -152,12 +152,18 @@ class Siswa extends MY_Controller {
 
     public function ajax_update()
     {
-        $id = decrypt_id($this->input->post('id'));
+        // Debug log
+        $encrypted_id = $this->input->post('id');
+        log_message('debug', 'ajax_update - Encrypted ID: ' . $encrypted_id);
+        
+        $id = decrypt_id($encrypted_id);
+        
+        log_message('debug', 'ajax_update - Decrypted ID: ' . ($id ? $id : 'false'));
         
         if (!$id) {
             $this->output
                 ->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => 'ID siswa tidak valid', 'csrf_hash' => $this->security->get_csrf_hash()]));
+                ->set_output(json_encode(['status' => false, 'message' => 'ID siswa tidak valid. Encrypted ID: ' . $encrypted_id, 'csrf_hash' => $this->security->get_csrf_hash()]));
             return;
         }
         
@@ -166,7 +172,7 @@ class Siswa extends MY_Controller {
         if (!$siswa) {
             $this->output
                 ->set_content_type('application/json')
-                ->set_output(json_encode(['status' => false, 'message' => 'Data siswa tidak ditemukan', 'csrf_hash' => $this->security->get_csrf_hash()]));
+                ->set_output(json_encode(['status' => false, 'message' => 'Data siswa tidak ditemukan (ID: ' . $id . ')', 'csrf_hash' => $this->security->get_csrf_hash()]));
             return;
         }
         
@@ -216,7 +222,7 @@ class Siswa extends MY_Controller {
         $this->db->trans_complete();
         
         if ($this->db->trans_status()) {
-            log_aktivitas('UPDATE', 'tb_siswa', $id, 'Update siswa ' . $user_data['nama_lengkap']);
+            log_aktivitas('UPDATE', 'tb_siswa', $id, 'Update siswa ' . $siswa['nama_lengkap']);
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['status' => true, 'message' => 'Siswa berhasil diperbarui', 'csrf_hash' => $this->security->get_csrf_hash()]));
