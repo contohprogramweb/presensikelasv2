@@ -23,6 +23,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>No</th>
+                            <th>Kode Mata Pelajaran</th>
                             <th>Nama Mata Pelajaran</th>
                             <th>Aksi</th>
                         </tr>
@@ -46,6 +47,12 @@
                 <div class="modal-body">
                     <input type="hidden" name="id" id="id">
                     <input type="hidden" name="<?= $csrf_name ?>" value="<?= $csrf_hash ?>">
+                    
+                    <div class="mb-3">
+                        <label for="kode_mapel" class="form-label">Kode Mata Pelajaran <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="kode_mapel" name="kode_mapel" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
                     
                     <div class="mb-3">
                         <label for="nama_mapel" class="form-label">Nama Mata Pelajaran <span class="text-danger">*</span></label>
@@ -83,7 +90,7 @@ $(document).ready(function() {
                     return meta.row + meta.settings._iDisplayStart + 1;
                 }
             },
-            {'orderable': false, 'targets': 2}
+            {'orderable': false, 'targets': 3}
         ]
     });
 
@@ -118,6 +125,7 @@ $(document).ready(function() {
             if (response.status) {
                 $('#modalTitle').text('Edit Mata Pelajaran');
                 $('#id').val(response.data.id);
+                $('#kode_mapel').val(response.data.kode_mapel);
                 $('#nama_mapel').val(response.data.nama_mapel);
                 $('#modalMapel').modal('show');
             }
