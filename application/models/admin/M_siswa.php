@@ -14,12 +14,8 @@ class M_siswa extends CI_Model {
     {
         $this->db->select('s.*, k.nama_kelas, u.username, u.status as user_status');
         $this->db->from($this->table . ' s');
-        $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
         $this->db->join('tb_user u', 'u.id = s.id_user');
-        
-        if ($id_tahun_ajaran) {
-            $this->db->where('k.id_tahun_ajaran', $id_tahun_ajaran);
-        }
+        $this->db->join('tb_kelas k', 'k.id = s.id_kelas' . ($id_tahun_ajaran ? ' AND k.id_tahun_ajaran = ' . (int)$id_tahun_ajaran : ''), 'left');
         
         return $this->db->get()->result_array();
     }
