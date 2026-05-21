@@ -47,20 +47,20 @@ class Kelassiswa extends MY_Controller {
      * @return void
      */
     public function ajax_get_kelas() {
-        $kelas_list = $this->M_kelas->get_active_classes();
+        $kelas_list = $this->M_kelas->get_all($this->tahun_ajaran_aktif);
         
         $data = array();
         foreach ($kelas_list as $item) {
             $row = array();
-            $row[] = $item->nama_kelas;
-            $row[] = $item->nama_guru ?? '-';
+            $row[] = $item['nama_kelas'];
+            $row[] = $item['wali_nama'] ?? '-';
             
             // Count siswa
-            $jumlah_siswa = $this->M_kelassiswa->count_siswa_by_kelas($item->id);
+            $jumlah_siswa = $this->M_kelassiswa->count_siswa_by_kelas($item['id']);
             $row[] = $jumlah_siswa;
             
             // Action button
-            $action = '<button type="button" class="btn btn-sm btn-primary" onclick="kelola_siswa(\'' . encrypt_id($item->id) . '\', \'' . $item->nama_kelas . '\')"><i class="fas fa-users"></i> Kelola Siswa</button>';
+            $action = '<button type="button" class="btn btn-sm btn-primary" onclick="kelola_siswa(\'' . encrypt_id($item['id']) . '\', \'' . $item['nama_kelas'] . '\')"><i class="fas fa-users"></i> Kelola Siswa</button>';
             $row[] = $action;
             
             $data[] = $row;

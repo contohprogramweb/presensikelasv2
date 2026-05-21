@@ -89,4 +89,20 @@ class M_kelassiswa extends CI_Model {
         
         return $this->db->trans_status();
     }
+
+    public function count_siswa_by_kelas($id_kelas)
+    {
+        $this->db->where('id_kelas', $id_kelas);
+        return $this->db->count_all_results('tb_siswa');
+    }
+
+    public function get_siswa_by_kelas($id_kelas)
+    {
+        $this->db->select('s.id, s.nis, u.nama_lengkap as nama_siswa, s.jenis_kelamin');
+        $this->db->from('tb_siswa s');
+        $this->db->join('tb_user u', 'u.id = s.id_user');
+        $this->db->where('s.id_kelas', $id_kelas);
+        
+        return $this->db->get()->result();
+    }
 }

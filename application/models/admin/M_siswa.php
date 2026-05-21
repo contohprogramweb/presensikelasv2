@@ -90,4 +90,14 @@ class M_siswa extends CI_Model {
         $query = $this->db->get('tb_riwayat_kelas');
         return $query->num_rows() > 0;
     }
+
+    public function get_all_students()
+    {
+        $this->db->select('s.id, s.nis, u.nama_lengkap as nama_siswa, s.jenis_kelamin');
+        $this->db->from('tb_siswa s');
+        $this->db->join('tb_user u', 'u.id = s.id_user');
+        $this->db->order_by('u.nama_lengkap', 'ASC');
+        
+        return $this->db->get()->result();
+    }
 }

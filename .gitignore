@@ -1,1 +1,1 @@
-(application/views/admin/kelassiswa.php)
+(application/controllers/admin/Kelassiswa.php, application/models/admin/M_kelassiswa.php, application/models/admin/M_siswa.php, application/views/admin/kelassiswa.php)
