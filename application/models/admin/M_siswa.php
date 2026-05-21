@@ -17,12 +17,23 @@ class M_siswa extends CI_Model {
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas' . ($id_tahun_ajaran ? ' AND k.id_tahun_ajaran = ' . (int)$id_tahun_ajaran : ''), 'left');
         
-        return $this->db->get()->result_array();
+        $result = $this->db->get()->result_array();
+        
+        // Add nama_lengkap from tb_user to each row for display
+        foreach ($result as &$row) {
+            if (isset($row['nama_lengkap']) && !empty($row['nama_lengkap'])) {
+                $row['nama_display'] = $row['nama_lengkap'];
+            } else {
+                $row['nama_display'] = $row['username'];
+            }
+        }
+        
+        return $result;
     }
 
     public function get_by_id($id)
     {
-        $this->db->select('s.*, u.email, u.no_hp');
+        $this->db->select('s.*, u.email, u.no_hp, u.nama_lengkap');
         $this->db->from($this->table . ' s');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->where('s.id', $id);
