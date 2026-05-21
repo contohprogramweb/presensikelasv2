@@ -234,13 +234,20 @@ function load_siswa(encrypted_id_kelas) {
         type: 'GET',
         dataType: 'json',
         success: function(response) {
+            console.log('Response:', response);
             if (response.status) {
                 available_students = response.tersedia;
                 placed_students = response.ditempatkan;
                 
                 render_students('tersedia', available_students);
                 render_students('ditempatkan', placed_students);
+            } else {
+                console.error('Response status is false');
             }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
         }
     });
 }
@@ -249,12 +256,15 @@ function render_students(type, students) {
     var tbody = type === 'tersedia' ? $('#tbody_tersedia') : $('#tbody_ditempatkan');
     tbody.empty();
     
+    console.log('Rendering', type, 'students:', students);
+
     if (students.length === 0) {
         tbody.append('<tr><td colspan="' + (type === 'tersedia' ? '4' : '5') + '" class="text-center text-muted">Tidak ada data</td></tr>');
         return;
     }
     
     $.each(students, function(i, student) {
+        console.log('Student', i, ':', student);
         var row = '<tr>';
         
         if (type === 'tersedia') {
