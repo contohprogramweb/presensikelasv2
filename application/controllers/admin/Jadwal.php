@@ -262,7 +262,7 @@ class Jadwal extends MY_Controller {
                 break;
         }
         
-        $this->output->set_content_type('application/json')->set_output(json_encode($data));
+        $this->output->set_content_type('application/json')->set_output(json_encode(['results' => $data]));
     }
 
     /**
