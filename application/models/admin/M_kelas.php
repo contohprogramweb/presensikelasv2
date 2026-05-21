@@ -86,7 +86,7 @@ class M_kelas extends CI_Model {
     {
         $this->db->select('id, nama_kelas');
         $this->db->from($this->table);
-        $this->db->where('status', 'aktif');
+        $this->db->where('status_aktif', 1);
         return $this->db->get()->result();
     }
 }

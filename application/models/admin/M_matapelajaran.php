@@ -45,7 +45,7 @@ class M_matapelajaran extends CI_Model {
     {
         $this->db->select('id, nama_mapel');
         $this->db->from($this->table);
-        $this->db->where('status', 'aktif');
+        $this->db->where('status_aktif', 1);
         return $this->db->get()->result();
     }
 }
