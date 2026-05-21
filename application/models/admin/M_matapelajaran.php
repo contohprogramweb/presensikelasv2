@@ -36,4 +36,16 @@ class M_matapelajaran extends CI_Model {
         $this->db->where('id', $id);
         return $this->db->delete($this->table);
     }
+
+    /**
+     * Get all active subjects for dropdown
+     * @return array
+     */
+    public function get_active_subjects()
+    {
+        $this->db->select('id, nama_mapel');
+        $this->db->from($this->table);
+        $this->db->where('status', 'aktif');
+        return $this->db->get()->result();
+    }
 }

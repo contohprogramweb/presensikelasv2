@@ -99,4 +99,17 @@ class M_guru extends CI_Model {
             'reasons' => $reasons
         ];
     }
+
+    /**
+     * Get all active teachers for dropdown
+     * @return array
+     */
+    public function get_active_teachers()
+    {
+        $this->db->select('g.id, u.nama_lengkap as nama_guru');
+        $this->db->from($this->table . ' g');
+        $this->db->join('tb_user u', 'u.id = g.id_user');
+        $this->db->where('u.status', 'aktif');
+        return $this->db->get()->result();
+    }
 }

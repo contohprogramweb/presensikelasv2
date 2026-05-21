@@ -77,4 +77,16 @@ class M_kelas extends CI_Model {
 
         return $this->db->count_all_results() > 0;
     }
+
+    /**
+     * Get all active classes for dropdown
+     * @return array
+     */
+    public function get_active_classes()
+    {
+        $this->db->select('id, nama_kelas');
+        $this->db->from($this->table);
+        $this->db->where('status', 'aktif');
+        return $this->db->get()->result();
+    }
 }
