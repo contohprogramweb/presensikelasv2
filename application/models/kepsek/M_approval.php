@@ -10,7 +10,7 @@ class M_approval extends CI_Model {
 
     public function get_pending_approval()
     {
-        $this->db->select('a.*, p.tanggal, p.status as status_presensi, p.keterangan, p.materi_pelajaran');
+        $this->db->select('a.*, p.tanggal, p.status as status_presensi, p.keterangan');
         $this->db->select('s.nama as nama_siswa, k.nama_kelas');
         $this->db->select('g.nama as nama_guru, u.nama_lengkap as user_nama');
         $this->db->from('tb_approval a');
@@ -47,7 +47,7 @@ class M_approval extends CI_Model {
             'status_approval' => 'ditolak',
             'tanggal_approval' => date('Y-m-d H:i:s'),
             'id_approver' => $id_approver,
-            'catatan' => $catatan
+            'catatan_penolakan' => $catatan
         ];
         
         $this->db->where('id', $id_approval);
@@ -70,7 +70,7 @@ class M_approval extends CI_Model {
 
     public function get_by_id($id)
     {
-        $this->db->select('a.*, p.tanggal, p.status as status_presensi, p.keterangan, p.materi_pelajaran');
+        $this->db->select('a.*, p.tanggal, p.status as status_presensi, p.keterangan');
         $this->db->select('s.nama as nama_siswa, k.nama_kelas');
         $this->db->select('g.nama as nama_guru, u.nama_lengkap as user_nama');
         $this->db->from('tb_approval a');

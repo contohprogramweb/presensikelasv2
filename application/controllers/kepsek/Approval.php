@@ -37,14 +37,14 @@ class Approval extends MY_Controller {
             }
             
             $output['data'][] = [
-                tanggal_indo($row['tanggal']),
-                $row['nama_siswa'],
-                $row['nama_kelas'] ?? '-',
-                $row['nama_guru'],
-                $status_badge,
-                substr($row['keterangan'], 0, 50) . (strlen($row['keterangan']) > 50 ? '...' : ''),
-                '<button class="btn btn-sm btn-success approve-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-check"></i></button>
-                 <button class="btn btn-sm btn-danger reject-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-times"></i></button>'
+                'tanggal' => tanggal_indo($row['tanggal']),
+                'nama_siswa' => $row['nama_siswa'],
+                'nama_kelas' => $row['nama_kelas'] ?? '-',
+                'nama_guru' => $row['nama_guru'],
+                'status' => $status_badge,
+                'keterangan' => $row['keterangan'] ?? '',
+                'actions' => '<button class="btn btn-sm btn-success approve-btn" data-id="' . encrypt_id($row['id']) . '" title="Setujui"><i class="fas fa-check"></i></button>
+                 <button class="btn btn-sm btn-danger reject-btn" data-id="' . encrypt_id($row['id']) . '" title="Tolak"><i class="fas fa-times"></i></button>'
             ];
         }
         
