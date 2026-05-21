@@ -181,10 +181,10 @@ $(document).ready(function() {
             {data: null, orderable: false, render: function(data, type, row, meta) {
                 return meta.row + meta.settings._iDisplayStart + 1;
             }},
-            {data: 'nama_kelas'},
-            {data: 'wali_kelas'},
-            {data: 'jumlah_siswa'},
-            {data: 'action', orderable: false}
+            {data: 0},
+            {data: 1},
+            {data: 2},
+            {data: 3, orderable: false}
         ]
     });
     
