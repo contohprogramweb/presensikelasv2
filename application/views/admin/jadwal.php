@@ -162,7 +162,7 @@ $(document).ready(function() {
             {data: 'jam'},
             {data: 'nama_mapel'},
             {data: 'nama_guru'},
-            {data: 'nama_tahun_ajaran'},
+            {data: 'tahun_ajaran'},
             {data: 'action', orderable: false}
         ],
         order: [[2, 'asc'], [3, 'asc']],

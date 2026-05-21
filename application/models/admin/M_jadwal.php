@@ -12,7 +12,7 @@ class M_jadwal extends CI_Model {
 
     public function get_all_datatables($id_tahun_ajaran = null)
     {
-        $this->db->select('j.*, k.nama_kelas, u.nama_lengkap as guru_nama, m.nama_mapel, t.tahun');
+        $this->db->select('j.*, k.nama_kelas, u.nama_lengkap as guru_nama, m.nama_mapel, t.tahun_ajaran');
         $this->db->from($this->table . ' j');
         $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
         $this->db->join('tb_guru g', 'g.id = j.id_guru');
