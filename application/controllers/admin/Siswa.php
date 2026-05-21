@@ -20,7 +20,7 @@ class Siswa extends MY_Controller {
 
     public function ajax_list()
     {
-        $id_tahun_ajaran = $this->tahun_ajaran_aktif['id'] ?? null;
+        $id_tahun_ajaran = $this->tahun_ajaran_aktif->id ?? null;
         $list = $this->M_siswa->get_all_datatables($id_tahun_ajaran);
         
         // FIX #1: draw harus dari POST['draw'] (integer), bukan hardcode 0
