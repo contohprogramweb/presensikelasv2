@@ -13,8 +13,13 @@ class Approval extends MY_Controller {
 
     public function index()
     {
-        $data['judul'] = 'Approval Presensi';
-        $this->load->view('templates/template', ['contents' => $this->load->view('kepsek/approval', $data, TRUE)]);
+        $data = array_merge($this->data, [
+            'judul' => 'Approval Presensi',
+            'content' => 'kepsek/approval',
+            'csrf_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
+        ]);
+        $this->load->view('templates/template', $data);
     }
 
     public function ajax_list()

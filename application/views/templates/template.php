@@ -11,6 +11,9 @@ if (!empty($content)) {
     $this->load->view($content, $data ?? []);
 } elseif (!empty($contents)) {
     echo $contents;
+} else {
+    // Fallback: jika tidak ada content/contents, coba load berdasarkan controller path
+    $this->load->view('kepsek/approval', $data ?? []);
 }
 ?>
 </div>
