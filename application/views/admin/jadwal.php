@@ -137,6 +137,7 @@
 var table;
 var delete_id = null;
 var current_kelas_id = null;
+var skip_dropdown_reload = false;
 
 $(document).ready(function() {
     // Initialize DataTables
@@ -197,9 +198,12 @@ $(document).ready(function() {
     // Load initial options for Select2 when page loads
     load_dropdown_options();
     
-    // Reload dropdown options when modal is shown
+    // Reload dropdown options when modal is shown (but skip if editing)
     $('#modal_jadwal').on('shown.bs.modal', function() {
-        load_dropdown_options();
+        if (!skip_dropdown_reload) {
+            load_dropdown_options();
+        }
+        skip_dropdown_reload = false;
     });
 });
 
@@ -291,6 +295,9 @@ function add_jadwal() {
 }
 
 function edit_jadwal(encrypted_id) {
+    // Set flag to skip dropdown reload when modal is shown
+    skip_dropdown_reload = true;
+    
     // First, reload dropdown options and wait for them to complete
     load_dropdown_options().done(function() {
         $.ajax({
@@ -306,19 +313,23 @@ function edit_jadwal(encrypted_id) {
                     $('.invalid-feedback').text('').hide();
                     $('.is-invalid').removeClass('is-invalid');
                     
-                    // Set Select2 values - use val() with trigger('change')
-                    $('#id_kelas').val(data.id_kelas).trigger('change.select2');
-                    $('#id_guru').val(data.id_guru).trigger('change.select2');
-                    $('#id_mapel').val(data.id_mapel).trigger('change.select2');
-                    
-                    // Set other field values
-                    $('#hari').val(data.hari);
-                    $('#jam_mulai').val(data.jam_mulai);
-                    $('#jam_selesai').val(data.jam_selesai);
-                    $('#ruangan').val(data.ruangan);
-                    
+                    // Show modal first
                     $('#modal_jadwal_label').text('Edit Jadwal Pelajaran');
                     $('#modal_jadwal').modal('show');
+                    
+                    // Wait for modal to be fully shown before setting values
+                    setTimeout(function() {
+                        // Set Select2 values - use val() with trigger('change')
+                        $('#id_kelas').val(data.id_kelas).trigger('change.select2');
+                        $('#id_guru').val(data.id_guru).trigger('change.select2');
+                        $('#id_mapel').val(data.id_mapel).trigger('change.select2');
+                        
+                        // Set other field values
+                        $('#hari').val(data.hari);
+                        $('#jam_mulai').val(data.jam_mulai);
+                        $('#jam_selesai').val(data.jam_selesai);
+                        $('#ruangan').val(data.ruangan);
+                    }, 100);
                 } else {
                     showAlert('danger', response.message || 'Gagal mengambil data');
                 }
