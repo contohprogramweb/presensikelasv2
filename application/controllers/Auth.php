@@ -96,6 +96,9 @@ class Auth extends CI_Controller {
             log_aktivitas('logout', 'tb_user', $user_id, 'User logout');
         }
         
+        // Get session ID before destroying
+        $session_id = session_id();
+        
         // Unset all session data first
         $this->session->sess_destroy();
         
@@ -104,6 +107,19 @@ class Auth extends CI_Controller {
         $this->session->unset_userdata('id');
         $this->session->unset_userdata('username');
         $this->session->unset_userdata('role');
+        $this->session->unset_userdata('nama_lengkap');
+        $this->session->unset_userdata('email');
+        $this->session->unset_userdata('foto_profil');
+        $this->session->unset_userdata('last_activity');
+        
+        // Delete the session file manually (for files driver)
+        $session_path = APPPATH . 'sessions/';
+        if (is_dir($session_path)) {
+            $session_file = $session_path . 'ci_session' . $session_id;
+            if (file_exists($session_file)) {
+                @unlink($session_file);
+            }
+        }
         
         // Clear the session cookie with proper parameters
         $ci_session_name = session_name();
@@ -127,7 +143,7 @@ class Auth extends CI_Controller {
         }
         
         // Force redirect to login page
-        header('Location: ' . site_url('auth/login'));
+        redirect('auth/login');
         exit;
     }
 }
