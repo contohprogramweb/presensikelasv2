@@ -17,6 +17,10 @@ class Jadwal extends MY_Controller {
     public function __construct() {
         parent::__construct();
         
+        // Load model tahun ajaran jika belum dimuat
+        if (!isset($this->M_tahunajaran)) {
+            $this->load->model('admin/M_tahunajaran');
+        }
         
         // Set role
         $this->role_required = array('admin');
@@ -38,6 +42,9 @@ class Jadwal extends MY_Controller {
      * @return void
      */
     public function index() {
+        $tahun_ajaran_id = $this->tahun_ajaran_aktif;
+        $this->data['tahun_ajaran'] = $this->M_tahunajaran->get_by_id($tahun_ajaran_id);
+        
         $this->data['content'] = 'admin/jadwal';
         $this->load->view('templates/template', $this->data);
     }
@@ -48,7 +55,7 @@ class Jadwal extends MY_Controller {
      * @return void
      */
     public function ajax_list() {
-        $list = $this->M_jadwal->get_datatables();
+        $list = $this->M_jadwal->get_datatables($this->tahun_ajaran_aktif);
         $data = array();
         $no = $_POST['start'];
         
@@ -61,7 +68,7 @@ class Jadwal extends MY_Controller {
             $row[] = $item->jam_mulai . ' - ' . $item->jam_selesai;
             $row[] = $item->nama_mapel;
             $row[] = $item->nama_guru;
-            $row[] = $item->nama_tahun_ajaran;
+            $row[] = $item->tahun_ajaran;
             
             // Action buttons
             $action = '<div class="btn-group" role="group">';
@@ -76,8 +83,8 @@ class Jadwal extends MY_Controller {
         
         $output = array(
             "draw" => $_POST['draw'],
-            "recordsTotal" => $this->M_jadwal->count_all(),
-            "recordsFiltered" => $this->M_jadwal->count_filtered(),
+            "recordsTotal" => $this->M_jadwal->count_all($this->tahun_ajaran_aktif),
+            "recordsFiltered" => $this->M_jadwal->count_filtered($this->tahun_ajaran_aktif),
             "data" => $data,
         );
         

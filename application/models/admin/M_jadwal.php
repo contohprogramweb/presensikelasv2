@@ -15,7 +15,7 @@ class M_jadwal extends CI_Model {
 
     private function _get_datatables_query($id_tahun_ajaran = null)
     {
-        $this->db->select('j.*, k.nama_kelas, u.nama_lengkap as nama_guru, m.nama_mapel, t.nama_tahun_ajaran as nama_tahun_ajaran');
+        $this->db->select('j.*, k.nama_kelas, u.nama_lengkap as nama_guru, m.nama_mapel, t.tahun_ajaran as tahun_ajaran');
         $this->db->from($this->table . ' j');
         $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
         $this->db->join('tb_guru g', 'g.id = j.id_guru');
