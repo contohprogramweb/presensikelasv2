@@ -16,10 +16,7 @@ class Auth extends CI_Controller {
         $this->load->helper('form');
 		 $this->load->library('session'); 
         
-        // Redirect to dashboard if already logged in
-        if ($this->session->userdata('logged_in')) {
-            redirect('dashboard');
-        }
+ 
     }
     
     /**
