@@ -2,7 +2,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <h3><i class="fas fa-users-cog me-2"></i>Penempatan Siswa ke Kelas</h3>
-            <p class="text-muted">Kelola penempatan siswa ke kelas untuk tahun ajaran <?= $tahun_ajaran->nama_tahun_ajaran ?></p>
+            <p class="text-muted">Kelola penempatan siswa ke kelas untuk tahun ajaran <?= $tahun_ajaran->tahun_ajaran ?> (Semester <?= $tahun_ajaran->semester ?>)</p>
         </div>
     </div>
 
