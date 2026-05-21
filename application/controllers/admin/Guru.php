@@ -13,7 +13,12 @@ class Guru extends MY_Controller {
 
     public function index()
     {
-        $data = array_merge($this->data, ['judul' => 'Manajemen Guru', 'content' => 'admin/guru']);
+        $data = array_merge($this->data, [
+            'judul' => 'Manajemen Guru', 
+            'content' => 'admin/guru',
+            'csrf_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
+        ]);
         $this->load->view('templates/template', $data);
     }
 
@@ -27,7 +32,9 @@ class Guru extends MY_Controller {
             'draw' => 0,
             'recordsTotal' => count($list),
             'recordsFiltered' => count($list),
-            'data' => []
+            'data' => [],
+            'csrf_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
         ];
         
         foreach ($list as $row) {
@@ -93,12 +100,22 @@ class Guru extends MY_Controller {
         
         if ($this->M_guru->insert($guru_data)) {
             log_aktivitas('INSERT', 'tb_guru', $this->db->insert_id(), 'Tambah guru ' . $guru_data['nama_lengkap']);
-            echo json_encode(['status' => true, 'message' => 'Guru berhasil ditambahkan']);
+            echo json_encode([
+                'status' => true, 
+                'message' => 'Guru berhasil ditambahkan',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         } else {
             // Rollback user
             $this->db->where('id', $id_user);
             $this->db->delete('tb_user');
-            echo json_encode(['status' => false, 'message' => 'Gagal menambahkan guru']);
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Gagal menambahkan guru',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         }
     }
 
@@ -110,9 +127,19 @@ class Guru extends MY_Controller {
         $data = $this->M_guru->get_by_id($id_decrypted);
         
         if ($data) {
-            echo json_encode(['status' => true, 'data' => $data]);
+            echo json_encode([
+                'status' => true, 
+                'data' => $data,
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         } else {
-            echo json_encode(['status' => false, 'message' => 'Data tidak ditemukan']);
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Data tidak ditemukan',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         }
     }
 
@@ -154,9 +181,19 @@ class Guru extends MY_Controller {
         
         if ($this->db->trans_status()) {
             log_aktivitas('UPDATE', 'tb_guru', $id, 'Update guru ' . $guru_data['nama_lengkap']);
-            echo json_encode(['status' => true, 'message' => 'Guru berhasil diperbarui']);
+            echo json_encode([
+                'status' => true, 
+                'message' => 'Guru berhasil diperbarui',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         } else {
-            echo json_encode(['status' => false, 'message' => 'Gagal memperbarui guru']);
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Gagal memperbarui guru',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         }
     }
 
@@ -167,6 +204,16 @@ class Guru extends MY_Controller {
         $id_decrypted = decrypt_id($id);
         $guru = $this->M_guru->get_by_id($id_decrypted);
         
+        if (!$guru) {
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Data guru tidak ditemukan',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
+            return;
+        }
+        
         $this->db->trans_start();
         $this->M_guru->delete($id_decrypted);
         $this->db->where('id', $guru['id_user']);
@@ -175,9 +222,19 @@ class Guru extends MY_Controller {
         
         if ($this->db->trans_status()) {
             log_aktivitas('DELETE', 'tb_guru', $id_decrypted, 'Hapus guru');
-            echo json_encode(['status' => true, 'message' => 'Guru berhasil dihapus']);
+            echo json_encode([
+                'status' => true, 
+                'message' => 'Guru berhasil dihapus',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         } else {
-            echo json_encode(['status' => false, 'message' => 'Gagal menghapus guru']);
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Gagal menghapus guru',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         }
     }
 

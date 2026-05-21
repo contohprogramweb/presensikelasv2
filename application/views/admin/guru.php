@@ -226,40 +226,54 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '.delete-btn', function() {
-        if (confirm('Apakah Anda yakin ingin menghapus guru ini?')) {
-            var id = $(this).data('id');
-            $.post('<?= site_url('admin/guru/ajax_delete') ?>', {
-                id: id,
-                [csrfName]: csrfHash
-            }, function(response) {
-                if (response.status) {
-                    table.ajax.reload(null, false);
-                    // Update CSRF token
-                    csrfHash = response.csrf_hash;
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Terhapus',
-                        text: response.message,
-                        timer: 2000
-                    });
-                } else {
-                    // Update CSRF token even on error
-                    csrfHash = response.csrf_hash;
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: response.message
-                    });
-                }
-            }, 'json').fail(function(xhr, status, error) {
-                console.error('Delete Error:', xhr.responseText);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal menghapus: ' + error
+        var id = $(this).data('id');
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data guru akan dihapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?= site_url('admin/guru/ajax_delete') ?>/' + id,
+                    type: 'POST',
+                    data: {[csrfName]: csrfHash},
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.csrf_hash) {
+                            csrfHash = response.csrf_hash;
+                        }
+                        if (response.status) {
+                            table.ajax.reload(null, false);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Terhapus',
+                                text: response.message,
+                                timer: 2000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete Error:', xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal menghapus: ' + error
+                        });
+                    }
                 });
-            });
-        }
+            }
+        });
     });
 });
 
