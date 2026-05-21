@@ -171,22 +171,41 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 var id = $(this).data('id');
-                $.post('<?= site_url('admin/matapelajaran/ajax_delete') ?>', {
-                    id: id,
-                    '<?= $csrf_name ?>': '<?= $csrf_hash ?>'
-                }, function(response) {
-                    if (response.status) {
-                        table.ajax.reload();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: response.message
-                        });
-                    } else {
+                $.ajax({
+                    url: '<?= site_url('admin/matapelajaran/ajax_delete') ?>',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        '<?= $csrf_name ?>': '<?= $csrf_hash ?>'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        // Update CSRF token for next request
+                        if (response.csrf_name && response.csrf_hash) {
+                            $('[name="<?= $csrf_name ?>"]').val(response.csrf_hash);
+                        }
+                        
+                        if (response.status) {
+                            table.ajax.reload(null, false);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: response.message || 'Terjadi kesalahan saat menghapus data'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete error:', xhr.responseText);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Gagal',
-                            text: response.message
+                            title: 'Error',
+                            text: 'Terjadi kesalahan pada server: ' + error
                         });
                     }
                 });
