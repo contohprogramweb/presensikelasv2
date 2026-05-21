@@ -164,7 +164,12 @@ class Matapelajaran extends MY_Controller {
         $id = $this->input->post('id');
         
         if (!$id) {
-            echo json_encode(['status' => false, 'message' => 'ID tidak valid']);
+            echo json_encode([
+                'status' => false, 
+                'message' => 'ID tidak valid',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
             return;
         }
         
@@ -172,9 +177,19 @@ class Matapelajaran extends MY_Controller {
         
         if ($this->M_matapelajaran->delete($id_decrypted)) {
             log_aktivitas('DELETE', 'tb_mata_pelajaran', $id_decrypted, 'Hapus mapel');
-            echo json_encode(['status' => true, 'message' => 'Mata pelajaran berhasil dihapus']);
+            echo json_encode([
+                'status' => true, 
+                'message' => 'Mata pelajaran berhasil dihapus',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         } else {
-            echo json_encode(['status' => false, 'message' => 'Gagal menghapus mata pelajaran']);
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Gagal menghapus mata pelajaran',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         }
     }
 }
