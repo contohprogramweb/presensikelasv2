@@ -16,7 +16,7 @@
     <!-- Tabel Jadwal -->
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <i class="fas fa-table me-1"></i> Daftar Jadwal Pelajaran - Tahun Ajaran <?= $tahun_ajaran->nama_tahun_ajaran ?>
+            <i class="fas fa-table me-1"></i> Daftar Jadwal Pelajaran - Tahun Ajaran <?= $tahun_ajaran->tahun_ajaran ?> (Semester <?= $tahun_ajaran->semester ?>)
         </div>
         <div class="card-body">
             <div class="table-responsive">
