@@ -109,12 +109,14 @@ class Siswa extends MY_Controller {
             'nis' => $this->input->post('nis'),
             'id_user' => $id_user,
             'id_kelas' => $this->input->post('id_kelas') ?: null,
+			'nama_lengkap' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'tempat_lahir' => $this->input->post('tempat_lahir'),
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
             'alamat' => $this->input->post('alamat'),
             'nama_ortu' => $this->input->post('nama_ortu'),
-            'no_hp_ortu' => $this->input->post('no_hp_orang_tua')
+            'no_hp_ortu' => $this->input->post('no_hp_orang_tua'),
+			'created_at' => date("Y-m-d H:i:s")
         ];
         
         if ($this->M_siswa->insert($siswa_data)) {
@@ -164,12 +166,14 @@ class Siswa extends MY_Controller {
         $siswa_data = [
             'nis' => $this->input->post('nis'),
             'id_kelas' => $this->input->post('id_kelas') ?: null,
+			'nama_lengkap' => $this->input->post('nama'),
             'jenis_kelamin' => $this->input->post('jenis_kelamin'),
             'tempat_lahir' => $this->input->post('tempat_lahir'),
             'tanggal_lahir' => $this->input->post('tanggal_lahir'),
             'alamat' => $this->input->post('alamat'),
             'nama_ortu' => $this->input->post('nama_ortu'),
-            'no_hp_ortu' => $this->input->post('no_hp_orang_tua')
+            'no_hp_ortu' => $this->input->post('no_hp_orang_tua'),
+			'updated_at' => date("Y-m-d H:i:s")
         ];
         
         // Update user info
