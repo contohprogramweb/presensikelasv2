@@ -105,7 +105,7 @@ class Jadwal extends MY_Controller {
             'jam_mulai' => $this->input->post('jam_mulai'),
             'jam_selesai' => $this->input->post('jam_selesai'),
             'ruangan' => $this->input->post('ruangan'),
-            'status' => 'aktif'
+            'status_aktif' => 1
         );
         
         // Cek bentrok jadwal

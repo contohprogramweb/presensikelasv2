@@ -118,6 +118,7 @@ class M_jadwal extends CI_Model {
         $this->db->where('hari', $data['hari']);
         $this->db->where('(jam_mulai <', $data['jam_selesai']);
         $this->db->where('jam_selesai >', $data['jam_mulai'] . ')');
+        $this->db->where('status_aktif', 1);
         
         if ($exclude_id) {
             $this->db->where('id !=', $exclude_id);
