@@ -225,6 +225,16 @@ class Siswa extends MY_Controller {
     public function get_kelas_select()
     {
         $id_tahun_ajaran = $this->tahun_ajaran_aktif['id'] ?? null;
+        
+        // Fallback: if no active year, get the latest year
+        if (!$id_tahun_ajaran) {
+            $this->load->model('M_dashboard');
+            $tahun_terbaru = $this->M_dashboard->get_tahun_ajaran_terbaru();
+            if ($tahun_terbaru) {
+                $id_tahun_ajaran = $tahun_terbaru->id;
+            }
+        }
+        
         $kelas = $this->M_siswa->get_kelas_for_select($id_tahun_ajaran);
         $this->output
             ->set_content_type('application/json')

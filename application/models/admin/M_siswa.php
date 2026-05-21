@@ -53,7 +53,15 @@ class M_siswa extends CI_Model {
         if ($id_tahun_ajaran) {
             $this->db->where('id_tahun_ajaran', $id_tahun_ajaran);
         }
-        return $this->db->get()->result_array();
+        $this->db->order_by('nama_kelas', 'ASC');
+        $query = $this->db->get();
+        
+        // Return empty array if query fails
+        if (!$query) {
+            return [];
+        }
+        
+        return $query->result_array();
     }
 
     public function check_nis_exists($nis, $exclude_id = null)
