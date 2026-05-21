@@ -94,6 +94,10 @@ class Jadwal extends MY_Controller {
      * @return void
      */
     public function ajax_add() {
+        // Debug log
+        error_log("=== AJAX ADD JADWAL START ===");
+        error_log("POST data: " . print_r($_POST, true));
+        
         $this->_validate();
         
         $data = array(
@@ -108,8 +112,11 @@ class Jadwal extends MY_Controller {
             'status_aktif' => 1
         );
         
+        error_log("Data to save: " . print_r($data, true));
+        
         // Cek bentrok jadwal
         if ($this->M_jadwal->check_conflict($data)) {
+            error_log("Jadwal bentrok!");
             $this->output->set_status_header(400);
             $this->output->set_content_type('application/json')->set_output(json_encode(array(
                 'status' => FALSE,
@@ -120,6 +127,7 @@ class Jadwal extends MY_Controller {
         
         $insert = $this->M_jadwal->save($data);
         
+        error_log("Insert result ID: " . $insert);
         log_aktivitas('insert', 'tb_jadwal', $insert, 'Tambah jadwal pelajaran');
         
         $this->output->set_content_type('application/json')->set_output(json_encode(array(
@@ -241,6 +249,7 @@ class Jadwal extends MY_Controller {
         
         // Debug log
         error_log("Dropdown type requested: " . $type);
+        error_log("GET params: " . print_r($_GET, true));
         
         $data = array();
         
@@ -252,7 +261,8 @@ class Jadwal extends MY_Controller {
         switch ($type) {
             case 'kelas':
                 $result = $this->M_kelas->get_active_classes();
-                if ($result) {
+                error_log("Kelas result count: " . (is_array($result) ? count($result) : 'not array'));
+                if ($result && is_array($result) && count($result) > 0) {
                     foreach ($result as $item) {
                         $data[] = array('id' => $item->id, 'text' => $item->nama_kelas);
                     }
@@ -260,7 +270,8 @@ class Jadwal extends MY_Controller {
                 break;
             case 'guru':
                 $result = $this->M_guru->get_active_teachers();
-                if ($result) {
+                error_log("Guru result count: " . (is_array($result) ? count($result) : 'not array'));
+                if ($result && is_array($result) && count($result) > 0) {
                     foreach ($result as $item) {
                         $data[] = array('id' => $item->id, 'text' => $item->nama_guru);
                     }
@@ -268,7 +279,8 @@ class Jadwal extends MY_Controller {
                 break;
             case 'mapel':
                 $result = $this->M_matapelajaran->get_active_subjects();
-                if ($result) {
+                error_log("Mapel result count: " . (is_array($result) ? count($result) : 'not array'));
+                if ($result && is_array($result) && count($result) > 0) {
                     foreach ($result as $item) {
                         $data[] = array('id' => $item->id, 'text' => $item->nama_mapel);
                     }
@@ -280,6 +292,7 @@ class Jadwal extends MY_Controller {
         }
         
         error_log("Dropdown data count for {$type}: " . count($data));
+        error_log("Dropdown data: " . json_encode($data));
         
         $this->output->set_content_type('application/json')->set_output(json_encode(['results' => $data]));
     }

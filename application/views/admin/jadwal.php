@@ -367,16 +367,25 @@ $('#form_jadwal').submit(function(e) {
     
     var url = $('#id_jadwal').val() ? '<?= site_url('admin/jadwal/ajax_update') ?>' : '<?= site_url('admin/jadwal/ajax_add') ?>';
     
+    // Get current CSRF token
+    var csrfData = {};
+    csrfData['<?= $csrf_name ?>'] = $('input[name="<?= $csrf_name ?>"]').val();
+    
     $.ajax({
         url: url,
         type: 'POST',
-        data: $(this).serialize(),
+        data: $(this).serialize() + '&' + $.param(csrfData),
         dataType: 'json',
         success: function(response) {
             if (response.status) {
                 $('#modal_jadwal').modal('hide');
                 showAlert('success', response.message);
                 table.ajax.reload(null, false);
+                
+                // Refresh CSRF token after successful operation
+                $.getJSON('<?= site_url('security/get_csrf_hash') ?>', function(data) {
+                    $('input[name="<?= $csrf_name ?>"]').val(data.csrf_hash);
+                });
             } else {
                 if (response.error) {
                     // Show validation errors
