@@ -109,7 +109,7 @@ class M_guru extends CI_Model {
         $this->db->select('g.id, u.nama_lengkap as nama_guru');
         $this->db->from($this->table . ' g');
         $this->db->join('tb_user u', 'u.id = g.id_user');
-        $this->db->where('u.status', 'aktif');
+        $this->db->where('g.status_aktif', 1);
         return $this->db->get()->result();
     }
 }
