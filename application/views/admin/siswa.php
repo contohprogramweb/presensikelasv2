@@ -174,7 +174,11 @@ $(document).ready(function() {
                     errorMsg += ' Detail: ' + xhr.responseText.substring(0, 200);
                 }
                 
-                alert(errorMsg);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMsg
+                });
             }
         },
         'pageLength': 10,
@@ -206,7 +210,11 @@ $(document).ready(function() {
                 console.error('Error loading kelas:', error);
                 console.error('Status:', xhr.status);
                 console.error('Response:', xhr.responseText);
-                alert('Gagal memuat data kelas: ' + xhr.status + ' - ' + xhr.responseText.substring(0, 100));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat data kelas: ' + xhr.status + ' - ' + xhr.responseText.substring(0, 100)
+                });
             }
         });
     }
@@ -231,21 +239,39 @@ $(document).ready(function() {
             contentType: false,
             dataType: 'json',
             success: function(response) {
+                // Update CSRF token
+                if (response.csrf_hash) {
+                    csrfHash = response.csrf_hash;
+                }
+                
                 if (response.status) {
                     $('#modalSiswa').modal('hide');
                     table.ajax.reload();
-                    alert(response.message);
-                    // Update CSRF token
-                    csrfHash = response.csrf_hash;
+                    
+                    // Show SweetAlert success
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
                 } else {
-                    alert(response.message);
-                    // Update CSRF token even on error
-                    csrfHash = response.csrf_hash;
+                    // Show SweetAlert error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Submit Error:', xhr.responseText);
-                alert('Terjadi kesalahan: ' + error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan: ' + error
+                });
             }
         });
     });
@@ -269,33 +295,73 @@ $(document).ready(function() {
                 $('#no_hp').val(response.data.no_hp || '');
                 $('#modalSiswa').modal('show');
             } else {
-                alert(response.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message
+                });
             }
-        }, 'json');
+        }, 'json').fail(function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Gagal mengambil data: ' + error
+            });
+        });
     });
 
     $(document).on('click', '.delete-btn', function() {
-        if (confirm('Apakah Anda yakin ingin menghapus siswa ini?')) {
-            var id = $(this).data('id');
-            $.post('<?= site_url('admin/siswa/ajax_delete') ?>', {
-                id: id,
-                [csrfName]: csrfHash
-            }, function(response) {
-                if (response.status) {
-                    table.ajax.reload();
-                    alert(response.message);
+        var id = $(this).data('id');
+        
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data siswa yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('<?= site_url('admin/siswa/ajax_delete') ?>', {
+                    id: id,
+                    [csrfName]: csrfHash
+                }, function(response) {
                     // Update CSRF token
-                    csrfHash = response.csrf_hash;
-                } else {
-                    alert(response.message);
-                    // Update CSRF token even on error
-                    csrfHash = response.csrf_hash;
-                }
-            }, 'json').fail(function(xhr, status, error) {
-                console.error('Delete Error:', xhr.responseText);
-                alert('Gagal menghapus: ' + error);
-            });
-        }
+                    if (response.csrf_hash) {
+                        csrfHash = response.csrf_hash;
+                    }
+                    
+                    if (response.status) {
+                        table.ajax.reload();
+                        
+                        // Show SweetAlert success
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else {
+                        // Show SweetAlert error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: response.message
+                        });
+                    }
+                }, 'json').fail(function(xhr, status, error) {
+                    console.error('Delete Error:', xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal menghapus: ' + error
+                    });
+                });
+            }
+        });
     });
 });
 </script>
