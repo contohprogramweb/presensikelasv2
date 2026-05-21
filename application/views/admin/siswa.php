@@ -229,7 +229,12 @@ $(document).ready(function() {
         // Add current CSRF token
         formData.append(csrfName, csrfHash);
         
-        var url = $('#id').val() ? '<?= site_url('admin/siswa/ajax_update') ?>' : '<?= site_url('admin/siswa/ajax_add') ?>';
+        var idValue = $('#id').val();
+        var url = idValue ? '<?= site_url('admin/siswa/ajax_update') ?>' : '<?= site_url('admin/siswa/ajax_add') ?>';
+        
+        // Debug log
+        console.log('Form submitted, ID:', idValue);
+        console.log('URL:', url);
         
         $.ajax({
             url: url,
@@ -243,6 +248,8 @@ $(document).ready(function() {
                 if (response.csrf_hash) {
                     csrfHash = response.csrf_hash;
                 }
+                
+                console.log('Response:', response);
                 
                 if (response.status) {
                     $('#modalSiswa').modal('hide');
@@ -267,10 +274,11 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 console.error('Submit Error:', xhr.responseText);
+                console.error('Status:', xhr.status);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Terjadi kesalahan: ' + error
+                    text: 'Terjadi kesalahan: ' + error + ' (Status: ' + xhr.status + ')'
                 });
             }
         });
@@ -278,10 +286,16 @@ $(document).ready(function() {
 
     $(document).on('click', '.edit-btn', function() {
         var id = $(this).data('id');
+        
+        // Debug log
+        console.log('Edit button clicked, ID:', id);
+        
         $.get('<?= site_url('admin/siswa/ajax_edit') ?>/' + id, function(response) {
+            console.log('Edit response:', response);
+            
             if (response.status) {
                 $('#modalTitle').text('Edit Siswa');
-                $('#id').val(response.data.id);
+                $('#id').val(id); // Gunakan ID yang sudah ter-enkripsi dari data-id button
                 $('#nis').val(response.data.nis);
                 $('#nama').val(response.data.nama_lengkap);
                 $('#jenis_kelamin').val(response.data.jenis_kelamin);
@@ -302,10 +316,12 @@ $(document).ready(function() {
                 });
             }
         }, 'json').fail(function(xhr, status, error) {
+            console.error('AJAX GET Error:', xhr.responseText);
+            console.error('Status:', xhr.status);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Gagal mengambil data: ' + error
+                text: 'Gagal mengambil data: ' + error + ' (Status: ' + xhr.status + ')'
             });
         });
     });
