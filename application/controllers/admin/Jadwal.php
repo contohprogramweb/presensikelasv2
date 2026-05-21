@@ -42,8 +42,8 @@ class Jadwal extends MY_Controller {
      * @return void
      */
     public function index() {
-        $tahun_ajaran_id = $this->tahun_ajaran_aktif;
-        $this->data['tahun_ajaran'] = $this->M_tahunajaran->get_by_id($tahun_ajaran_id);
+        // Data tahun ajaran aktif sudah tersedia dari MY_Controller
+        $this->data['tahun_ajaran'] = $this->tahun_ajaran_aktif;
         
         $this->data['content'] = 'admin/jadwal';
         $this->load->view('templates/template', $this->data);
@@ -55,7 +55,7 @@ class Jadwal extends MY_Controller {
      * @return void
      */
     public function ajax_list() {
-        $list = $this->M_jadwal->get_datatables($this->tahun_ajaran_aktif);
+        $list = $this->M_jadwal->get_datatables($this->tahun_ajaran_aktif->id);
         $data = array();
         $no = $_POST['start'];
         
@@ -83,8 +83,8 @@ class Jadwal extends MY_Controller {
         
         $output = array(
             "draw" => $_POST['draw'],
-            "recordsTotal" => $this->M_jadwal->count_all($this->tahun_ajaran_aktif),
-            "recordsFiltered" => $this->M_jadwal->count_filtered($this->tahun_ajaran_aktif),
+            "recordsTotal" => $this->M_jadwal->count_all($this->tahun_ajaran_aktif->id),
+            "recordsFiltered" => $this->M_jadwal->count_filtered($this->tahun_ajaran_aktif->id),
             "data" => $data,
         );
         
