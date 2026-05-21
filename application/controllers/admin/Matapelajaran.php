@@ -23,7 +23,8 @@ class Matapelajaran extends MY_Controller {
         $draw = intval($this->input->post('draw'));
         $start = intval($this->input->post('start'));
         $length = intval($this->input->post('length'));
-        $search = $this->input->post('search')['value'];
+        $search_input = $this->input->post('search');
+        $search = isset($search_input['value']) ? $search_input['value'] : '';
         
         // Get all data
         $all_data = $this->M_matapelajaran->get_all();
@@ -32,7 +33,7 @@ class Matapelajaran extends MY_Controller {
         $filtered_data = $all_data;
         if (!empty($search)) {
             $filtered_data = array_filter($all_data, function($row) use ($search) {
-                return stripos($row['nama_mapel'], $search) !== false;
+                return stripos($row['nama_mapel'], $search) !== false || stripos($row['kode_mapel'], $search) !== false;
             });
             $filtered_data = array_values($filtered_data);
         }
@@ -57,6 +58,7 @@ class Matapelajaran extends MY_Controller {
         foreach ($paginated_data as $row) {
             $output['data'][] = [
                 '', // Nomor akan di-generate oleh DataTables
+                $row['kode_mapel'],
                 $row['nama_mapel'],
                 '<button class="btn btn-sm btn-warning edit-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-edit"></i></button>
                  <button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($row['id']) . '"><i class="fas fa-trash"></i></button>'
@@ -68,6 +70,7 @@ class Matapelajaran extends MY_Controller {
 
     public function ajax_add()
     {
+        $this->form_validation->set_rules('kode_mapel', 'Kode Mata Pelajaran', 'required|trim|is_unique[tb_mata_pelajaran.kode_mapel]');
         $this->form_validation->set_rules('nama_mapel', 'Nama Mata Pelajaran', 'required|trim|is_unique[tb_mata_pelajaran.nama_mapel]');
         
         if ($this->form_validation->run() == FALSE) {
@@ -75,7 +78,10 @@ class Matapelajaran extends MY_Controller {
             return;
         }
         
-        $data = ['nama_mapel' => $this->input->post('nama_mapel')];
+        $data = [
+            'kode_mapel' => $this->input->post('kode_mapel'),
+            'nama_mapel' => $this->input->post('nama_mapel')
+        ];
         
         if ($this->M_matapelajaran->insert($data)) {
             log_aktivitas('INSERT', 'tb_mata_pelajaran', $this->db->insert_id(), 'Tambah mapel ' . $data['nama_mapel']);
@@ -100,6 +106,7 @@ class Matapelajaran extends MY_Controller {
     public function ajax_update()
     {
         $id = decrypt_id($this->input->post('id'));
+        $this->form_validation->set_rules('kode_mapel', 'Kode Mata Pelajaran', 'required|trim');
         $this->form_validation->set_rules('nama_mapel', 'Nama Mata Pelajaran', 'required|trim');
         
         if ($this->form_validation->run() == FALSE) {
@@ -107,7 +114,10 @@ class Matapelajaran extends MY_Controller {
             return;
         }
         
-        $data = ['nama_mapel' => $this->input->post('nama_mapel')];
+        $data = [
+            'kode_mapel' => $this->input->post('kode_mapel'),
+            'nama_mapel' => $this->input->post('nama_mapel')
+        ];
         
         if ($this->M_matapelajaran->update($id, $data)) {
             log_aktivitas('UPDATE', 'tb_mata_pelajaran', $id, 'Update mapel ' . $data['nama_mapel']);
