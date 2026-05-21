@@ -217,9 +217,9 @@ function load_dropdown_options() {
         url: '<?= site_url('admin/jadwal/ajax_get_dropdown') ?>',
         data: {type: 'kelas'},
         dataType: 'json',
-        success: function(data) {
+        success: function(response) {
             var options = '<option value="">-- Pilih Kelas --</option>';
-            $.each(data, function(i, item) {
+            $.each(response.results, function(i, item) {
                 options += '<option value="' + item.id + '">' + item.text + '</option>';
             });
             $('#id_kelas').html(options);
@@ -231,9 +231,9 @@ function load_dropdown_options() {
         url: '<?= site_url('admin/jadwal/ajax_get_dropdown') ?>',
         data: {type: 'guru'},
         dataType: 'json',
-        success: function(data) {
+        success: function(response) {
             var options = '<option value="">-- Pilih Guru --</option>';
-            $.each(data, function(i, item) {
+            $.each(response.results, function(i, item) {
                 options += '<option value="' + item.id + '">' + item.text + '</option>';
             });
             $('#id_guru').html(options);
@@ -245,9 +245,9 @@ function load_dropdown_options() {
         url: '<?= site_url('admin/jadwal/ajax_get_dropdown') ?>',
         data: {type: 'mapel'},
         dataType: 'json',
-        success: function(data) {
+        success: function(response) {
             var options = '<option value="">-- Pilih Mata Pelajaran --</option>';
-            $.each(data, function(i, item) {
+            $.each(response.results, function(i, item) {
                 options += '<option value="' + item.id + '">' + item.text + '</option>';
             });
             $('#id_mapel').html(options);
