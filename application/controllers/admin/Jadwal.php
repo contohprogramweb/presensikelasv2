@@ -98,8 +98,6 @@ class Jadwal extends MY_Controller {
         error_log("=== AJAX ADD JADWAL START ===");
         error_log("POST data: " . print_r($_POST, true));
         
-        $this->_validate();
-        
         $data = array(
             'id_kelas' => $this->input->post('id_kelas'),
             'id_guru' => $this->input->post('id_guru'),
@@ -113,6 +111,15 @@ class Jadwal extends MY_Controller {
         );
         
         error_log("Data to save: " . print_r($data, true));
+        
+        // Validate first
+        $validation_result = $this->_validate();
+        if ($validation_result !== TRUE) {
+            error_log("Validation failed!");
+            $this->output->set_status_header(400);
+            $this->output->set_content_type('application/json')->set_output(json_encode($validation_result));
+            return;
+        }
         
         // Cek bentrok jadwal
         if ($this->M_jadwal->check_conflict($data)) {
@@ -300,7 +307,7 @@ class Jadwal extends MY_Controller {
     /**
      * Validasi input form
      * 
-     * @return void
+     * @return array|bool TRUE jika valid, array error jika tidak
      */
     private function _validate() {
         $data = array();
@@ -312,39 +319,83 @@ class Jadwal extends MY_Controller {
         $this->form_validation->set_rules('id_mapel', 'Mata Pelajaran', 'required');
         $this->form_validation->set_rules('hari', 'Hari', 'required');
         $this->form_validation->set_rules('jam_mulai', 'Jam Mulai', 'required');
-        $this->form_validation->set_rules('jam_selesai', 'Jam Selesai', 'required|callback_check_jam_selesai');
+        $this->form_validation->set_rules('jam_selesai', 'Jam Selesai', 'required');
         
         if ($this->form_validation->run() === FALSE) {
             $fields = array('id_kelas', 'id_guru', 'id_mapel', 'hari', 'jam_mulai', 'jam_selesai');
             foreach ($fields as $field) {
                 if (form_error($field)) {
-                    $data['error'][] = form_error($field);
+                    $data['error'][$field] = form_error($field);
                 }
             }
             $data['status'] = FALSE;
+            return $data;
         }
         
-        if (!$data['status']) {
-            $this->output->set_status_header(400);
-            $this->output->set_content_type('application/json')->set_output(json_encode($data));
-            exit;
-        }
-    }
-
-    /**
-     * Callback: Cek jam selesai > jam mulai
-     * 
-     * @param string $str Jam selesai
-     * @return bool
-     */
-    public function check_jam_selesai($str) {
+        // Check jam selesai > jam mulai
         $jam_mulai = $this->input->post('jam_mulai');
-        
-        if ($str <= $jam_mulai) {
-            $this->form_validation->set_message('check_jam_selesai', 'Jam selesai harus lebih besar dari jam mulai');
-            return FALSE;
+        $jam_selesai = $this->input->post('jam_selesai');
+        if ($jam_selesai <= $jam_mulai) {
+            $data['error']['jam_selesai'] = 'Jam selesai harus lebih besar dari jam mulai';
+            $data['status'] = FALSE;
+            return $data;
         }
         
         return TRUE;
+    }
+
+    /**
+     * AJAX: Update jadwal
+     * 
+     * @return void
+     */
+    public function ajax_update() {
+        $id = decrypt_id($this->input->post('id'));
+        
+        if (!$id) {
+            $this->output->set_status_header(400);
+            $this->output->set_content_type('application/json')->set_output(json_encode(array(
+                'status' => FALSE,
+                'message' => 'ID tidak valid'
+            )));
+            return;
+        }
+        
+        $data = array(
+            'id_kelas' => $this->input->post('id_kelas'),
+            'id_guru' => $this->input->post('id_guru'),
+            'id_mapel' => $this->input->post('id_mapel'),
+            'hari' => $this->input->post('hari'),
+            'jam_mulai' => $this->input->post('jam_mulai'),
+            'jam_selesai' => $this->input->post('jam_selesai'),
+            'ruangan' => $this->input->post('ruangan'),
+        );
+        
+        // Validate first
+        $validation_result = $this->_validate();
+        if ($validation_result !== TRUE) {
+            $this->output->set_status_header(400);
+            $this->output->set_content_type('application/json')->set_output(json_encode($validation_result));
+            return;
+        }
+        
+        // Cek bentrok jadwal (kecuali jadwal ini sendiri)
+        if ($this->M_jadwal->check_conflict($data, $id)) {
+            $this->output->set_status_header(400);
+            $this->output->set_content_type('application/json')->set_output(json_encode(array(
+                'status' => FALSE,
+                'message' => 'Jadwal bentrok dengan jadwal yang sudah ada pada kelas, hari, dan jam yang sama'
+            )));
+            return;
+        }
+        
+        $this->M_jadwal->update($id, $data);
+        
+        log_aktivitas('update', 'tb_jadwal', $id, 'Update jadwal pelajaran');
+        
+        $this->output->set_content_type('application/json')->set_output(json_encode(array(
+            'status' => TRUE,
+            'message' => 'Jadwal berhasil diperbarui'
+        )));
     }
 }

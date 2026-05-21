@@ -59,21 +59,21 @@
                             <select class="form-select select2" id="id_kelas" name="id_kelas" style="width: 100%">
                                 <option value="">-- Pilih Kelas --</option>
                             </select>
-                            <div class="invalid-feedback" id="error_id_kelas"></div>
+                            <div class="invalid-feedback d-block" id="error_id_kelas"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="id_guru" class="form-label">Guru <span class="text-danger">*</span></label>
                             <select class="form-select select2" id="id_guru" name="id_guru" style="width: 100%">
                                 <option value="">-- Pilih Guru --</option>
                             </select>
-                            <div class="invalid-feedback" id="error_id_guru"></div>
+                            <div class="invalid-feedback d-block" id="error_id_guru"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="id_mapel" class="form-label">Mata Pelajaran <span class="text-danger">*</span></label>
                             <select class="form-select select2" id="id_mapel" name="id_mapel" style="width: 100%">
                                 <option value="">-- Pilih Mata Pelajaran --</option>
                             </select>
-                            <div class="invalid-feedback" id="error_id_mapel"></div>
+                            <div class="invalid-feedback d-block" id="error_id_mapel"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="hari" class="form-label">Hari <span class="text-danger">*</span></label>
@@ -86,17 +86,17 @@
                                 <option value="Jumat">Jumat</option>
                                 <option value="Sabtu">Sabtu</option>
                             </select>
-                            <div class="invalid-feedback" id="error_hari"></div>
+                            <div class="invalid-feedback d-block" id="error_hari"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="jam_mulai" class="form-label">Jam Mulai <span class="text-danger">*</span></label>
                             <input type="time" class="form-control" id="jam_mulai" name="jam_mulai">
-                            <div class="invalid-feedback" id="error_jam_mulai"></div>
+                            <div class="invalid-feedback d-block" id="error_jam_mulai"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="jam_selesai" class="form-label">Jam Selesai <span class="text-danger">*</span></label>
                             <input type="time" class="form-control" id="jam_selesai" name="jam_selesai">
-                            <div class="invalid-feedback" id="error_jam_selesai"></div>
+                            <div class="invalid-feedback d-block" id="error_jam_selesai"></div>
                         </div>
                         <div class="col-md-12">
                             <label for="ruangan" class="form-label">Ruangan</label>
@@ -274,7 +274,7 @@ function load_dropdown_options() {
 function add_jadwal() {
     $('#form_jadwal')[0].reset();
     $('#id_jadwal').val('');
-    $('.invalid-feedback').hide();
+    $('.invalid-feedback').text('').hide();
     $('.is-invalid').removeClass('is-invalid');
     
     // Reset Select2 values
@@ -302,6 +302,10 @@ function edit_jadwal(encrypted_id) {
                 var data = response.data;
                 $('#id_jadwal').val(encrypted_id);
                 
+                // Clear errors first
+                $('.invalid-feedback').text('').hide();
+                $('.is-invalid').removeClass('is-invalid');
+                
                 // Wait for dropdown options to load, then set values
                 setTimeout(function() {
                     // Set Select2 values - use val() with trigger('change')
@@ -315,8 +319,6 @@ function edit_jadwal(encrypted_id) {
                     $('#jam_selesai').val(data.jam_selesai);
                     $('#ruangan').val(data.ruangan);
                     
-                    $('.invalid-feedback').hide();
-                    $('.is-invalid').removeClass('is-invalid');
                     $('#modal_jadwal_label').text('Edit Jadwal Pelajaran');
                     $('#modal_jadwal').modal('show');
                 }, 500);
@@ -377,6 +379,7 @@ $('#form_jadwal').submit(function(e) {
         data: $(this).serialize() + '&' + $.param(csrfData),
         dataType: 'json',
         success: function(response) {
+            console.log('Response:', response);
             if (response.status) {
                 $('#modal_jadwal').modal('hide');
                 showAlert('success', response.message);
@@ -388,9 +391,10 @@ $('#form_jadwal').submit(function(e) {
                 });
             } else {
                 if (response.error) {
-                    // Show validation errors
-                    $.each(response.error, function(i, msg) {
-                        showAlert('warning', msg);
+                    // Show validation errors for specific fields
+                    $.each(response.error, function(field, msg) {
+                        $('#' + field).addClass('is-invalid');
+                        $('#error_' + field).text(msg).show();
                     });
                 } else {
                     showAlert('danger', response.message || 'Gagal menyimpan data');
@@ -398,13 +402,20 @@ $('#form_jadwal').submit(function(e) {
             }
         },
         error: function(xhr) {
+            console.log('Error XHR:', xhr);
             if (xhr.status === 400) {
                 var response = xhr.responseJSON;
-                if (response && response.message) {
+                if (response && response.error) {
+                    // Show validation errors for specific fields
+                    $.each(response.error, function(field, msg) {
+                        $('#' + field).addClass('is-invalid');
+                        $('#error_' + field).text(msg).show();
+                    });
+                } else if (response && response.message) {
                     showAlert('danger', response.message);
                 }
             } else {
-                showAlert('danger', 'Terjadi kesalahan saat menyimpan data');
+                showAlert('danger', 'Terjadi kesalahan saat menyimpan data. Status: ' + xhr.status);
             }
         }
     });

@@ -116,9 +116,10 @@ class M_jadwal extends CI_Model {
     {
         $this->db->where('id_kelas', $data['id_kelas']);
         $this->db->where('hari', $data['hari']);
-        $this->db->where('(jam_mulai <', $data['jam_selesai']);
-        $this->db->where('jam_selesai >', $data['jam_mulai'] . ')');
         $this->db->where('status_aktif', 1);
+        
+        // Check for overlapping time ranges
+        $this->db->where('(jam_mulai < "' . $this->db->escape_str($data['jam_selesai']) . '" AND jam_selesai > "' . $this->db->escape_str($data['jam_mulai']) . '")');
         
         if ($exclude_id) {
             $this->db->where('id !=', $exclude_id);
