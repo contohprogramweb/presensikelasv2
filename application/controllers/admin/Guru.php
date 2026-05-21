@@ -161,6 +161,18 @@ class Guru extends MY_Controller {
         $this->output->set_content_type('application/json');
         
         $id = decrypt_id($this->input->post('id'));
+        
+        // Cek apakah ID valid
+        if (!$id) {
+            echo json_encode([
+                'status' => false, 
+                'message' => 'ID guru tidak valid',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
+            return;
+        }
+        
         $this->form_validation->set_rules('nip', 'NIP', 'required|trim');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         
@@ -169,12 +181,24 @@ class Guru extends MY_Controller {
             return;
         }
         
+        // Ambil data guru terlebih dahulu
         $guru = $this->M_guru->get_by_id($id);
         
-        if (!$guru) {
+        if (!$guru || empty($guru)) {
             echo json_encode([
                 'status' => false, 
                 'message' => 'Data guru tidak ditemukan',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
+            return;
+        }
+        
+        // Cek NIP unique (kecuali untuk guru yang sama)
+        if ($this->M_guru->check_nip_exists($this->input->post('nip'), $id)) {
+            echo json_encode([
+                'status' => false, 
+                'message' => 'NIP sudah digunakan oleh guru lain',
                 'csrf_name' => $this->security->get_csrf_token_name(),
                 'csrf_hash' => $this->security->get_csrf_hash()
             ]);
