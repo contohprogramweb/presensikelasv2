@@ -178,28 +178,10 @@ $(document).ready(function() {
         }
     });
 
-    // Initialize Select2 with AJAX
+    // Initialize Select2 without AJAX - will be populated manually
     $('.select2').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#modal_jadwal'),
-        ajax: {
-            url: '<?= site_url('admin/jadwal/ajax_get_dropdown') ?>',
-            dataType: 'json',
-            delay: 250,
-            data: function(params) {
-                return {
-                    type: params.element[0].id.replace('id_', ''),
-                    q: params.term
-                };
-            },
-            processResults: function(data) {
-                return {
-                    results: data.results || data
-                };
-            },
-            cache: true
-        },
-        minimumInputLength: 0,
         language: {
             noResults: function() {
                 return "Tidak ada data ditemukan";
@@ -228,18 +210,19 @@ function load_dropdown_options() {
         data: {type: 'kelas'},
         dataType: 'json',
         success: function(response) {
+            console.log('Kelas response:', response);
             var options = '<option value="">-- Pilih Kelas --</option>';
             var results = response.results || response;
-            if (results && results.length > 0) {
+            if (results && Array.isArray(results) && results.length > 0) {
                 $.each(results, function(i, item) {
                     options += '<option value="' + item.id + '">' + item.text + '</option>';
                 });
             }
-            $('#id_kelas').html(options).trigger('change.select2');
+            $('#id_kelas').html(options).trigger('change');
         },
         error: function(xhr, status, error) {
-            console.error('Error loading kelas:', error);
-            $('#id_kelas').html('<option value="">-- Pilih Kelas --</option>').trigger('change.select2');
+            console.error('Error loading kelas:', status, error, xhr.responseText);
+            $('#id_kelas').html('<option value="">-- Pilih Kelas --</option>').trigger('change');
         }
     });
 
@@ -249,6 +232,7 @@ function load_dropdown_options() {
         data: {type: 'guru'},
         dataType: 'json',
         success: function(response) {
+            console.log('Guru response:', response);
             var options = '<option value="">-- Pilih Guru --</option>';
             var results = response.results || response;
             if (results && Array.isArray(results) && results.length > 0) {
@@ -256,11 +240,11 @@ function load_dropdown_options() {
                     options += '<option value="' + item.id + '">' + item.text + '</option>';
                 });
             }
-            $('#id_guru').html(options).trigger('change.select2');
+            $('#id_guru').html(options).trigger('change');
         },
         error: function(xhr, status, error) {
-            console.error('Error loading guru:', error);
-            $('#id_guru').html('<option value="">-- Pilih Guru --</option>').trigger('change.select2');
+            console.error('Error loading guru:', status, error, xhr.responseText);
+            $('#id_guru').html('<option value="">-- Pilih Guru --</option>').trigger('change');
         }
     });
 
@@ -270,6 +254,7 @@ function load_dropdown_options() {
         data: {type: 'mapel'},
         dataType: 'json',
         success: function(response) {
+            console.log('Mapel response:', response);
             var options = '<option value="">-- Pilih Mata Pelajaran --</option>';
             var results = response.results || response;
             if (results && Array.isArray(results) && results.length > 0) {
@@ -277,11 +262,11 @@ function load_dropdown_options() {
                     options += '<option value="' + item.id + '">' + item.text + '</option>';
                 });
             }
-            $('#id_mapel').html(options).trigger('change.select2');
+            $('#id_mapel').html(options).trigger('change');
         },
         error: function(xhr, status, error) {
-            console.error('Error loading mapel:', error);
-            $('#id_mapel').html('<option value="">-- Pilih Mata Pelajaran --</option>').trigger('change.select2');
+            console.error('Error loading mapel:', status, error, xhr.responseText);
+            $('#id_mapel').html('<option value="">-- Pilih Mata Pelajaran --</option>').trigger('change');
         }
     });
 }
@@ -291,6 +276,11 @@ function add_jadwal() {
     $('#id_jadwal').val('');
     $('.invalid-feedback').hide();
     $('.is-invalid').removeClass('is-invalid');
+    
+    // Reset Select2 values
+    $('#id_kelas').val(null).trigger('change');
+    $('#id_guru').val(null).trigger('change');
+    $('#id_mapel').val(null).trigger('change');
     
     // Reload dropdown options before showing modal
     load_dropdown_options();
@@ -312,12 +302,14 @@ function edit_jadwal(encrypted_id) {
                 var data = response.data;
                 $('#id_jadwal').val(encrypted_id);
                 
-                // Set values and trigger change event for Select2
-                // Wait a bit for the dropdown options to load
+                // Wait for dropdown options to load, then set values
                 setTimeout(function() {
-                    $('#id_kelas').val(data.id_kelas).trigger('change');
-                    $('#id_guru').val(data.id_guru).trigger('change');
-                    $('#id_mapel').val(data.id_mapel).trigger('change');
+                    // Set Select2 values - use val() with trigger('change')
+                    $('#id_kelas').val(data.id_kelas).trigger('change.select2');
+                    $('#id_guru').val(data.id_guru).trigger('change.select2');
+                    $('#id_mapel').val(data.id_mapel).trigger('change.select2');
+                    
+                    // Set other field values
                     $('#hari').val(data.hari);
                     $('#jam_mulai').val(data.jam_mulai);
                     $('#jam_selesai').val(data.jam_selesai);
@@ -327,12 +319,13 @@ function edit_jadwal(encrypted_id) {
                     $('.is-invalid').removeClass('is-invalid');
                     $('#modal_jadwal_label').text('Edit Jadwal Pelajaran');
                     $('#modal_jadwal').modal('show');
-                }, 300);
+                }, 500);
             } else {
                 showAlert('danger', response.message || 'Gagal mengambil data');
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error('Edit error:', status, error);
             showAlert('danger', 'Terjadi kesalahan saat mengambil data');
         }
     });
