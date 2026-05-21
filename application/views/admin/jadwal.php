@@ -178,7 +178,7 @@ $(document).ready(function() {
         }
     });
 
-    // Initialize Select2
+    // Initialize Select2 with AJAX
     $('.select2').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#modal_jadwal'),
@@ -196,14 +196,19 @@ $(document).ready(function() {
                 return {
                     results: data
                 };
+            },
+            cache: true
+        },
+        minimumInputLength: 0,
+        language: {
+            noResults: function() {
+                return "Tidak ada data ditemukan";
             }
         }
     });
 
-    // Load dropdown options on modal open
-    $('#modal_jadwal').on('shown.bs.modal', function() {
-        load_dropdown_options();
-    });
+    // Load initial options for Select2
+    load_dropdown_options();
 });
 
 function load_dropdown_options() {
