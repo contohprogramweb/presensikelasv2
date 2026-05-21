@@ -168,6 +168,18 @@ class Guru extends MY_Controller {
             return;
         }
         
+        $guru = $this->M_guru->get_by_id($id);
+        
+        if (!$guru) {
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Data guru tidak ditemukan',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
+            return;
+        }
+        
         $guru_data = [
             'nip' => $this->input->post('nip'),
             'nama_lengkap' => $this->input->post('nama'),
@@ -182,8 +194,6 @@ class Guru extends MY_Controller {
             'email' => $this->input->post('email'),
             'no_hp' => $this->input->post('no_hp')
         ];
-        
-        $guru = $this->M_guru->get_by_id($id);
         
         $this->db->trans_start();
         $this->M_guru->update($id, $guru_data);
