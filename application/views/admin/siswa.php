@@ -186,14 +186,31 @@ $(document).ready(function() {
         ]
     });
 
-    // Load kelas select
-    $.get('<?= site_url('admin/siswa/get_kelas_select') ?>', function(data) {
-        var options = '<option value="">-- Pilih Kelas --</option>';
-        data.forEach(function(kelas) {
-            options += '<option value="' + kelas.id + '">' + kelas.nama_kelas + '</option>';
+    // Load kelas select - call after page load
+    function loadKelasSelect() {
+        $.ajax({
+            url: '<?= site_url('admin/siswa/get_kelas_select') ?>',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                var options = '<option value="">-- Pilih Kelas --</option>';
+                if (data && Array.isArray(data)) {
+                    data.forEach(function(kelas) {
+                        options += '<option value="' + kelas.id + '">' + kelas.nama_kelas + '</option>';
+                    });
+                }
+                $('#id_kelas').html(options);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading kelas:', error);
+                console.error('Response:', xhr.responseText);
+                // Don't show alert for now, just log
+            }
         });
-        $('#id_kelas').html(options);
-    });
+    }
+    
+    // Load kelas on page init
+    loadKelasSelect();
 
     $('#formSiswa').submit(function(e) {
         e.preventDefault();
