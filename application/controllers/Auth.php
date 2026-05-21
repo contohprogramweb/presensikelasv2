@@ -94,10 +94,16 @@ class Auth extends CI_Controller {
             log_aktivitas('logout', 'tb_user', $this->session->userdata('id'), 'User logout');
         }
         
-        // Destroy session
+        // Destroy session completely
         $this->session->sess_destroy();
         
-        // Redirect to login
-        redirect('auth/login');
+        // Prevent caching
+        $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        $this->output->set_header('Pragma: no-cache');
+        $this->output->set_header('Expires: 0');
+        
+        // Redirect to login page with exit to ensure script terminates
+        redirect('auth/login', 'refresh');
+        exit;
     }
 }

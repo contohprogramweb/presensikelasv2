@@ -68,7 +68,8 @@
 
         .form-control:focus {
             border-color: #0d6efd;
-            box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+            box-shadow: none;
+            outline: none;
         }
 
         .input-group-text {
