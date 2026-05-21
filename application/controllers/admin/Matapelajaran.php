@@ -49,7 +49,9 @@ class Matapelajaran extends MY_Controller {
             'draw' => $draw,
             'recordsTotal' => count($all_data),
             'recordsFiltered' => count($filtered_data),
-            'data' => []
+            'data' => [],
+            'csrf_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
         ];
         
         foreach ($paginated_data as $row) {
@@ -61,7 +63,7 @@ class Matapelajaran extends MY_Controller {
             ];
         }
         
-        echo json_encode($output);
+        $this->output->set_content_type('application/json')->set_output(json_encode($output));
     }
 
     public function ajax_add()
