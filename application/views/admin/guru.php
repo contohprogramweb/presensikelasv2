@@ -208,10 +208,10 @@ $(document).ready(function() {
 
     $(document).on('click', '.edit-btn', function() {
         var id = $(this).data('id');
-        $.get('<?= site_url('admin/guru/ajax_edit') ?>/' + id, function(response) {
+        $.get('<?= site_url('admin/guru/ajax_edit') ?>/' + encodeURIComponent(id), function(response) {
             if (response.status) {
                 $('#modalTitle').text('Edit Guru');
-                $('#id').val(response.data.id);
+                $('#id').val(id); // Gunakan ID terenkripsi langsung
                 $('#nip').val(response.data.nip);
                 $('#nama').val(response.data.nama_lengkap);
                 $('#jenis_kelamin').val(response.data.jenis_kelamin);
@@ -220,9 +220,20 @@ $(document).ready(function() {
                 $('#alamat').val(response.data.alamat || '');
                 $('#modalGuru').modal('show');
             } else {
-                alert(response.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: response.message
+                });
             }
-        }, 'json');
+        }, 'json').fail(function(xhr, status, error) {
+            console.error('Edit Error:', xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Gagal mengambil data guru'
+            });
+        });
     });
 
     $(document).on('click', '.delete-btn', function() {
@@ -239,7 +250,7 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '<?= site_url('admin/guru/ajax_delete') ?>/' + id,
+                    url: '<?= site_url('admin/guru/ajax_delete') ?>/' + encodeURIComponent(id),
                     type: 'POST',
                     data: {[csrfName]: csrfHash},
                     dataType: 'json',
