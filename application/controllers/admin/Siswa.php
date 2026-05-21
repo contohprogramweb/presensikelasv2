@@ -56,7 +56,7 @@ class Siswa extends MY_Controller {
             $output['data'][] = [
                 ($index + 1),
                 $row['nis'],
-                $row['nama'],
+                $row['nama_lengkap'],
                 $jk_badge,
                 $row['nama_kelas'] ?? '-',
                 $row['username'],
