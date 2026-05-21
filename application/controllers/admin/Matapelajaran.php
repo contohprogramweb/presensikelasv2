@@ -119,6 +119,13 @@ class Matapelajaran extends MY_Controller {
         
         $id = decrypt_id($id_encrypted);
         
+        // Verify the record exists
+        $existing_data = $this->M_matapelajaran->get_by_id($id);
+        if (!$existing_data) {
+            echo json_encode(['status' => false, 'message' => 'Data tidak ditemukan']);
+            return;
+        }
+        
         $this->form_validation->set_rules('kode_mapel', 'Kode Mata Pelajaran', 'required|trim');
         $this->form_validation->set_rules('nama_mapel', 'Nama Mata Pelajaran', 'required|trim');
         
@@ -127,35 +134,51 @@ class Matapelajaran extends MY_Controller {
             return;
         }
         
-        // Check if kode_mapel or nama_mapel already exists (excluding current record)
-        $this->db->where('kode_mapel', $this->input->post('kode_mapel'));
-        $this->db->where('id !=', $id);
-        $check_kode = $this->db->get('tb_mata_pelajaran')->row();
+        $kode_mapel = $this->input->post('kode_mapel');
+        $nama_mapel = $this->input->post('nama_mapel');
         
-        if ($check_kode) {
-            echo json_encode(['status' => false, 'message' => 'Kode mata pelajaran sudah digunakan']);
-            return;
+        // Check if kode_mapel already exists (excluding current record)
+        if ($existing_data['kode_mapel'] !== $kode_mapel) {
+            $this->db->where('kode_mapel', $kode_mapel);
+            $check_kode = $this->db->get('tb_mata_pelajaran')->row();
+            
+            if ($check_kode) {
+                echo json_encode(['status' => false, 'message' => 'Kode mata pelajaran sudah digunakan']);
+                return;
+            }
         }
         
-        $this->db->where('nama_mapel', $this->input->post('nama_mapel'));
-        $this->db->where('id !=', $id);
-        $check_nama = $this->db->get('tb_mata_pelajaran')->row();
-        
-        if ($check_nama) {
-            echo json_encode(['status' => false, 'message' => 'Nama mata pelajaran sudah digunakan']);
-            return;
+        // Check if nama_mapel already exists (excluding current record)
+        if ($existing_data['nama_mapel'] !== $nama_mapel) {
+            $this->db->where('nama_mapel', $nama_mapel);
+            $check_nama = $this->db->get('tb_mata_pelajaran')->row();
+            
+            if ($check_nama) {
+                echo json_encode(['status' => false, 'message' => 'Nama mata pelajaran sudah digunakan']);
+                return;
+            }
         }
         
         $data = [
-            'kode_mapel' => $this->input->post('kode_mapel'),
-            'nama_mapel' => $this->input->post('nama_mapel')
+            'kode_mapel' => $kode_mapel,
+            'nama_mapel' => $nama_mapel
         ];
         
         if ($this->M_matapelajaran->update($id, $data)) {
             log_aktivitas('UPDATE', 'tb_mata_pelajaran', $id, 'Update mapel ' . $data['nama_mapel']);
-            echo json_encode(['status' => true, 'message' => 'Mata pelajaran berhasil diperbarui']);
+            echo json_encode([
+                'status' => true, 
+                'message' => 'Mata pelajaran berhasil diperbarui',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         } else {
-            echo json_encode(['status' => false, 'message' => 'Gagal memperbarui mata pelajaran']);
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Gagal memperbarui mata pelajaran',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
         }
     }
 

@@ -143,7 +143,7 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.status) {
                     $('#modalTitle').text('Edit Mata Pelajaran');
-                    $('#id').val(response.data.id);
+                    $('#id').val(id); // Use encrypted ID directly
                     $('#kode_mapel').val(response.data.kode_mapel);
                     $('#nama_mapel').val(response.data.nama_mapel);
                     $('#modalMapel').modal('show');
