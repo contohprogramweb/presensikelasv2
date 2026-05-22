@@ -108,10 +108,21 @@ class Presensi extends MY_Controller {
             show_error('Method tidak diizinkan', 403);
         }
         
-        $id_jadwal = $this->input->post('id_jadwal');
-        $tanggal = $this->input->post('tanggal');
-        $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
-        $siswa_data = $this->input->post('siswa');
+        // Handle JSON input untuk AJAX request
+        $raw_input = file_get_contents('php://input');
+        $json_data = json_decode($raw_input, true);
+        
+        if ($is_ajax && !empty($json_data)) {
+            $id_jadwal = $json_data['id_jadwal'] ?? null;
+            $tanggal = $json_data['tanggal'] ?? null;
+            $materi_pelajaran = trim($json_data['materi_pelajaran'] ?? '');
+            $siswa_data = $json_data['siswa'] ?? null;
+        } else {
+            $id_jadwal = $this->input->post('id_jadwal');
+            $tanggal = $this->input->post('tanggal');
+            $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
+            $siswa_data = $this->input->post('siswa');
+        }
         
         // Validasi data dasar
         if (!$id_jadwal || !$tanggal || empty($materi_pelajaran)) {

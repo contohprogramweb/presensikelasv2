@@ -282,13 +282,8 @@ $(document).ready(function() {
         var originalText = btnSubmit.html();
         btnSubmit.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...');
         
-        // Kumpulkan data form
-        var formData = new FormData();
-        formData.append('id_jadwal', form.find('input[name="id_jadwal"]').val());
-        formData.append('tanggal', form.find('input[name="tanggal"]').val());
-        formData.append('materi_pelajaran', form.find('textarea[name="materi_pelajaran"]').val());
-        
-        // Kumpulkan data siswa
+        // Kumpulkan data siswa dalam format object
+        var siswaData = {};
         $('input[name^="siswa["][name$="[status]"]:checked').each(function() {
             var nameParts = $(this).attr('name').match(/siswa\[(\d+)\]\[status\]/);
             if (nameParts && nameParts[1]) {
@@ -296,19 +291,25 @@ $(document).ready(function() {
                 var status = $(this).val();
                 var keterangan = form.find('input[name="siswa[' + idSiswa + '][keterangan]"]').val() || '';
                 
-                formData.append('siswa[' + idSiswa + '][status]', status);
-                formData.append('siswa[' + idSiswa + '][keterangan]', keterangan);
+                siswaData[idSiswa] = {
+                    status: status,
+                    keterangan: keterangan
+                };
             }
         });
         
-        // Kirim AJAX dengan processData dan contentType false untuk FormData
+        // Kirim data sebagai JSON
         $.ajax({
             url: '<?= site_url("guru/presensi/simpan") ?>',
             type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
+            contentType: 'application/json',
             dataType: 'json',
+            data: JSON.stringify({
+                id_jadwal: form.find('input[name="id_jadwal"]').val(),
+                tanggal: form.find('input[name="tanggal"]').val(),
+                materi_pelajaran: form.find('textarea[name="materi_pelajaran"]').val(),
+                siswa: siswaData
+            }),
             success: function(response) {
                 btnSubmit.prop('disabled', false).html(originalText);
                 
