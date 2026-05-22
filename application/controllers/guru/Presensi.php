@@ -146,34 +146,10 @@ class Presensi extends MY_Controller {
             }
         }
         
-        // Save presensi
-        $result = $this->M_presensi->simpan_presensi($data_presensi, []);
+        // Save presensi with approval data
+        $result = $this->M_presensi->simpan_presensi($data_presensi, $data_approval);
         
         if ($result['status']) {
-            // Update approval records with presensi IDs
-            // Get the presensi header ID first
-            $this->db->where('id_jadwal', $id_jadwal);
-            $this->db->where('tanggal', $tanggal);
-            $presensi_header = $this->db->get('tb_presensi')->row_array();
-            
-            if ($presensi_header) {
-                $id_presensi_header = $presensi_header['id'];
-                
-                // Get all presensi_siswa records for this header that have Izin/Sakit status
-                $this->db->where('id_presensi', $id_presensi_header);
-                $this->db->where_in('status', ['Izin', 'Sakit']);
-                $presensi_siswa_list = $this->db->get('tb_presensi_siswa')->result_array();
-                
-                foreach ($presensi_siswa_list as $idx => $ps) {
-                    $approval_data = [
-                        'id_presensi' => $id_presensi_header,
-                        'id_presensi_siswa' => $ps['id'],
-                        'status_approval' => 'pending'
-                    ];
-                    $this->db->insert('tb_approval', $approval_data);
-                }
-            }
-            
             log_aktivitas('INSERT_PRESENSI', 'tb_presensi', $id_jadwal, 'Input presensi tanggal ' . $tanggal);
             
             echo json_encode(['status' => true, 'message' => 'Presensi berhasil disimpan']);
