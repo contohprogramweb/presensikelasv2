@@ -81,7 +81,10 @@ class M_presensi extends CI_Model {
                 if (in_array($status, ['Izin', 'Sakit'])) {
                     $approval_to_insert[] = [
                         'id_presensi' => $id_presensi_header,
-                        'id_presensi_siswa' => $existing_detail['id'],
+                        'id_siswa' => $id_siswa,
+                        'id_guru' => $presensi['id_guru'],
+                        'tanggal' => $tanggal,
+                        'status_asli' => $status,
                         'status_approval' => 'pending'
                     ];
                 }
@@ -102,7 +105,10 @@ class M_presensi extends CI_Model {
                 if (in_array($status, ['Izin', 'Sakit'])) {
                     $approval_to_insert[] = [
                         'id_presensi' => $id_presensi_header,
-                        'id_presensi_siswa' => $new_detail_id,
+                        'id_siswa' => $id_siswa,
+                        'id_guru' => $presensi['id_guru'],
+                        'tanggal' => $tanggal,
+                        'status_asli' => $status,
                         'status_approval' => 'pending'
                     ];
                 }
