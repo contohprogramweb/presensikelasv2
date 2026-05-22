@@ -47,7 +47,8 @@ class Jadwal extends MY_Controller {
         }
         
         $this->data['hari_list'] = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $this->data['content'] = 'siswa/jadwal';
         
-        $this->load->view('templates/template', 'siswa/jadwal', $this->data);
+        $this->load->view('templates/template', $this->data);
     }
 }

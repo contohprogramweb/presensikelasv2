@@ -12,7 +12,7 @@ class Riwayat extends MY_Controller {
 
     public function index()
     {
-        $data['judul'] = 'Riwayat Presensi';
+        $this->data['judul'] = 'Riwayat Presensi';
         
         // Get siswa ID from session
         $user_id = $this->session->userdata('id');
@@ -25,8 +25,10 @@ class Riwayat extends MY_Controller {
             return;
         }
         
-        $data['siswa'] = $siswa;
-        $this->load->view('templates/template', ['contents' => $this->load->view('siswa/riwayat', $data, TRUE)]);
+        $this->data['siswa'] = $siswa;
+        $this->data['content'] = 'siswa/riwayat';
+        
+        $this->load->view('templates/template', $this->data);
     }
 
     public function ajax_list()
