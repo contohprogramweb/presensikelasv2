@@ -285,97 +285,22 @@ class Import extends MY_Controller {
             show_404();
         }
         
-        $this->load->library('dompdf_generator');
+        // Load library Excel template
+        $this->load->library('excel_template');
         
         if ($type === 'siswa') {
-            $html = '
-            <html>
-            <head>
-                <style>
-                    table { border-collapse: collapse; width: 100%; }
-                    th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-                    th { background-color: #f0f0f0; }
-                </style>
-            </head>
-            <body>
-                <h2>Template Import Siswa</h2>
-                <p>Format kolom: NIS | Nama Lengkap | JK (L/P) | Tempat, Tanggal Lahir | Alamat | Nama Orang Tua | No HP Orang Tua</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>NIS</th>
-                            <th>Nama Lengkap</th>
-                            <th>JK</th>
-                            <th>Tempat, Tanggal Lahir</th>
-                            <th>Alamat</th>
-                            <th>Nama Orang Tua</th>
-                            <th>No HP Orang Tua</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>12345</td>
-                            <td>Ahmad Santoso</td>
-                            <td>L</td>
-                            <td>Ubung, 15 Januari 2013</td>
-                            <td>Jl. Raya Ubung No. 123</td>
-                            <td>Budi Santoso</td>
-                            <td>081234567890</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p style="margin-top: 20px;"><strong>Catatan:</strong></p>
-                <ul>
-                    <li>NIS harus unik (10 digit angka)</li>
-                    <li>JK diisi L untuk Laki-laki atau P untuk Perempuan</li>
-                    <li>Tanggal lahir format: Tempat, DD Bulan YYYY</li>
-                    <li>No HP minimal 10 digit angka</li>
-                </ul>
-            </body>
-            </html>';
+            $spreadsheet = $this->excel_template->generate_siswa_template();
+            $filename = 'template_import_siswa';
         } else {
-            $html = '
-            <html>
-            <head>
-                <style>
-                    table { border-collapse: collapse; width: 100%; }
-                    th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-                    th { background-color: #f0f0f0; }
-                </style>
-            </head>
-            <body>
-                <h2>Template Import Guru</h2>
-                <p>Format kolom: NIP | Nama Lengkap | JK (L/P) | No HP | Alamat</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>NIP</th>
-                            <th>Nama Lengkap</th>
-                            <th>JK</th>
-                            <th>No HP</th>
-                            <th>Alamat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>198501012010011001</td>
-                            <td>Drs. John Doe, M.Pd</td>
-                            <td>L</td>
-                            <td>081234567890</td>
-                            <td>Jl. Pendidikan No. 45</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p style="margin-top: 20px;"><strong>Catatan:</strong></p>
-                <ul>
-                    <li>NIP harus unik (18 digit angka)</li>
-                    <li>JK diisi L untuk Laki-laki atau P untuk Perempuan</li>
-                    <li>No HP minimal 10 digit angka</li>
-                </ul>
-            </body>
-            </html>';
+            $spreadsheet = $this->excel_template->generate_guru_template();
+            $filename = 'template_import_guru';
         }
         
-        $this->dompdf_generator->generate($html, 'template_import_' . $type . '.pdf');
+        if (!$spreadsheet) {
+            show_error('Gagal membuat template Excel. Pastikan library PhpSpreadsheet terinstall.');
+            return;
+        }
+        
+        $this->excel_template->download($spreadsheet, $filename);
     }
 }
