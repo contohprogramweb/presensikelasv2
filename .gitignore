@@ -1,1 +1,1 @@
-Nothing should be ignored based on the provided file changes, as only a PHP model file was modified and no build artifacts, dependencies, or temporary files were included in the changes.
+Nothing to output - the modified file 'application/models/guru/M_jadwal.php' is a source code file and should not be added to .gitignore.

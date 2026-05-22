@@ -82,11 +82,6 @@ class M_jadwal extends CI_Model {
         // Filter berdasarkan tahun ajaran - WAJIB ada
         if ($id_tahun_ajaran) {
             $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
-        } else {
-            // Jika tidak ada parameter, gunakan tahun ajaran aktif dari property
-            if (isset($this->tahun_ajaran_aktif) && isset($this->tahun_ajaran_aktif->id)) {
-                $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id);
-            }
         }
         
         $this->db->order_by('j.jam_mulai', 'ASC');
