@@ -11,7 +11,7 @@ class M_logapproval extends CI_Model {
     public function get_all_datatables()
     {
         $this->db->select('a.*, u.nama_lengkap as approver_nama, p.tanggal');
-        $this->db->select('s.nama as nama_siswa');
+        $this->db->select('s.nama_lengkap as nama_siswa');
         $this->db->from('tb_approval a');
         $this->db->join('tb_user u', 'u.id = a.id_approver', 'left');
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
@@ -24,7 +24,7 @@ class M_logapproval extends CI_Model {
     public function get_by_date_range($start_date, $end_date)
     {
         $this->db->select('a.*, u.nama_lengkap as approver_nama, p.tanggal');
-        $this->db->select('s.nama as nama_siswa');
+        $this->db->select('s.nama_lengkap as nama_siswa');
         $this->db->from('tb_approval a');
         $this->db->join('tb_user u', 'u.id = a.id_approver', 'left');
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
