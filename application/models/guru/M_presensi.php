@@ -123,8 +123,18 @@ class M_presensi extends CI_Model {
      */
     public function simpan_presensi($data)
     {
+        // Log untuk debugging
+        log_message('debug', 'M_presensi::simpan_presensi - Data received: ' . json_encode([
+            'id_jadwal' => $data['id_jadwal'] ?? null,
+            'id_guru' => $data['id_guru'] ?? null,
+            'tanggal' => $data['tanggal'] ?? null,
+            'materi_pelajaran' => substr($data['materi_pelajaran'] ?? '', 0, 50),
+            'siswa_count' => is_array($data['siswa_data']) ? count($data['siswa_data']) : 0
+        ]));
+        
         // Validasi data
         if (empty($data['id_jadwal']) || empty($data['id_guru']) || empty($data['tanggal']) || empty($data['siswa_data'])) {
+            log_message('error', 'M_presensi::simpan_presensi - Data presensi tidak lengkap');
             return [
                 'success' => false,
                 'message' => 'Data presensi tidak lengkap',
@@ -146,12 +156,18 @@ class M_presensi extends CI_Model {
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
+            log_message('debug', 'M_presensi::simpan_presensi - Inserting presensi data: ' . json_encode($presensi_data));
+            
             $this->db->insert('tb_presensi', $presensi_data);
             $id_presensi = $this->db->insert_id();
 
             if (!$id_presensi) {
-                throw new Exception('Gagal menyimpan data header presensi');
+                $error = $this->db->error();
+                log_message('error', 'M_presensi::simpan_presensi - Gagal insert header. DB Error: ' . json_encode($error));
+                throw new Exception('Gagal menyimpan data header presensi: ' . $error['message']);
             }
+            
+            log_message('debug', 'M_presensi::simpan_presensi - Header inserted with ID: ' . $id_presensi);
 
             // Prepare data untuk insert batch ke tb_presensi_siswa
             $siswa_presensi_data = [];
@@ -169,21 +185,28 @@ class M_presensi extends CI_Model {
                 ];
             }
 
+            log_message('debug', 'M_presensi::simpan_presensi - Inserting ' . count($siswa_presensi_data) . ' siswa records');
+
             // Insert batch ke tb_presensi_siswa
             if (!empty($siswa_presensi_data)) {
-                $this->db->insert_batch('tb_presensi_siswa', $siswa_presensi_data);
+                $result = $this->db->insert_batch('tb_presensi_siswa', $siswa_presensi_data);
+                log_message('debug', 'M_presensi::simpan_presensi - Batch insert result: ' . ($result ? 'success' : 'failed'));
             }
 
             $this->db->trans_complete();
 
             if ($this->db->trans_status() === FALSE) {
+                $error = $this->db->error();
+                log_message('error', 'M_presensi::simpan_presensi - Transaction failed. DB Error: ' . json_encode($error));
                 return [
                     'success' => false,
-                    'message' => 'Gagal menyimpan data presensi. Silakan coba lagi.',
+                    'message' => 'Gagal menyimpan data presensi. Silakan coba lagi. Error: ' . $error['message'],
                     'id_presensi' => null
                 ];
             }
 
+            log_message('debug', 'M_presensi::simpan_presensi - Success! ID: ' . $id_presensi);
+            
             return [
                 'success' => true,
                 'message' => 'Data presensi berhasil disimpan',
@@ -192,7 +215,7 @@ class M_presensi extends CI_Model {
 
         } catch (Exception $e) {
             $this->db->trans_rollback();
-            log_message('error', 'M_presensi::simpan_presensi - Error: ' . $e->getMessage());
+            log_message('error', 'M_presensi::simpan_presensi - Exception: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage(),
