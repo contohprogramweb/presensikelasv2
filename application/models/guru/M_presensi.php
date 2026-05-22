@@ -24,6 +24,7 @@ class M_presensi extends CI_Model {
         $this->db->trans_start();
         
         $inserted_ids = [];
+        $approval_to_insert = [];
         
         foreach ($data_presensi as $presensi) {
             // Extract presensi header data (untuk tb_presensi)
@@ -75,6 +76,15 @@ class M_presensi extends CI_Model {
                     'keterangan' => $keterangan
                 ]);
                 $inserted_ids[] = $existing_detail['id'];
+                
+                // If updating to Izin/Sakit, need to create approval
+                if (in_array($status, ['Izin', 'Sakit'])) {
+                    $approval_to_insert[] = [
+                        'id_presensi' => $id_presensi_header,
+                        'id_presensi_siswa' => $existing_detail['id'],
+                        'status_approval' => 'pending'
+                    ];
+                }
             } else {
                 // Insert new detail
                 $detail_data = [
@@ -85,13 +95,23 @@ class M_presensi extends CI_Model {
                     'keterangan' => $keterangan
                 ];
                 $this->db->insert('tb_presensi_siswa', $detail_data);
-                $inserted_ids[] = $this->db->insert_id();
+                $new_detail_id = $this->db->insert_id();
+                $inserted_ids[] = $new_detail_id;
+                
+                // If Izin/Sakit, prepare approval record
+                if (in_array($status, ['Izin', 'Sakit'])) {
+                    $approval_to_insert[] = [
+                        'id_presensi' => $id_presensi_header,
+                        'id_presensi_siswa' => $new_detail_id,
+                        'status_approval' => 'pending'
+                    ];
+                }
             }
         }
         
-        // Handle approval for Izin/Sakit
-        if ($data_approval && !empty($data_approval)) {
-            foreach ($data_approval as $approval_data) {
+        // Insert approval records for Izin/Sakit
+        if (!empty($approval_to_insert)) {
+            foreach ($approval_to_insert as $approval_data) {
                 $this->db->insert('tb_approval', $approval_data);
             }
         }

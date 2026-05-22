@@ -80,7 +80,7 @@
                                         <td>
                                             <select class="form-select form-select-sm status-select" name="status[]" required data-siswa="<?= $s['id']; ?>">
                                                 <option value="">-- Pilih Status --</option>
-                                                <option value="Hadir" <?= (isset($existing) && $existing['status'] == 'Hadir') ? 'selected' : ''; ?>>Hadir</option>
+                                                <option value="Hadir" <?= (isset($existing) && $existing['status'] == 'Hadir') || !isset($existing) ? 'selected' : ''; ?>>Hadir</option>
                                                 <option value="Izin" <?= (isset($existing) && $existing['status'] == 'Izin') ? 'selected' : ''; ?>>Izin</option>
                                                 <option value="Sakit" <?= (isset($existing) && $existing['status'] == 'Sakit') ? 'selected' : ''; ?>>Sakit</option>
                                                 <option value="Alpa" <?= (isset($existing) && $existing['status'] == 'Alpa') ? 'selected' : ''; ?>>Alpa</option>
