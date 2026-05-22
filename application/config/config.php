@@ -465,7 +465,7 @@ $config['csrf_expire'] = 7200;
 //$config['csrf_exclude_uris'] = array();
 
 $config['csrf_regenerate'] = FALSE;
-$config['csrf_exclude_uris'] = array('admin/siswa/ajax_list', 'admin/siswa/get_kelas_select', 'admin/kelassiswa/ajax_get_kelas', 'admin/kelassiswa/ajax_get_siswa','admin/matapelajaran/ajax_list','admin/jadwal/ajax_list','admin/jadwal/ajax_get_dropdown','auth/get_csrf');
+$config['csrf_exclude_uris'] = array('admin/siswa/ajax_list', 'admin/siswa/get_kelas_select', 'admin/kelassiswa/ajax_get_kelas', 'admin/kelassiswa/ajax_get_siswa','admin/matapelajaran/ajax_list','admin/jadwal/ajax_list','admin/jadwal/ajax_get_dropdown','auth/get_csrf', 'guru/presensi/simpan', 'guru/presensi/update');
 
 /*
 |--------------------------------------------------------------------------

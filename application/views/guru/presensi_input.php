@@ -181,19 +181,18 @@ $(document).ready(function() {
         });
     });
 
-    // Ambil CSRF Token dari meta tag atau hidden input
-    function getCsrfToken() {
-        var csrfName = $('meta[name="csrf_name"]').attr('content');
-        var csrfHash = $('meta[name="csrf_hash"]').attr('content');
-        
-        // Fallback: cari dari hidden input jika ada
-        if (!csrfName || !csrfHash) {
-            csrfName = $('[name="csrf_test_name"]').length ? 'csrf_test_name' : null;
-            csrfHash = $('[name="csrf_test_name"]').val() || null;
+    // Setup CSRF Token untuk semua request AJAX
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                var csrfName = $('meta[name="csrf_name"]').attr('content');
+                var csrfHash = $('meta[name="csrf_hash"]').attr('content');
+                if (csrfName && csrfHash) {
+                    xhr.setRequestHeader(csrfName, csrfHash);
+                }
+            }
         }
-        
-        return { name: csrfName, hash: csrfHash };
-    }
+    });
 
     // Validasi form sebelum submit dengan SweetAlert2
     $('#formPresensi').on('submit', function(e) {
@@ -284,12 +283,10 @@ $(document).ready(function() {
         btnSubmit.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...');
         
         // Kumpulkan data form
-        var formData = {
-            id_jadwal: form.find('input[name="id_jadwal"]').val(),
-            tanggal: form.find('input[name="tanggal"]').val(),
-            materi_pelajaran: form.find('textarea[name="materi_pelajaran"]').val(),
-            siswa: {}
-        };
+        var formData = new FormData();
+        formData.append('id_jadwal', form.find('input[name="id_jadwal"]').val());
+        formData.append('tanggal', form.find('input[name="tanggal"]').val());
+        formData.append('materi_pelajaran', form.find('textarea[name="materi_pelajaran"]').val());
         
         // Kumpulkan data siswa
         $('input[name^="siswa["][name$="[status]"]:checked').each(function() {
@@ -299,32 +296,21 @@ $(document).ready(function() {
                 var status = $(this).val();
                 var keterangan = form.find('input[name="siswa[' + idSiswa + '][keterangan]"]').val() || '';
                 
-                formData.siswa[idSiswa] = {
-                    status: status,
-                    keterangan: keterangan
-                };
+                formData.append('siswa[' + idSiswa + '][status]', status);
+                formData.append('siswa[' + idSiswa + '][keterangan]', keterangan);
             }
         });
         
-        // Dapatkan CSRF Token
-        var csrfToken = getCsrfToken();
-        if (csrfToken.name && csrfToken.hash) {
-            formData[csrfToken.name] = csrfToken.hash;
-        }
-        
-        // Kirim AJAX
+        // Kirim AJAX dengan processData dan contentType false untuk FormData
         $.ajax({
             url: '<?= site_url("guru/presensi/simpan") ?>',
             type: 'POST',
             data: formData,
+            processData: false,
+            contentType: false,
             dataType: 'json',
             success: function(response) {
                 btnSubmit.prop('disabled', false).html(originalText);
-                
-                // Update CSRF hash jika server mengirim yang baru
-                if (response.csrf_hash) {
-                    $('meta[name="csrf_hash"]').attr('content', response.csrf_hash);
-                }
                 
                 if (response.status === 'success' || response.success) {
                     Swal.fire({
