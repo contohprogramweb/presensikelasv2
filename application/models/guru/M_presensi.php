@@ -19,12 +19,11 @@ class M_presensi extends CI_Model {
         return $this->db->get()->result_array();
     }
 
-    public function simpan_presensi($data_presensi, $data_approval = null)
+    public function simpan_presensi($data_presensi)
     {
         $this->db->trans_start();
         
         $inserted_ids = [];
-        $approval_to_insert = [];
         
         foreach ($data_presensi as $presensi) {
             // Extract presensi header data (untuk tb_presensi)
@@ -79,7 +78,7 @@ class M_presensi extends CI_Model {
                 
                 // If updating to Izin/Sakit, need to create approval
                 if (in_array($status, ['Izin', 'Sakit'])) {
-                    $approval_to_insert[] = [
+                    $approval_data = [
                         'id_presensi' => $id_presensi_header,
                         'id_siswa' => $id_siswa,
                         'id_guru' => $presensi['id_guru'],
@@ -87,6 +86,7 @@ class M_presensi extends CI_Model {
                         'status_asli' => $status,
                         'status_approval' => 'pending'
                     ];
+                    $this->db->insert('tb_approval', $approval_data);
                 }
             } else {
                 // Insert new detail
@@ -101,9 +101,9 @@ class M_presensi extends CI_Model {
                 $new_detail_id = $this->db->insert_id();
                 $inserted_ids[] = $new_detail_id;
                 
-                // If Izin/Sakit, prepare approval record
+                // If Izin/Sakit, create approval record
                 if (in_array($status, ['Izin', 'Sakit'])) {
-                    $approval_to_insert[] = [
+                    $approval_data = [
                         'id_presensi' => $id_presensi_header,
                         'id_siswa' => $id_siswa,
                         'id_guru' => $presensi['id_guru'],
@@ -111,14 +111,8 @@ class M_presensi extends CI_Model {
                         'status_asli' => $status,
                         'status_approval' => 'pending'
                     ];
+                    $this->db->insert('tb_approval', $approval_data);
                 }
-            }
-        }
-        
-        // Insert approval records for Izin/Sakit
-        if (!empty($approval_to_insert)) {
-            foreach ($approval_to_insert as $approval_data) {
-                $this->db->insert('tb_approval', $approval_data);
             }
         }
         

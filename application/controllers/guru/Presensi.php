@@ -102,7 +102,6 @@ class Presensi extends MY_Controller {
         $guru = $this->db->get('tb_guru')->row_array();
         
         $data_presensi = [];
-        $data_approval = [];
         
         $siswa_ids = $this->input->post('id_siswa');
         $status_arr = $this->input->post('status');
@@ -110,17 +109,18 @@ class Presensi extends MY_Controller {
         
         foreach ($siswa_ids as $key => $id_siswa) {
             $status = $status_arr[$key];
-            $keterangan = $keterangan_arr[$key] ?? '';
+            $keterangan = isset($keterangan_arr[$key]) ? trim($keterangan_arr[$key]) : '';
             
             // Validate keterangan for Izin/Sakit
-            if (in_array($status, ['Izin', 'Sakit']) && empty($keterangan)) {
-                echo json_encode(['status' => false, 'message' => 'Keterangan wajib diisi untuk status Izin/Sakit']);
-                return;
-            }
-            
-            if (strlen($keterangan) < 10 && in_array($status, ['Izin', 'Sakit'])) {
-                echo json_encode(['status' => false, 'message' => 'Keterangan minimal 10 karakter untuk status Izin/Sakit']);
-                return;
+            if (in_array($status, ['Izin', 'Sakit'])) {
+                if (empty($keterangan)) {
+                    echo json_encode(['status' => false, 'message' => 'Keterangan wajib diisi untuk status Izin/Sakit']);
+                    return;
+                }
+                if (strlen($keterangan) < 10) {
+                    echo json_encode(['status' => false, 'message' => 'Keterangan minimal 10 karakter untuk status Izin/Sakit']);
+                    return;
+                }
             }
             
             $presensi_data = [
@@ -135,19 +135,10 @@ class Presensi extends MY_Controller {
             ];
             
             $data_presensi[] = $presensi_data;
-            
-            // Create approval record for Izin/Sakit
-            if (in_array($status, ['Izin', 'Sakit'])) {
-                $approval_data = [
-                    'id_presensi' => 0, // Will be updated after insert - need to get from presensi header
-                    'status_approval' => 'pending'
-                ];
-                $data_approval[] = $approval_data;
-            }
         }
         
-        // Save presensi with approval data
-        $result = $this->M_presensi->simpan_presensi($data_presensi, $data_approval);
+        // Save presensi (model will handle approval creation internally)
+        $result = $this->M_presensi->simpan_presensi($data_presensi);
         
         if ($result['status']) {
             log_aktivitas('INSERT_PRESENSI', 'tb_presensi', $id_jadwal, 'Input presensi tanggal ' . $tanggal);
