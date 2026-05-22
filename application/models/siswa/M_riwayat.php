@@ -8,13 +8,16 @@ class M_riwayat extends CI_Model {
         parent::__construct();
     }
 
-    public function get_riwayat_siswa($id_siswa, $start_date = null, $end_date = null)
+    public function get_riwayat_siswa($id_siswa, $start_date = null, $end_date = null, $status_filter = null)
     {
         $this->db->select('p.*, m.nama_mapel, j.hari');
         $this->db->select('a.status_approval, a.catatan as catatan_approval');
+        $this->db->select('u.nama_lengkap as nama_guru');
         $this->db->from('tb_presensi p');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal');
         $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel');
+        $this->db->join('tb_guru g', 'g.id = j.id_guru');
+        $this->db->join('tb_user u', 'u.id = g.id_user');
         $this->db->join('tb_approval a', 'a.id_presensi = p.id', 'left');
         $this->db->where('p.id_siswa', $id_siswa);
         
@@ -23,6 +26,9 @@ class M_riwayat extends CI_Model {
         }
         if ($end_date) {
             $this->db->where('p.tanggal <=', $end_date);
+        }
+        if ($status_filter) {
+            $this->db->where('p.status', $status_filter);
         }
         
         $this->db->order_by('p.tanggal', 'DESC');
