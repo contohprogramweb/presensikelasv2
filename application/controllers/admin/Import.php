@@ -157,6 +157,19 @@ class Import extends MY_Controller {
                 return;
             }
             
+            // Skip header (baris pertama)
+            array_shift($data);
+            
+            // Cek apakah masih ada data setelah skip header
+            if (empty($data)) {
+                $this->output->set_status_header(400);
+                $this->output->set_content_type('application/json')->set_output(json_encode(array(
+                    'status' => FALSE,
+                    'message' => 'Tidak ada data untuk diimport (hanya header)'
+                )));
+                return;
+            }
+            
             // Mulai transaction
             $this->db->trans_start();
             
@@ -165,9 +178,9 @@ class Import extends MY_Controller {
             $duplicate_count = 0;
             $errors = array();
             
-            // Skip header (baris pertama sudah di-skip oleh read_file jika ada option)
+            // Proses setiap baris data (header sudah di-skip)
             foreach ($data as $index => $row) {
-                $row_num = $index + 2; // +2 karena skip header dan 1-based
+                $row_num = $index + 2; // +2 karena baris 1 adalah header, dan 1-based
                 
                 try {
                     if ($type === 'siswa') {
