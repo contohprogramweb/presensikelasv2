@@ -11,7 +11,7 @@ class M_kelassiswa extends CI_Model {
     public function get_siswa_belum_ditempatkan($id_tahun_ajaran = null)
     {
         
-		$this->db->select('s.*, u.username, COALESCE(u.nama_lengkap, s.nama_lengkap) as user_nama');
+		$this->db->select('s.*, u.username, COALESCE(u.nama_lengkap, u.username) as user_nama');
         $this->db->from('tb_siswa s');
          $this->db->join('tb_user u', 'u.id = s.id_user', 'left');
         $this->db->where('s.id_kelas IS NULL', null, false);
@@ -21,7 +21,7 @@ class M_kelassiswa extends CI_Model {
 
     public function get_siswa_per_kelas($id_kelas)
     {
-        $this->db->select('s.*, u.username, COALESCE(u.nama_lengkap, s.nama_lengkap) as user_nama');
+        $this->db->select('s.*, u.username, COALESCE(u.nama_lengkap, u.username) as user_nama');
         $this->db->from('tb_siswa s');
         $this->db->join('tb_user u', 'u.id = s.id_user', 'left');
         $this->db->where('s.id_kelas', $id_kelas);
@@ -99,10 +99,11 @@ class M_kelassiswa extends CI_Model {
 
     public function get_siswa_by_kelas($id_kelas)
     {
-        $this->db->select('s.id, s.nis, COALESCE(u.nama_lengkap, s.nama_lengkap) as nama_siswa, s.jenis_kelamin');
+        $this->db->select('s.id, s.nis, COALESCE(u.nama_lengkap, u.username) as nama_siswa, s.jenis_kelamin');
         $this->db->from('tb_siswa s');
          $this->db->join('tb_user u', 'u.id = s.id_user', 'left');
         $this->db->where('s.id_kelas', $id_kelas);
+        $this->db->order_by('nama_siswa', 'ASC');
         
         return $this->db->get()->result();
     }

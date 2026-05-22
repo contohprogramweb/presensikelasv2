@@ -384,7 +384,8 @@ function showAlert(type, message) {
 
 // Helper function for encryption (same as PHP encrypt_id)
 function encrypt_id(id) {
-    // This is a simplified version - in production, use proper encryption
-    return btoa('smp_galang_kasih_2025|' + id).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '.');
+    const salt = 'smp_galang_kasih_2025';
+    const str = salt + '|' + id;
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '.');
 }
 </script>
