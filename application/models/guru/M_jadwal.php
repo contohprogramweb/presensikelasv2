@@ -44,7 +44,7 @@ class M_jadwal extends CI_Model {
         return $this->db->get()->result();
     }
 
-    public function get_jadwal_hari_ini($id_user)
+    public function get_jadwal_hari_ini($id_user, $id_tahun_ajaran = null)
     {
         $hari_indo = [
             'Sunday' => 'Minggu',
@@ -77,6 +77,17 @@ class M_jadwal extends CI_Model {
         $this->db->where('j.id_guru', $id_guru);
         $this->db->where('j.hari', $hari_ini);
         $this->db->where('j.status_aktif', 1);
+        
+        // Filter berdasarkan tahun ajaran
+        if ($id_tahun_ajaran) {
+            $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
+        } else {
+            // Gunakan tahun ajaran aktif dari controller
+            if (isset($this->tahun_ajaran_aktif) && isset($this->tahun_ajaran_aktif->id)) {
+                $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id);
+            }
+        }
+        
         $this->db->order_by('j.jam_mulai', 'ASC');
         
         $query = $this->db->get();
