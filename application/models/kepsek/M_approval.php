@@ -10,12 +10,13 @@ class M_approval extends CI_Model {
 
     public function get_pending_approval()
     {
-        $this->db->select('a.*, p.tanggal, p.status as status_presensi, p.keterangan');
+        $this->db->select('a.*, ps.status as status_presensi, ps.keterangan');
         $this->db->select('s.nama as nama_siswa, k.nama_kelas');
         $this->db->select('g.nama as nama_guru, u.nama_lengkap as user_nama');
         $this->db->from('tb_approval a');
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
-        $this->db->join('tb_siswa s', 's.id = p.id_siswa');
+        $this->db->join('tb_presensi_siswa ps', 'ps.id_presensi = p.id');
+        $this->db->join('tb_siswa s', 's.id = ps.id_siswa');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal');
@@ -53,14 +54,20 @@ class M_approval extends CI_Model {
         $this->db->where('id', $id_approval);
         $this->db->update('tb_approval', $data_approval);
         
-        // Get presensi ID
+        // Get presensi ID and siswa ID
         $this->db->where('id', $id_approval);
         $approval = $this->db->get('tb_approval')->row_array();
         
         if ($approval) {
-            // Update presensi status to Alpa
-            $this->db->where('id', $approval['id_presensi']);
-            $this->db->update('tb_presensi', ['status' => 'Alpa']);
+            // Get the presensi_siswa record
+            $this->db->where('id_presensi', $approval['id_presensi']);
+            $presensi_siswa = $this->db->get('tb_presensi_siswa')->row_array();
+            
+            if ($presensi_siswa) {
+                // Update presensi_siswa status to Alpa
+                $this->db->where('id', $presensi_siswa['id']);
+                $this->db->update('tb_presensi_siswa', ['status' => 'Alpa']);
+            }
         }
         
         $this->db->trans_complete();
@@ -70,12 +77,13 @@ class M_approval extends CI_Model {
 
     public function get_by_id($id)
     {
-        $this->db->select('a.*, p.tanggal, p.status as status_presensi, p.keterangan');
+        $this->db->select('a.*, p.tanggal, ps.status as status_presensi, ps.keterangan');
         $this->db->select('s.nama as nama_siswa, k.nama_kelas');
         $this->db->select('g.nama as nama_guru, u.nama_lengkap as user_nama');
         $this->db->from('tb_approval a');
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
-        $this->db->join('tb_siswa s', 's.id = p.id_siswa');
+        $this->db->join('tb_presensi_siswa ps', 'ps.id_presensi = p.id');
+        $this->db->join('tb_siswa s', 's.id = ps.id_siswa');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal');
