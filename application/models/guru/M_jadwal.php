@@ -68,7 +68,7 @@ class M_jadwal extends CI_Model {
         $id_guru = $guru->id;
         
         // Debug: Log query untuk troubleshooting
-        log_message('debug', 'get_jadwal_hari_ini - hari: ' . $hari_ini . ', id_guru: ' . $id_guru);
+        log_message('debug', 'get_jadwal_hari_ini - hari: ' . $hari_ini . ', id_guru: ' . $id_guru . ', id_tahun_ajaran: ' . ($id_tahun_ajaran ?? 'null'));
         
         $this->db->select('j.*, k.nama_kelas, m.nama_mapel');
         $this->db->from('tb_jadwal j');
@@ -78,22 +78,18 @@ class M_jadwal extends CI_Model {
         $this->db->where('j.hari', $hari_ini);
         $this->db->where('j.status_aktif', 1);
         
-        // Filter berdasarkan tahun ajaran
+        // Filter berdasarkan tahun ajaran - WAJIB ada
         if ($id_tahun_ajaran) {
             $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
-        } else {
-            // Gunakan tahun ajaran aktif dari controller
-            if (isset($this->tahun_ajaran_aktif) && isset($this->tahun_ajaran_aktif->id)) {
-                $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id);
-            }
         }
         
         $this->db->order_by('j.jam_mulai', 'ASC');
         
         $query = $this->db->get();
         
-        // Debug: Log hasil query
+        // Debug: Log hasil query dan SQL
         log_message('debug', 'get_jadwal_hari_ini - result count: ' . $query->num_rows());
+        log_message('debug', 'get_jadwal_hari_ini - last_query: ' . $this->db->last_query());
         
         return $query->result();
     }

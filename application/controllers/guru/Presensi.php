@@ -38,6 +38,20 @@ class Presensi extends MY_Controller {
         // Pass tahun ajaran aktif ke model
         $id_tahun_ajaran = isset($this->tahun_ajaran_aktif->id) ? $this->tahun_ajaran_aktif->id : null;
         $data['jadwal_hari_ini'] = $this->M_jadwal->get_jadwal_hari_ini($guru['id'], $id_tahun_ajaran);
+        
+        // Tambahkan data hari ini untuk debugging
+        $hari_indo = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $data['hari_ini_indo'] = $hari_indo[date('l')];
+        $data['tahun_ajaran_aktif'] = $this->tahun_ajaran_aktif;
+        
         $this->render_template('guru/presensi_form', $data);
     }
 
