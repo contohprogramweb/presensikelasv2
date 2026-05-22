@@ -1,0 +1,44 @@
+{
+    "name": "sekolah/sistem-presensi-kelas",
+    "description": "Sistem Presensi Kelas berbasis CodeIgniter 3",
+    "type": "project",
+    "homepage": "https://codeigniter.com",
+    "license": "MIT",
+    "support": {
+        "forum": "http://forum.codeigniter.com/",
+        "wiki": "https://github.com/bcit-ci/CodeIgniter/wiki",
+        "slack": "https://codeigniterchat.slack.com",
+        "source": "https://github.com/bcit-ci/CodeIgniter"
+    },
+    "require": {
+        "php": ">=7.4",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "dompdf/dompdf": "^2.0",
+        "tecnickcom/tcpdf": "^6.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "application/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@php -r \"echo 'Composer installation completed successfully!\\n';\""
+        ],
+        "post-update-cmd": [
+            "@php -r \"echo 'Composer update completed successfully!\\n';\""
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
