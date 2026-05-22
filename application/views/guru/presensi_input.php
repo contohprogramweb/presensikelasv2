@@ -298,7 +298,11 @@ $(document).ready(function() {
             }
         });
         
-        // Kirim data sebagai JSON
+        // Ambil token CSRF dari meta tag
+        var csrfName = $('meta[name="csrf_name"]').attr('content');
+        var csrfHash = $('meta[name="csrf_hash"]').attr('content');
+
+        // Kirim data sebagai JSON dengan menyertakan token CSRF di dalam payload
         $.ajax({
             url: '<?= site_url("guru/presensi/simpan") ?>',
             type: 'POST',
@@ -308,7 +312,8 @@ $(document).ready(function() {
                 id_jadwal: form.find('input[name="id_jadwal"]').val(),
                 tanggal: form.find('input[name="tanggal"]').val(),
                 materi_pelajaran: form.find('textarea[name="materi_pelajaran"]').val(),
-                siswa: siswaData
+                siswa: siswaData,
+                [csrfName]: csrfHash  // Sertakan token CSRF di dalam payload JSON
             }),
             success: function(response) {
                 btnSubmit.prop('disabled', false).html(originalText);

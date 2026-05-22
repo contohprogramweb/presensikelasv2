@@ -106,6 +106,14 @@ class Presensi extends MY_Controller {
             $tanggal = $json_data['tanggal'] ?? null;
             $materi_pelajaran = trim($json_data['materi_pelajaran'] ?? '');
             $siswa_data = $json_data['siswa'] ?? null;
+            
+            // Handle CSRF token dari JSON payload
+            $csrf_name = $this->security->get_csrf_token_name();
+            if (isset($json_data[$csrf_name])) {
+                // Set token CSRF untuk validasi manual
+                $_POST[$csrf_name] = $json_data[$csrf_name];
+                log_message('debug', 'Presensi::simpan - CSRF token found in payload');
+            }
         } else {
             $id_jadwal = $this->input->post('id_jadwal');
             $tanggal = $this->input->post('tanggal');
