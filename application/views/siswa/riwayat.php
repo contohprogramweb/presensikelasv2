@@ -137,23 +137,46 @@ $(document).ready(function() {
             error: function(xhr, errorStatus, errorThrown) {
                 console.log('AJAX Error:', errorStatus, errorThrown);
                 console.log('Response:', xhr.responseText);
+                alert('Terjadi kesalahan saat memuat data: ' + xhr.responseText);
             }
         },
         columns: [
-            {data: null, orderable: false},
-            {data: 'tanggal', orderable: true},
-            {data: 'hari', orderable: true},
-            {data: 'nama_mapel', orderable: true},
-            {data: 'nama_guru', orderable: true},
-            { 
-                data: function(row) {
-                    return row.materi_pelajaran || row.keterangan || '-';
-                },
+            {
+                data: 'no',
                 orderable: false
             },
-            {data: 'status', orderable: true},
-            {data: 'keterangan', orderable: false},
-            {data: 'status_approval', orderable: false}
+            {
+                data: 'tanggal',
+                orderable: true
+            },
+            {
+                data: 'hari',
+                orderable: true
+            },
+            {
+                data: 'nama_mapel',
+                orderable: true
+            },
+            {
+                data: 'nama_guru',
+                orderable: true
+            },
+            { 
+                data: 'materi',
+                orderable: false
+            },
+            {
+                data: 'status',
+                orderable: true
+            },
+            {
+                data: 'keterangan',
+                orderable: false
+            },
+            {
+                data: 'status_approval',
+                orderable: false
+            }
         ],
         order: [[1, 'desc']],
     });

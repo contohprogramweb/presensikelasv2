@@ -13,6 +13,7 @@ class M_riwayat extends CI_Model {
         $this->db->select('p.*, m.nama_mapel, j.hari');
         $this->db->select('a.status_approval, a.catatan as catatan_approval');
         $this->db->select('u.nama_lengkap as nama_guru');
+        $this->db->select('p.keterangan as materi_pelajaran');
         $this->db->from('tb_presensi p');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal');
         $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel');
@@ -66,13 +67,6 @@ class M_riwayat extends CI_Model {
         $this->db->limit($length, $start);
         
         $result = $this->db->get()->result_array();
-        
-        // Add materi_pelajaran field from keterangan if not exists
-        foreach ($result as &$row) {
-            if (!isset($row['materi_pelajaran'])) {
-                $row['materi_pelajaran'] = $row['keterangan'] ?? '';
-            }
-        }
         
         return $result;
     }

@@ -33,90 +33,111 @@ class Riwayat extends MY_Controller {
 
     public function ajax_list()
     {
-        $user_id = $this->session->userdata('id');
-        $this->db->where('id_user', $user_id);
-        $siswa = $this->db->get('tb_siswa')->row_array();
-        
-        if (!$siswa) {
-            echo json_encode(['status' => false, 'message' => 'Data siswa tidak ditemukan']);
-            return;
-        }
-        
-        // Get filter parameters from POST
-        $tanggal_mulai = $this->input->post('tanggal_mulai') ?: date('Y-m-01');
-        $tanggal_sampai = $this->input->post('tanggal_sampai') ?: date('Y-m-t');
-        $status_filter = $this->input->post('status');
-        
-        // Server-side processing parameters
-        $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 1;
-        $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
-        $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
-        $order = isset($_POST['order']) ? $_POST['order'] : [];
-        $search = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
-        
-        // Get total records
-        $total_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, null, '');
-        
-        // Get filtered records
-        $filtered_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, $status_filter, $search);
-        
-        // Get data
-        $list = $this->M_riwayat->get_riwayat_siswa_datatable(
-            $siswa['id'], 
-            $tanggal_mulai, 
-            $tanggal_sampai, 
-            $status_filter, 
-            $search,
-            $length,
-            $start,
-            $order
-        );
-        
-        $output = [
-            'draw' => $draw,
-            'recordsTotal' => $total_records,
-            'recordsFiltered' => $filtered_records,
-            'data' => []
-        ];
-        
-        $no = $start;
-        foreach ($list as $row) {
-            $no++;
+        try {
+            $user_id = $this->session->userdata('id');
+            $this->db->where('id_user', $user_id);
+            $siswa = $this->db->get('tb_siswa')->row_array();
             
-            $status_badge = '';
-            switch ($row['status']) {
-                case 'Hadir': $status_badge = '<span class="badge bg-success">Hadir</span>'; break;
-                case 'Izin': $status_badge = '<span class="badge bg-info">Izin</span>'; break;
-                case 'Sakit': $status_badge = '<span class="badge bg-warning text-dark">Sakit</span>'; break;
-                case 'Alpa': $status_badge = '<span class="badge bg-danger">Alpa</span>'; break;
-                default: $status_badge = '<span class="badge bg-secondary">-</span>'; break;
+            if (!$siswa) {
+                echo json_encode([
+                    'draw' => isset($_POST['draw']) ? intval($_POST['draw']) : 0,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                    'error' => 'Data siswa tidak ditemukan'
+                ]);
+                return;
             }
             
-            $approval_status = '-';
-            if (isset($row['status_approval']) && in_array($row['status'], ['Izin', 'Sakit'])) {
-                if ($row['status_approval'] == 'disetujui') {
-                    $approval_status = '<span class="badge bg-success"><i class="fas fa-check"></i> Disetujui</span>';
-                } else if ($row['status_approval'] == 'ditolak') {
-                    $approval_status = '<span class="badge bg-danger"><i class="fas fa-times"></i> Ditolak</span>';
-                } else {
-                    $approval_status = '<span class="badge bg-warning"><i class="fas fa-clock"></i> Pending</span>';
-                }
-            }
+            // Get filter parameters from POST
+            $tanggal_mulai = $this->input->post('tanggal_mulai') ?: date('Y-m-01');
+            $tanggal_sampai = $this->input->post('tanggal_sampai') ?: date('Y-m-t');
+            $status_filter = $this->input->post('status');
             
-            $output['data'][] = [
-                $no,
-                tanggal_indo($row['tanggal']),
-                $row['hari'] ?? '-',
-                $row['nama_mapel'] ?? '-',
-                $row['nama_guru'] ?? '-',
-                substr($row['materi_pelajaran'] ?? $row['keterangan'] ?? '', 0, 40) . (strlen($row['materi_pelajaran'] ?? $row['keterangan'] ?? '') > 40 ? '...' : ''),
-                $status_badge,
-                $row['keterangan'] ?? '-',
-                $approval_status
+            // Server-side processing parameters
+            $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 1;
+            $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
+            $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+            $order = isset($_POST['order']) ? $_POST['order'] : [];
+            $search = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
+            
+            // Get total records
+            $total_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, null, '');
+            
+            // Get filtered records
+            $filtered_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, $status_filter, $search);
+            
+            // Get data
+            $list = $this->M_riwayat->get_riwayat_siswa_datatable(
+                $siswa['id'], 
+                $tanggal_mulai, 
+                $tanggal_sampai, 
+                $status_filter, 
+                $search,
+                $length,
+                $start,
+                $order
+            );
+            
+            $output = [
+                'draw' => $draw,
+                'recordsTotal' => $total_records,
+                'recordsFiltered' => $filtered_records,
+                'data' => []
             ];
+            
+            $no = $start;
+            foreach ($list as $row) {
+                $no++;
+                
+                $status_badge = '';
+                switch ($row['status']) {
+                    case 'Hadir': $status_badge = '<span class="badge bg-success">Hadir</span>'; break;
+                    case 'Izin': $status_badge = '<span class="badge bg-info">Izin</span>'; break;
+                    case 'Sakit': $status_badge = '<span class="badge bg-warning text-dark">Sakit</span>'; break;
+                    case 'Alpa': $status_badge = '<span class="badge bg-danger">Alpa</span>'; break;
+                    default: $status_badge = '<span class="badge bg-secondary">-</span>'; break;
+                }
+                
+                $approval_status = '-';
+                if (isset($row['status_approval']) && in_array($row['status'], ['Izin', 'Sakit'])) {
+                    if ($row['status_approval'] == 'disetujui') {
+                        $approval_status = '<span class="badge bg-success"><i class="fas fa-check"></i> Disetujui</span>';
+                    } else if ($row['status_approval'] == 'ditolak') {
+                        $approval_status = '<span class="badge bg-danger"><i class="fas fa-times"></i> Ditolak</span>';
+                    } else {
+                        $approval_status = '<span class="badge bg-warning"><i class="fas fa-clock"></i> Pending</span>';
+                    }
+                }
+                
+                $materi = !empty($row['materi_pelajaran']) ? $row['materi_pelajaran'] : '-';
+                $keterangan = !empty($row['keterangan']) ? $row['keterangan'] : '-';
+                
+                $output['data'][] = [
+                    'no' => $no,
+                    'tanggal' => tanggal_indo($row['tanggal']),
+                    'hari' => $row['hari'] ?? '-',
+                    'nama_mapel' => $row['nama_mapel'] ?? '-',
+                    'nama_guru' => $row['nama_guru'] ?? '-',
+                    'materi' => substr($materi, 0, 40) . (strlen($materi) > 40 ? '...' : ''),
+                    'status' => $status_badge,
+                    'keterangan' => $keterangan,
+                    'status_approval' => $approval_status
+                ];
+            }
+            
+            echo json_encode($output);
+            
+        } catch (Exception $e) {
+            log_message('error', 'Error in ajax_list: ' . $e->getMessage());
+            echo json_encode([
+                'draw' => isset($_POST['draw']) ? intval($_POST['draw']) : 0,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => $e->getMessage()
+            ]);
         }
-        
-        echo json_encode($output);
     }
 
     public function ajax_statistik()
