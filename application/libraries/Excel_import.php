@@ -3,9 +3,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Excel Import Library
- * Wrapper untuk membaca file Excel/CSV tanpa依赖 PhpSpreadsheet
- * Menggunakan SimpleXML untuk XLSX dan fungsi bawaan PHP untuk CSV
+ * Wrapper untuk membaca file Excel/CSV
+ * Menggunakan PhpSpreadsheet jika tersedia, atau native PHP sebagai fallback
+ * Kompatibel dengan MS Office 2010+
  */
+
+// Cek apakah PhpSpreadsheet tersedia
+$composerAutoload = APPPATH . '../vendor/autoload.php';
+if (file_exists($composerAutoload)) {
+    require_once $composerAutoload;
+    if (!defined('HAS_PHPSPREADSHEET')) {
+        define('HAS_PHPSPREADSHEET', true);
+    }
+} else {
+    if (!defined('HAS_PHPSPREADSHEET')) {
+        define('HAS_PHPSPREADSHEET', false);
+    }
+}
 
 class Excel_import {
     
@@ -16,29 +30,7 @@ class Excel_import {
     }
     
     /**
-     * Extract file ZIP (untuk XLSX)
-     * @param string $file_path
-     * @param string $destination
-     * @return bool
-     */
-    private function extract_zip($file_path, $destination) {
-        if (!class_exists('ZipArchive')) {
-            log_message('error', 'ZipArchive extension tidak tersedia');
-            return false;
-        }
-        
-        $zip = new ZipArchive();
-        if ($zip->open($file_path) !== TRUE) {
-            return false;
-        }
-        
-        $zip->extractTo($destination);
-        $zip->close();
-        return true;
-    }
-    
-    /**
-     * Baca file XLSX (Office Open XML)
+     * Baca file XLSX - menggunakan native method (ZipArchive + SimpleXML)
      * @param string $file_path
      * @param int|null $limit
      * @return array|false
@@ -52,14 +44,18 @@ class Excel_import {
         }
         
         try {
-            if (!$this->extract_zip($file_path, $temp_dir)) {
-                log_message('error', 'Gagal extract file XLSX');
+            $zip = new ZipArchive();
+            if ($zip->open($file_path) !== TRUE) {
+                log_message('error', 'Gagal membuka file XLSX');
                 return false;
             }
             
+            $zip->extractTo($temp_dir);
+            $zip->close();
+            
+            // Cari worksheet
             $worksheet_file = $temp_dir . '/xl/worksheets/sheet1.xml';
             if (!file_exists($worksheet_file)) {
-                // Coba sheet lainnya
                 for ($i = 1; $i <= 10; $i++) {
                     $alt_file = $temp_dir . '/xl/worksheets/sheet' . $i . '.xml';
                     if (file_exists($alt_file)) {
@@ -105,27 +101,20 @@ class Excel_import {
                 $max_col = 0;
                 
                 foreach ($row->c as $cell) {
-                    // Dapatkan index kolom dari atribut r (contoh: A1, B1, C1)
                     $cell_ref = (string)$cell['r'];
                     $col_index = $this->column_letter_to_index(preg_replace('/[0-9]+/', '', $cell_ref));
                     
                     $value = '';
-                    
-                    // Cek tipe cell
                     $cell_type = isset($cell['t']) ? (string)$cell['t'] : 'n';
                     
                     if ($cell_type == 's') {
-                        // Shared string
                         $index = (int)$cell->v;
                         $value = isset($shared_strings[$index]) ? $shared_strings[$index] : '';
                     } elseif ($cell_type == 'b') {
-                        // Boolean
                         $value = (int)$cell->v ? 'TRUE' : 'FALSE';
                     } elseif ($cell_type == 'e') {
-                        // Error
                         $value = (string)$cell->v;
                     } else {
-                        // Number atau inline string
                         if (isset($cell->v)) {
                             $value = (string)$cell->v;
                         } elseif (isset($cell->is->t)) {
@@ -155,7 +144,6 @@ class Excel_import {
             log_message('error', 'XLSX Read Error: ' . $e->getMessage());
             return false;
         } finally {
-            // Cleanup temp directory
             $this->delete_directory($temp_dir);
         }
     }
@@ -178,7 +166,35 @@ class Excel_import {
     }
     
     /**
-     * Baca file CSV
+     * Delete directory recursively
+     * @param string $dir
+     */
+    private function delete_directory($dir) {
+        if (!is_dir($dir)) {
+            return;
+        }
+        
+        $files = array_diff(scandir($dir), array('.', '..'));
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            is_dir($path) ? $this->delete_directory($path) : unlink($path);
+        }
+        rmdir($dir);
+    }
+    
+    /**
+     * Baca file XLS (Excel 97-2003) - tidak didukung tanpa PhpSpreadsheet
+     * @param string $file_path
+     * @param int|null $limit
+     * @return array|false
+     */
+    private function read_xls($file_path, $limit = null) {
+        log_message('error', 'Format XLS memerlukan PhpSpreadsheet. Gunakan format XLSX atau CSV.');
+        return false;
+    }
+    
+    /**
+     * Baca file CSV - menggunakan native PHP fgetcsv
      * @param string $file_path
      * @param int|null $limit
      * @return array|false
@@ -207,35 +223,19 @@ class Excel_import {
     }
     
     /**
-     * Delete directory recursively
-     * @param string $dir
-     */
-    private function delete_directory($dir) {
-        if (!is_dir($dir)) {
-            return;
-        }
-        
-        $files = array_diff(scandir($dir), array('.', '..'));
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            is_dir($path) ? $this->delete_directory($path) : unlink($path);
-        }
-        rmdir($dir);
-    }
-    
-    /**
      * Preview beberapa baris pertama
      * @param string $file_path
      * @param int $limit Jumlah baris preview
      * @return array
      */
     public function preview($file_path, $limit = 5) {
-        $data = $this->read_excel($file_path);
+        $ext = pathinfo($file_path, PATHINFO_EXTENSION);
+        $data = $this->read_file($file_path, $ext, $limit);
         if ($data === false) {
             return false;
         }
         
-        return array_slice($data, 0, $limit);
+        return $data;
     }
     
     /**
@@ -253,8 +253,7 @@ class Excel_import {
         } elseif ($ext === 'xlsx') {
             return $this->read_xlsx($file_path, $limit);
         } elseif ($ext === 'xls') {
-            log_message('error', 'Format XLS (biner) tidak didukung. Gunakan format XLSX atau CSV.');
-            return false;
+            return $this->read_xls($file_path, $limit);
         } else {
             log_message('error', 'Ekstensi file tidak dikenali: ' . $ext);
             return false;
