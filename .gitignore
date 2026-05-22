@@ -1,1 +1,50 @@
-(application/controllers/guru/Presensi.php, application/views/guru/presensi_input.php)
+```php
+# Environment specific files
+.env
+.env.local
+.env.*
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# IDE specific files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# PHP specific
+*.php~
+phpunit.xml.dist
+coverage/
+htmlcov/
+.coverage
+
+# Build artifacts
+dist/
+build/
+target/
+
+# Dependencies
+vendor/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache directories
+.cache/
+.php_cs.cache
+.phpunit.result.cache
+
+# Sensitive files
+config/database.php
+application/config/database.php
+application/config/config.php
+```

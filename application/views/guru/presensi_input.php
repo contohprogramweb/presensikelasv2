@@ -302,19 +302,27 @@ $(document).ready(function() {
         var csrfName = $('meta[name="csrf_name"]').attr('content');
         var csrfHash = $('meta[name="csrf_hash"]').attr('content');
 
-        // Kirim data sebagai JSON dengan menyertakan token CSRF di dalam payload
+        // Kirim data sebagai FormData (bukan JSON) agar lebih kompatibel
+        var formData = new FormData();
+        formData.append('id_jadwal', form.find('input[name="id_jadwal"]').val());
+        formData.append('tanggal', form.find('input[name="tanggal"]').val());
+        formData.append('materi_pelajaran', form.find('textarea[name="materi_pelajaran"]').val());
+        formData.append(csrfName, csrfHash);
+        
+        // Append setiap siswa secara individual
+        $.each(siswaData, function(idSiswa, data) {
+            formData.append('siswa[' + idSiswa + '][status]', data.status);
+            formData.append('siswa[' + idSiswa + '][keterangan]', data.keterangan || '');
+        });
+
+        // Kirim data sebagai FormData
         $.ajax({
             url: '<?= site_url("guru/presensi/simpan") ?>',
             type: 'POST',
-            contentType: 'application/json',
+            data: formData,
+            processData: false,  // Jangan proses data
+            contentType: false,  // Jangan set content type otomatis
             dataType: 'json',
-            data: JSON.stringify({
-                id_jadwal: form.find('input[name="id_jadwal"]').val(),
-                tanggal: form.find('input[name="tanggal"]').val(),
-                materi_pelajaran: form.find('textarea[name="materi_pelajaran"]').val(),
-                siswa: siswaData,
-                [csrfName]: csrfHash  // Sertakan token CSRF di dalam payload JSON
-            }),
             success: function(response) {
                 btnSubmit.prop('disabled', false).html(originalText);
                 
