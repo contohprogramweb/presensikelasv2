@@ -19,16 +19,17 @@
     <?php endif; ?>
 
     <div class="card">
-        <div class="card-header">
-            <i class="fas fa-calendar-day me-2"></i>Jadwal Hari Ini  
-             
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-calendar-day me-2"></i>Jadwal Hari Ini (<?= $hari_ini_indo ?? 'Hari Ini' ?>)</span>
+            <?php if (!empty($tahun_ajaran_aktif)): ?>
+                <span class="badge bg-info"><?= $tahun_ajaran_aktif->tahun_ajaran ?> - Semester <?= $tahun_ajaran_aktif->semester ?></span>
+            <?php endif; ?>
         </div>
         <div class="card-body">
             <?php if (empty($jadwal_hari_ini)): ?>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>Tidak ada jadwal mengajar hari ini.
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>Tidak ada jadwal mengajar hari ini (<?= $hari_ini_indo ?? '' ?>).
                 </div>
-                 
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">

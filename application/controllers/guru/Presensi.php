@@ -12,9 +12,10 @@ class Presensi extends MY_Controller {
         $this->load->model('M_dashboard');
         $this->load->library('form_validation');
         
-        // Load tahun ajaran aktif secara eksplisit di controller
+        // Load tahun ajaran aktif
         $this->tahun_ajaran_aktif = $this->M_dashboard->get_tahun_ajaran_aktif();
         
+        // Fallback ke tahun ajaran terbaru jika tidak ada yang aktif
         if (!$this->tahun_ajaran_aktif) {
             $this->tahun_ajaran_aktif = $this->M_dashboard->get_tahun_ajaran_terbaru();
         }
@@ -35,11 +36,16 @@ class Presensi extends MY_Controller {
             return;
         }
         
-        // Pass tahun ajaran aktif ke model
-        $id_tahun_ajaran = isset($this->tahun_ajaran_aktif->id) ? $this->tahun_ajaran_aktif->id : null;
-        $data['jadwal_hari_ini'] = $this->M_jadwal->get_jadwal_hari_ini($guru['id'], $id_tahun_ajaran);
+        // Pastikan tahun ajaran aktif ada
+        $id_tahun_ajaran = null;
+        if ($this->tahun_ajaran_aktif && isset($this->tahun_ajaran_aktif->id)) {
+            $id_tahun_ajaran = (int)$this->tahun_ajaran_aktif->id;
+        }
         
-        // Tambahkan data hari ini untuk debugging
+        // Ambil jadwal hari ini - passing user_id, bukan guru_id
+        $data['jadwal_hari_ini'] = $this->M_jadwal->get_jadwal_hari_ini($user_id, $id_tahun_ajaran);
+        
+        // Data untuk view
         $hari_indo = [
             'Sunday' => 'Minggu',
             'Monday' => 'Senin',
