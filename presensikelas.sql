@@ -23,12 +23,13 @@ CREATE TABLE IF NOT EXISTS `ci_sessions` (
   KEY `timestamp` (`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table presensikelas.ci_sessions: ~4 rows (approximately)
+-- Dumping data for table presensikelas.ci_sessions: ~5 rows (approximately)
 INSERT INTO `ci_sessions` (`id`, `ip_address`, `timestamp`, `data`) VALUES
 	('180nuaiav4j01knt81nm7gtlie8ththj', '127.0.0.1', 1779353565, _binary 0x5f5f63695f6c6173745f726567656e65726174657c693a313737393335333535393b69647c733a313a2231223b757365726e616d657c733a353a2261646d696e223b6e616d615f6c656e676b61707c733a31333a2241646d696e6973747261746f72223b726f6c657c733a353a2261646d696e223b666f746f5f70726f66696c7c4e3b656d61696c7c733a31343a2261646d696e40736d702e74657374223b6c6f676765645f696e7c623a313b6c6173745f61637469766974797c693a313737393335333536353b),
 	('mm9gbav0g1to7d7rfags1pi38i409e22', '127.0.0.1', 1779386800, _binary 0x5f5f63695f6c6173745f726567656e65726174657c693a313737393338363736353b69647c733a313a2232223b757365726e616d657c733a363a226b657073656b223b6e616d615f6c656e676b61707c733a31343a224b6570616c612053656b6f6c6168223b726f6c657c733a363a226b657073656b223b666f746f5f70726f66696c7c4e3b656d61696c7c733a31353a226b657073656b40736d702e74657374223b6c6f676765645f696e7c623a313b6c6173745f61637469766974797c693a313737393338363830303b),
 	('ov7esooelcpfgrgrse5k5t89v3i837of', '127.0.0.1', 1779426837, _binary 0x5f5f63695f6c6173745f726567656e65726174657c693a313737393432363638343b69647c733a313a2231223b757365726e616d657c733a353a2261646d696e223b6e616d615f6c656e676b61707c733a31333a2241646d696e6973747261746f72223b726f6c657c733a353a2261646d696e223b666f746f5f70726f66696c7c4e3b656d61696c7c733a31343a2261646d696e40736d702e74657374223b6c6f676765645f696e7c623a313b6c6173745f61637469766974797c693a313737393432363833373b),
-	('l63ta4jirnjc6jp6foqprb5j3h4k04n6', '127.0.0.1', 1779447351, _binary 0x5f5f63695f6c6173745f726567656e65726174657c693a313737393434373331303b69647c733a313a2233223b757365726e616d657c733a373a2267757275303031223b6e616d615f6c656e676b61707c733a31323a22427564692053616e746f736f223b726f6c657c733a343a2267757275223b666f746f5f70726f66696c7c4e3b656d61696c7c733a31363a226775727530303140736d702e74657374223b6c6f676765645f696e7c623a313b6c6173745f61637469766974797c693a313737393434373335313b);
+	('l63ta4jirnjc6jp6foqprb5j3h4k04n6', '127.0.0.1', 1779447351, _binary 0x5f5f63695f6c6173745f726567656e65726174657c693a313737393434373331303b69647c733a313a2233223b757365726e616d657c733a373a2267757275303031223b6e616d615f6c656e676b61707c733a31323a22427564692053616e746f736f223b726f6c657c733a343a2267757275223b666f746f5f70726f66696c7c4e3b656d61696c7c733a31363a226775727530303140736d702e74657374223b6c6f676765645f696e7c623a313b6c6173745f61637469766974797c693a313737393434373335313b),
+	('sa925jt9cav6di50s7u1acf55n5hcrjq', '127.0.0.1', 1779478194, _binary 0x5f5f63695f6c6173745f726567656e65726174657c693a313737393437373934333b69647c733a313a2233223b757365726e616d657c733a373a2267757275303031223b6e616d615f6c656e676b61707c733a31323a22427564692053616e746f736f223b726f6c657c733a343a2267757275223b666f746f5f70726f66696c7c4e3b656d61696c7c733a31363a226775727530303140736d702e74657374223b6c6f676765645f696e7c623a313b6c6173745f61637469766974797c693a313737393437383139343b);
 
 -- Dumping structure for table presensikelas.tb_approval
 CREATE TABLE IF NOT EXISTS `tb_approval` (
@@ -75,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `tb_guru` (
   CONSTRAINT `fk_guru_user` FOREIGN KEY (`id_user`) REFERENCES `tb_user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table presensikelas.tb_guru: ~5 rows (approximately)
+-- Dumping data for table presensikelas.tb_guru: ~3 rows (approximately)
 INSERT INTO `tb_guru` (`id`, `id_user`, `nip`, `nama_lengkap`, `jenis_kelamin`, `no_hp`, `alamat`, `status_aktif`, `created_at`, `updated_at`) VALUES
 	(1, 3, '198501012010011001', 'Budi Santoso', 'L', '081234567890', 'Jl. Pendidikan No. 1, Ubung', 1, '2026-05-20 16:48:58', '2026-05-20 16:48:58'),
 	(4, 9, '44444', 'Idung', 'L', 'sdsad', 'asasa', 1, '2026-05-21 08:37:51', '2026-05-21 09:19:24'),
@@ -111,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `tb_jadwal` (
   CONSTRAINT `fk_jadwal_tahun` FOREIGN KEY (`id_tahun_ajaran`) REFERENCES `tb_tahun_ajaran` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table presensikelas.tb_jadwal: ~6 rows (approximately)
+-- Dumping data for table presensikelas.tb_jadwal: ~4 rows (approximately)
 INSERT INTO `tb_jadwal` (`id`, `id_guru`, `id_kelas`, `id_mapel`, `id_tahun_ajaran`, `hari`, `jam_mulai`, `jam_selesai`, `ruangan`, `status_aktif`, `created_at`, `updated_at`) VALUES
 	(1, 1, 1, 1, 1, 'Senin', '07:00:00', '08:30:00', 'Ruang 1', 1, '2026-05-20 16:48:58', '2026-05-20 16:48:58'),
 	(2, 1, 1, 2, 1, 'Selasa', '07:00:00', '08:30:00', 'Ruang 1', 1, '2026-05-20 16:48:58', '2026-05-20 16:48:58'),
@@ -177,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `tb_log_aktivitas` (
   CONSTRAINT `fk_log_user` FOREIGN KEY (`id_user`) REFERENCES `tb_user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table presensikelas.tb_log_aktivitas: ~131 rows (approximately)
+-- Dumping data for table presensikelas.tb_log_aktivitas: ~102 rows (approximately)
 INSERT INTO `tb_log_aktivitas` (`id`, `id_user`, `aksi`, `tabel`, `id_data`, `keterangan`, `ip_address`, `user_agent`, `created_at`) VALUES
 	(1, 1, 'insert', 'tb_tahun_ajaran', 0, 'Tambah tahun ajaran 2025/2026', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-20 23:49:28'),
 	(2, 1, 'insert', 'tb_tahun_ajaran', 0, 'Tambah tahun ajaran 2025/2026', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-21 00:02:21'),
@@ -309,7 +310,8 @@ INSERT INTO `tb_log_aktivitas` (`id`, `id_user`, `aksi`, `tabel`, `id_data`, `ke
 	(128, 1, 'insert', 'tb_jadwal', 6, 'Tambah jadwal pelajaran', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-22 17:54:47'),
 	(129, 1, 'update', 'tb_jadwal', 4, 'Update jadwal pelajaran', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-22 17:55:01'),
 	(130, 1, 'logout', 'tb_user', 1, 'User logout', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-22 17:55:09'),
-	(131, 3, 'login', 'tb_user', 3, 'User login berhasil', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-22 17:55:20');
+	(131, 3, 'login', 'tb_user', 3, 'User login berhasil', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-22 17:55:20'),
+	(132, 3, 'login', 'tb_user', 3, 'User login berhasil', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', '2026-05-23 01:34:09');
 
 -- Dumping structure for table presensikelas.tb_mata_pelajaran
 CREATE TABLE IF NOT EXISTS `tb_mata_pelajaran` (
@@ -337,29 +339,43 @@ INSERT INTO `tb_mata_pelajaran` (`id`, `kode_mapel`, `nama_mapel`, `kategori`, `
 CREATE TABLE IF NOT EXISTS `tb_presensi` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `id_jadwal` int unsigned NOT NULL,
-  `id_siswa` int unsigned NOT NULL,
   `id_guru` int unsigned NOT NULL,
   `id_guru_pengganti` int unsigned DEFAULT NULL,
-  `tanggal` date NOT NULL,
-  `status` enum('Hadir','Izin','Sakit','Alpa') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `keterangan` text COLLATE utf8mb4_unicode_ci,
-  `metode` enum('web','manual') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'web',
-  `waktu_input` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `materi_pelajaran` text COLLATE utf8mb4_unicode_ci,
+  `tanggal` date DEFAULT NULL,
+  `waktu_input` datetime DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `fk_presensi_jadwal` (`id_jadwal`),
-  KEY `fk_presensi_siswa` (`id_siswa`),
   KEY `fk_presensi_guru` (`id_guru`),
   KEY `fk_presensi_guru_pengganti` (`id_guru_pengganti`),
   KEY `idx_presensi_tanggal` (`tanggal`),
-  KEY `idx_presensi_siswa` (`id_siswa`),
   CONSTRAINT `fk_presensi_guru` FOREIGN KEY (`id_guru`) REFERENCES `tb_guru` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_presensi_guru_pengganti` FOREIGN KEY (`id_guru_pengganti`) REFERENCES `tb_guru` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_presensi_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `tb_jadwal` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_presensi_siswa` FOREIGN KEY (`id_siswa`) REFERENCES `tb_siswa` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `fk_presensi_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `tb_jadwal` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table presensikelas.tb_presensi: ~0 rows (approximately)
+
+-- Dumping structure for table presensikelas.tb_presensi_siswa
+CREATE TABLE IF NOT EXISTS `tb_presensi_siswa` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `id_presensi` int unsigned NOT NULL DEFAULT '0',
+  `id_siswa` int unsigned NOT NULL,
+  `tanggal` date DEFAULT NULL,
+  `status` enum('Hadir','Izin','Sakit','Alpa') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `keterangan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `fk_presensi_siswa` (`id_siswa`) USING BTREE,
+  KEY `idx_presensi_tanggal` (`tanggal`) USING BTREE,
+  KEY `idx_presensi_siswa` (`id_siswa`) USING BTREE,
+  KEY `FK_tb_presensi_siswa_tb_presensi` (`id_presensi`),
+  CONSTRAINT `FK_tb_presensi_siswa_tb_presensi` FOREIGN KEY (`id_presensi`) REFERENCES `tb_presensi` (`id`),
+  CONSTRAINT `tb_presensi_siswa_ibfk_4` FOREIGN KEY (`id_siswa`) REFERENCES `tb_siswa` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+-- Dumping data for table presensikelas.tb_presensi_siswa: ~0 rows (approximately)
 
 -- Dumping structure for table presensikelas.tb_riwayat_kelas
 CREATE TABLE IF NOT EXISTS `tb_riwayat_kelas` (
@@ -379,7 +395,7 @@ CREATE TABLE IF NOT EXISTS `tb_riwayat_kelas` (
   CONSTRAINT `fk_riwayat_tahun` FOREIGN KEY (`id_tahun_ajaran`) REFERENCES `tb_tahun_ajaran` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table presensikelas.tb_riwayat_kelas: ~7 rows (approximately)
+-- Dumping data for table presensikelas.tb_riwayat_kelas: ~1 rows (approximately)
 INSERT INTO `tb_riwayat_kelas` (`id`, `id_siswa`, `id_kelas`, `id_tahun_ajaran`, `status`, `keterangan`, `created_at`) VALUES
 	(2, 1, 1, 1, 'naik', NULL, '2026-05-21 13:12:55'),
 	(3, 2, 1, 1, 'naik', NULL, '2026-05-22 11:08:01'),
@@ -414,7 +430,7 @@ CREATE TABLE IF NOT EXISTS `tb_siswa` (
   CONSTRAINT `fk_siswa_user` FOREIGN KEY (`id_user`) REFERENCES `tb_user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table presensikelas.tb_siswa: ~4 rows (approximately)
+-- Dumping data for table presensikelas.tb_siswa: ~2 rows (approximately)
 INSERT INTO `tb_siswa` (`id`, `id_user`, `nis`, `nama_lengkap`, `jenis_kelamin`, `tempat_lahir`, `tanggal_lahir`, `alamat`, `nama_ortu`, `no_hp_ortu`, `id_kelas`, `status_aktif`, `created_at`, `updated_at`) VALUES
 	(1, 4, '12345', 'Ahmad Rizki', 'L', 'Denpasar', '2012-05-15', 'Jl. Mawar No. 10', 'Rizki Pratama', '081234567891', 1, 1, '2026-05-20 16:48:58', '2026-05-22 11:08:34'),
 	(2, 5, '12346', 'Siti Nurhaliza Cantika', 'P', 'Badung', '2012-08-20', 'Jl. Melati No. 20', 'Nurhaliza Ahmad', '081234567892', 1, 1, '2026-05-20 16:48:58', '2026-05-22 11:08:34'),
@@ -458,11 +474,11 @@ CREATE TABLE IF NOT EXISTS `tb_user` (
   KEY `idx_user_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table presensikelas.tb_user: ~12 rows (approximately)
+-- Dumping data for table presensikelas.tb_user: ~8 rows (approximately)
 INSERT INTO `tb_user` (`id`, `username`, `password`, `role`, `nama_lengkap`, `email`, `no_hp`, `foto_profil`, `status`, `last_login`, `created_at`, `updated_at`) VALUES
 	(1, 'admin', '$2b$10$G9rtb1rTdDYTpgjNtvu2YOUy3E2M.OwWqEeFNcjPZIXuK/9A0cena', 'admin', 'Administrator', 'admin@smp.test', NULL, NULL, 'aktif', '2026-05-22 17:54:05', '2026-05-20 16:48:58', '2026-05-22 17:54:05'),
 	(2, 'kepsek', '$2b$10$4tM/hpNixUFgd.OpPgtWiOKjDstRDyTVb2HQ5ixvdak2WIUHlvqQy', 'kepsek', 'Kepala Sekolah', 'kepsek@smp.test', NULL, NULL, 'aktif', '2026-05-22 00:01:51', '2026-05-20 16:48:58', '2026-05-22 00:01:51'),
-	(3, 'guru001', '$2b$10$5mzn3dGsaQl8tanvILlmYuqsWgEbn7MK0/14yJftECM0/m/XQnTK.', 'guru', 'Budi Santoso', 'guru001@smp.test', NULL, NULL, 'aktif', '2026-05-22 17:55:20', '2026-05-20 16:48:58', '2026-05-22 17:55:20'),
+	(3, 'guru001', '$2b$10$5mzn3dGsaQl8tanvILlmYuqsWgEbn7MK0/14yJftECM0/m/XQnTK.', 'guru', 'Budi Santoso', 'guru001@smp.test', NULL, NULL, 'aktif', '2026-05-23 01:34:07', '2026-05-20 16:48:58', '2026-05-23 01:34:07'),
 	(4, '12345', '$2b$10$gcLukpznSAlFLaNXUPReieD0WVG50AEFaEsss15ZlOccMXtZv4wmC', 'siswa', 'Ahmad Rizki', 'ahmad@test.com', '081234567893', NULL, 'aktif', '2026-05-22 10:37:08', '2026-05-20 16:48:58', '2026-05-22 10:37:08'),
 	(5, '12346', '$2b$10$gcLukpznSAlFLaNXUPReieD0WVG50AEFaEsss15ZlOccMXtZv4wmC', 'siswa', 'Siti Nurhaliza Cantika', 'siti@test.com', '081234567893', NULL, 'aktif', NULL, '2026-05-20 16:48:58', '2026-05-21 12:37:34'),
 	(6, '3333', '$2y$10$vrSXV2rzCCmSvjX7ccEvc./L0s6Q2dv9JMXp1SQYbj65jEKmAoeYS', 'guru', 'aaaa', 'aanterpercaya@gmail.com', '333', NULL, 'aktif', NULL, '2026-05-21 02:56:37', '2026-05-21 02:56:37'),
