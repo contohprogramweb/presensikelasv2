@@ -33,8 +33,11 @@
                                     <i class="bi bi-search"></i> Tampilkan
                                 </button>
                                 <?php if (!empty($rekap)): ?>
-                                    <a href="<?= site_url('guru/rekap/export_pdf?kelas='.$filter_kelas.'&start_date='.$filter_start.'&end_date='.$filter_end) ?>" class="btn btn-danger" target="_blank">
-                                        <i class="bi bi-file-pdf"></i> Export PDF
+                                    <a href="<?= site_url('guru/rekap/preview_pdf?kelas='.$filter_kelas.'&start_date='.$filter_start.'&end_date='.$filter_end) ?>" class="btn btn-info" target="_blank">
+                                        <i class="bi bi-eye"></i> Preview PDF
+                                    </a>
+                                    <a href="<?= site_url('guru/rekap/export_pdf?kelas='.$filter_kelas.'&start_date='.$filter_start.'&end_date='.$filter_end) ?>" class="btn btn-danger">
+                                        <i class="bi bi-download"></i> Download PDF
                                     </a>
                                 <?php endif; ?>
                             </div>

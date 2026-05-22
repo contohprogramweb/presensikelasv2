@@ -5,7 +5,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Dompdf Generator Library
  * Wrapper untuk Dompdf 2.x
  */
-require_once APPPATH . 'third_party/dompdf/autoload.inc.php';
+// Gunakan autoloader dari vendor Composer jika ada
+if (file_exists(FCPATH . 'vendor/autoload.php')) {
+    require_once FCPATH . 'vendor/autoload.php';
+} else {
+    // Fallback ke third_party jika vendor tidak ada
+    require_once APPPATH . 'third_party/dompdf/autoload.inc.php';
+}
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -32,7 +38,7 @@ class Dompdf_generator {
      * @param string $filename
      * @param string $paper_size (A4, Letter, etc)
      * @param string $orientation (portrait, landscape)
-     * @param bool $download (true = download, false = inline)
+     * @param bool $download (true = download, false = inline preview)
      */
     public function generate($html, $filename = 'document.pdf', $paper_size = 'A4', $orientation = 'portrait', $download = true) {
         try {
@@ -43,9 +49,11 @@ class Dompdf_generator {
             $this->dompdf->render();
             
             if ($download) {
+                // Download langsung
                 $this->dompdf->stream($filename, array('Attachment' => true));
             } else {
-                echo $this->dompdf->output();
+                // Preview di browser (inline)
+                $this->dompdf->stream($filename, array('Attachment' => false));
             }
             
             return true;

@@ -52,7 +52,38 @@ class Rekap extends MY_Controller {
     }
     
     /**
-     * Export PDF rekap presensi
+     * Preview PDF rekap presensi (tampilkan di browser)
+     */
+    public function preview_pdf() {
+        $id_kelas = $this->input->get('kelas');
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
+        
+        if (!$id_kelas || !$start_date || !$end_date) {
+            $this->session->set_flashdata('error', 'Filter tidak lengkap');
+            redirect('guru/rekap');
+        }
+        
+        // Get data rekap
+        $rekap = $this->M_rekap->get_rekap_per_siswa($id_kelas, $start_date, $end_date);
+        
+        // Get info kelas
+        $this->db->select('nama_kelas');
+        $kelas = $this->db->get_where('tb_kelas', ['id' => $id_kelas])->row();
+        
+        // Generate HTML untuk PDF
+        $html = $this->_generate_html_rekap($kelas->nama_kelas, $start_date, $end_date, $rekap);
+        
+        // Load library dompdf
+        $this->load->library('dompdf_generator');
+        
+        $filename = 'Rekap_Presensi_'.$kelas->nama_kelas.'_'.date('YmdHis').'.pdf';
+        // Parameter terakhir false = preview di browser (inline)
+        $this->dompdf_generator->generate($html, $filename, 'A4', 'portrait', false);
+    }
+    
+    /**
+     * Export PDF rekap presensi (download langsung)
      */
     public function export_pdf() {
         $id_kelas = $this->input->get('kelas');
@@ -77,7 +108,8 @@ class Rekap extends MY_Controller {
         // Load library dompdf
         $this->load->library('dompdf_generator');
         
-        $filename = 'Rekap_Presensi_'.$kelas->nama.'_'.date('YmdHis').'.pdf';
+        $filename = 'Rekap_Presensi_'.$kelas->nama_kelas.'_'.date('YmdHis').'.pdf';
+        // Parameter terakhir true = download langsung
         $this->dompdf_generator->generate($html, $filename, 'A4', 'portrait', true);
     }
     
