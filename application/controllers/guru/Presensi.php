@@ -113,6 +113,7 @@ class Presensi extends MY_Controller {
         $siswa_data = [];
         $post_data = $this->input->post();
         
+        log_message('debug', 'Presensi::simpan - POST keys: ' . json_encode(array_keys($post_data)));
         foreach ($post_data as $key => $value) {
             if (preg_match('/siswa\[(\d+)\]\[status\]/', $key, $matches)) {
                 $id_siswa = $matches[1];

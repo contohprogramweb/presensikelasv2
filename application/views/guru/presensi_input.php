@@ -188,7 +188,10 @@ $(document).ready(function() {
                 var csrfName = $('meta[name="csrf_name"]').attr('content');
                 var csrfHash = $('meta[name="csrf_hash"]').attr('content');
                 if (csrfName && csrfHash) {
+                    // Set header custom untuk CSRF
                     xhr.setRequestHeader(csrfName, csrfHash);
+                    // Juga tambahkan sebagai header X-CSRF-TOKEN untuk kompatibilitas
+                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfHash);
                 }
             }
         }
@@ -323,6 +326,10 @@ $(document).ready(function() {
             processData: false,  // Jangan proses data
             contentType: false,  // Jangan set content type otomatis
             dataType: 'json',
+            headers: {
+                // Pastikan CSRF token dikirim dengan benar
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             success: function(response) {
                 btnSubmit.prop('disabled', false).html(originalText);
                 
