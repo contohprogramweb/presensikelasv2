@@ -25,101 +25,107 @@ class M_presensi extends CI_Model {
         
         $inserted_ids = [];
         
+        if (empty($data_presensi)) {
+            return [
+                'status' => false,
+                'message' => 'Data presensi kosong.',
+                'inserted_ids' => []
+            ];
+        }
+        
+        // Ambil data header dari item pertama (semua item harus memiliki id_jadwal dan tanggal yang sama)
+        $first_item = $data_presensi[0];
+        $id_jadwal = $first_item['id_jadwal'];
+        $tanggal = $first_item['tanggal'];
+        $id_guru = $first_item['id_guru'];
+        $materi_pelajaran = $first_item['materi_pelajaran'];
+        
+        // Check if presensi header already exists for this jadwal and tanggal
+        $this->db->where('id_jadwal', $id_jadwal);
+        $this->db->where('tanggal', $tanggal);
+        $existing_header = $this->db->get('tb_presensi')->row_array();
+        
+        if ($existing_header) {
+            // Update existing header
+            $this->db->where('id', $existing_header['id']);
+            $this->db->update('tb_presensi', [
+                'materi_pelajaran' => $materi_pelajaran,
+                'id_guru' => $id_guru
+            ]);
+            $id_presensi_header = $existing_header['id'];
+            
+            // Delete existing details for this presensi header before re-inserting
+            // This ensures clean update without duplicates
+            $this->db->where('id_presensi', $id_presensi_header);
+            $this->db->delete('tb_presensi_siswa');
+            
+            // Also delete existing approvals for this presensi
+            $this->db->where('id_presensi', $id_presensi_header);
+            $this->db->delete('tb_approval');
+        } else {
+            // Insert new header
+            $header_data = [
+                'id_jadwal' => $id_jadwal,
+                'id_guru' => $id_guru,
+                'tanggal' => $tanggal,
+                'materi_pelajaran' => $materi_pelajaran
+            ];
+            $this->db->insert('tb_presensi', $header_data);
+            $id_presensi_header = $this->db->insert_id();
+        }
+        
+        // Collect approval data to insert in batch after all details are inserted
+        $approval_batch = [];
+        
+        // Insert all detail presensi siswa
         foreach ($data_presensi as $presensi) {
-            // Extract presensi header data (untuk tb_presensi)
-            $id_jadwal = $presensi['id_jadwal'];
-            $tanggal = $presensi['tanggal'];
-            $id_guru = $presensi['id_guru'];
-            $materi_pelajaran = $presensi['materi_pelajaran'];
-            
-            // Check if presensi header already exists for this jadwal and tanggal
-            $this->db->where('id_jadwal', $id_jadwal);
-            $this->db->where('tanggal', $tanggal);
-            $existing_header = $this->db->get('tb_presensi')->row_array();
-            
-            if ($existing_header) {
-                // Update existing header
-                $this->db->where('id', $existing_header['id']);
-                $this->db->update('tb_presensi', [
-                    'materi_pelajaran' => $materi_pelajaran,
-                    'id_guru' => $id_guru
-                ]);
-                $id_presensi_header = $existing_header['id'];
-            } else {
-                // Insert new header
-                $header_data = [
-                    'id_jadwal' => $id_jadwal,
-                    'id_guru' => $id_guru,
-                    'tanggal' => $tanggal,
-                    'materi_pelajaran' => $materi_pelajaran
-                ];
-                $this->db->insert('tb_presensi', $header_data);
-                $id_presensi_header = $this->db->insert_id();
-            }
-            
-            // Insert/update detail presensi siswa
             $id_siswa = $presensi['id_siswa'];
             $status = $presensi['status'];
             $keterangan = $presensi['keterangan'];
             
-            // Check if detail already exists
-            $this->db->where('id_presensi', $id_presensi_header);
-            $this->db->where('id_siswa', $id_siswa);
-            $existing_detail = $this->db->get('tb_presensi_siswa')->row_array();
+            // Insert new detail
+            $detail_data = [
+                'id_presensi' => $id_presensi_header,
+                'id_siswa' => $id_siswa,
+                'tanggal' => $tanggal,
+                'status' => $status,
+                'keterangan' => $keterangan
+            ];
+            $this->db->insert('tb_presensi_siswa', $detail_data);
+            $new_detail_id = $this->db->insert_id();
+            $inserted_ids[] = $new_detail_id;
             
-            if ($existing_detail) {
-                // Update existing detail
-                $this->db->where('id', $existing_detail['id']);
-                $this->db->update('tb_presensi_siswa', [
-                    'status' => $status,
-                    'keterangan' => $keterangan
-                ]);
-                $inserted_ids[] = $existing_detail['id'];
-                
-                // If updating to Izin/Sakit, need to create approval
-                if (in_array($status, ['Izin', 'Sakit'])) {
-                    $approval_data = [
-                        'id_presensi' => $id_presensi_header,
-                        'id_siswa' => $id_siswa,
-                        'id_guru' => $presensi['id_guru'],
-                        'tanggal' => $tanggal,
-                        'status_asli' => $status,
-                        'status_approval' => 'pending'
-                    ];
-                    $this->db->insert('tb_approval', $approval_data);
-                }
-            } else {
-                // Insert new detail
-                $detail_data = [
+            // If Izin/Sakit, prepare approval record (don't insert yet)
+            if (in_array($status, ['Izin', 'Sakit'])) {
+                $approval_batch[] = [
                     'id_presensi' => $id_presensi_header,
                     'id_siswa' => $id_siswa,
+                    'id_guru' => $presensi['id_guru'],
                     'tanggal' => $tanggal,
-                    'status' => $status,
-                    'keterangan' => $keterangan
+                    'status_asli' => $status,
+                    'status_approval' => 'pending'
                 ];
-                $this->db->insert('tb_presensi_siswa', $detail_data);
-                $new_detail_id = $this->db->insert_id();
-                $inserted_ids[] = $new_detail_id;
-                
-                // If Izin/Sakit, create approval record
-                if (in_array($status, ['Izin', 'Sakit'])) {
-                    $approval_data = [
-                        'id_presensi' => $id_presensi_header,
-                        'id_siswa' => $id_siswa,
-                        'id_guru' => $presensi['id_guru'],
-                        'tanggal' => $tanggal,
-                        'status_asli' => $status,
-                        'status_approval' => 'pending'
-                    ];
-                    $this->db->insert('tb_approval', $approval_data);
-                }
             }
+        }
+        
+        // Insert all approvals in batch if any
+        if (!empty($approval_batch)) {
+            $this->db->insert_batch('tb_approval', $approval_batch);
         }
         
         $this->db->trans_complete();
         
+        if ($this->db->trans_status() === false) {
+            return [
+                'status' => false,
+                'message' => 'Transaksi database gagal.',
+                'inserted_ids' => []
+            ];
+        }
+        
         return [
-            'status' => $this->db->trans_status(),
+            'status' => true,
+            'message' => 'Presensi berhasil disimpan.',
             'inserted_ids' => $inserted_ids
         ];
     }
