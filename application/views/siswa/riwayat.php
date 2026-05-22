@@ -133,27 +133,24 @@ $(document).ready(function() {
                 d.tanggal_mulai = $('#filter_tanggal_mulai').val();
                 d.tanggal_sampai = $('#filter_tanggal_sampai').val();
                 d.status = $('#filter_status').val();
-                d.<?= $csrf_name ?> = '<?= $csrf_hash ?>';
+            },
+            error: function(xhr, errorStatus, errorThrown) {
+                console.log('AJAX Error:', errorStatus, errorThrown);
+                console.log('Response:', xhr.responseText);
             }
         },
         columns: [
             {data: null, orderable: false},
-            {data: 'tanggal'},
-            {data: 'hari'},
-            {data: 'nama_mapel'},
-            {data: 'nama_guru'},
-            {data: 'materi'},
-            {data: 'status'},
-            {data: 'keterangan'},
-            {data: 'status_approval'}
+            {data: 'tanggal', orderable: true},
+            {data: 'hari', orderable: true},
+            {data: 'nama_mapel', orderable: true},
+            {data: 'nama_guru', orderable: true},
+            {data: 'materi_pelajaran', orderable: false},
+            {data: 'status', orderable: true},
+            {data: 'keterangan', orderable: false},
+            {data: 'status_approval', orderable: false}
         ],
         order: [[1, 'desc']],
-        drawCallback: function() {
-            // Refresh CSRF token
-            $.getJSON('<?= site_url('security/get_csrf_hash') ?>', function(data) {
-                $('input[name="<?= $csrf_name ?>"]').val(data.csrf_hash);
-            });
-        }
     });
 });
 
