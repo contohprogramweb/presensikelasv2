@@ -96,8 +96,6 @@ class Presensi extends MY_Controller {
         // Log untuk debugging
         log_message('debug', 'Presensi::simpan - Method: ' . $this->input->method());
         
-        $csrf_name = $this->security->get_csrf_token_name();
-        
         // Ambil data dari POST (format FormData)
         $id_jadwal = $this->input->post('id_jadwal');
         $tanggal = $this->input->post('tanggal');
@@ -238,8 +236,7 @@ class Presensi extends MY_Controller {
                 log_aktivitas('input_presensi', 'tb_presensi', $result['id_presensi'], 'Input presensi untuk mata pelajaran ' . $jadwal['nama_mapel'] . ' kelas ' . $jadwal['nama_kelas']);
                 echo json_encode([
                     'status' => 'success',
-                    'pesan' => 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.',
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.'
                 ]);
             } else {
                 echo json_encode([
