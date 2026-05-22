@@ -18,6 +18,13 @@
         </div>
     <?php endif; ?>
 
+    <?php if ($this->session->flashdata('info')): ?>
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i><?= $this->session->flashdata('info'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span><i class="fas fa-calendar-day me-2"></i>Jadwal Hari Ini (<?= $hari_ini_indo ?? 'Hari Ini' ?>)</span>

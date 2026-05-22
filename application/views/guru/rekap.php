@@ -1,5 +1,30 @@
 <div class="content-wrapper">
 <div class="container-fluid">
+    <div class="page-heading mb-3">
+        <h2><i class="fas fa-chart-bar me-2"></i><?= $page_title ?? 'Rekap Presensi'; ?></h2>
+    </div>
+    
+    <?php if ($this->session->flashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i><?= $this->session->flashdata('error'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($this->session->flashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i><?= $this->session->flashdata('success'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($this->session->flashdata('info')): ?>
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i><?= $this->session->flashdata('info'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+    
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -121,3 +146,12 @@
     </div>
 </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    // Auto hide alert after 5 seconds
+    setTimeout(function() {
+        $('.alert').fadeOut('slow');
+    }, 5000);
+});
+</script>

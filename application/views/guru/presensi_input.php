@@ -10,6 +10,20 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
+    
+    <?php if ($this->session->flashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i><?= $this->session->flashdata('success'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if ($this->session->flashdata('info')): ?>
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i><?= $this->session->flashdata('info'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
 
     <div class="card">
         <div class="card-header">
@@ -63,7 +77,8 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <textarea name="materi_pelajaran" class="form-control" rows="3" placeholder="Tulis materi pelajaran yang diajarkan hari ini..."><?= set_value('materi_pelajaran'); ?></textarea>
+                    <textarea name="materi_pelajaran" class="form-control" rows="3" placeholder="Tulis materi pelajaran yang diajarkan hari ini..." required><?= set_value('materi_pelajaran'); ?></textarea>
+                    <small class="text-muted">Materi pelajaran wajib diisi sebelum menyimpan presensi.</small>
                 </div>
             </div>
         </div>
@@ -129,7 +144,7 @@
                                             </label>
                                         </td>
                                         <td>
-                                            <input type="text" name="siswa[<?= $siswa['id']; ?>][keterangan]" class="form-control form-control-sm" placeholder="Keterangan...">
+                                            <input type="text" name="siswa[<?= $siswa['id']; ?>][keterangan]" class="form-control form-control-sm keterangan-siswa" placeholder="Keterangan...">
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -145,7 +160,7 @@
                 <a href="<?= site_url('guru/presensi'); ?>" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i>Batal
                 </a>
-                <button type="submit" class="btn btn-primary" onclick="return confirm('Apakah Anda yakin ingin menyimpan data presensi ini?')">
+                <button type="submit" class="btn btn-primary" id="btnSimpanPresensi">
                     <i class="fas fa-save me-1"></i>Simpan Presensi
                 </button>
             </div>
@@ -166,7 +181,100 @@ $(document).ready(function() {
         });
     });
 
-    // Auto hide alert after 5 seconds
+    // Validasi form sebelum submit dengan SweetAlert2
+    $('#formPresensi').on('submit', function(e) {
+        e.preventDefault();
+        
+        var form = $(this);
+        var materiPelajaran = form.find('textarea[name="materi_pelajaran"]').val().trim();
+        
+        // Validasi materi pelajaran
+        if (!materiPelajaran) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Materi Pelajaran Kosong',
+                text: 'Silakan isi materi pelajaran yang diajarkan hari ini sebelum menyimpan presensi.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f39c12'
+            });
+            return false;
+        }
+        
+        // Hitung jumlah siswa
+        var jumlahSiswa = $('input[name^="siswa["][name$="[status]"]:checked').length;
+        
+        if (jumlahSiswa === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Tidak Ada Data Siswa',
+                text: 'Tidak ada siswa yang dapat diproses untuk presensi ini.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#e74c3c'
+            });
+            return false;
+        }
+        
+        // Hitung distribusi kehadiran
+        var hadir = $('input[name^="siswa["][name$="[status]"][value="Hadir"]:checked').length;
+        var izin = $('input[name^="siswa["][name$="[status]"][value="Izin"]:checked').length;
+        var sakit = $('input[name^="siswa["][name$="[status]"][value="Sakit"]:checked').length;
+        var alpa = $('input[name^="siswa["][name$="[status]"][value="Alpa"]:checked').length;
+        
+        // Tampilkan konfirmasi dengan ringkasan
+        Swal.fire({
+            title: 'Konfirmasi Simpan Presensi',
+            html: '<div class="text-start">' +
+                  '<p>Apakah Anda yakin ingin menyimpan data presensi ini?</p>' +
+                  '<hr>' +
+                  '<div class="row">' +
+                  '<div class="col-6"><strong>Total Siswa:</strong></div>' +
+                  '<div class="col-6 text-end">' + jumlahSiswa + ' siswa</div>' +
+                  '</div>' +
+                  '<div class="row">' +
+                  '<div class="col-6"><span class="badge bg-success">Hadir</span></div>' +
+                  '<div class="col-6 text-end">' + hadir + ' siswa</div>' +
+                  '</div>' +
+                  '<div class="row">' +
+                  '<div class="col-6"><span class="badge bg-info">Izin</span></div>' +
+                  '<div class="col-6 text-end">' + izin + ' siswa</div>' +
+                  '</div>' +
+                  '<div class="row">' +
+                  '<div class="col-6"><span class="badge bg-warning">Sakit</span></div>' +
+                  '<div class="col-6 text-end">' + sakit + ' siswa</div>' +
+                  '</div>' +
+                  '<div class="row">' +
+                  '<div class="col-6"><span class="badge bg-danger">Alpa</span></div>' +
+                  '<div class="col-6 text-end">' + alpa + ' siswa</div>' +
+                  '</div>' +
+                  '</div>',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2ecc71',
+            cancelButtonColor: '#95a5a6',
+            confirmButtonText: '<i class="fas fa-check me-1"></i>Ya, Simpan',
+            cancelButtonText: '<i class="fas fa-times me-1"></i>Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Disable button dan tampilkan loading
+                var btnSubmit = $('#btnSimpanPresensi');
+                var originalText = btnSubmit.html();
+                btnSubmit.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...');
+                
+                // Submit form
+                form.off('submit').submit();
+                
+                // Timeout untuk mencegah double submit
+                setTimeout(function() {
+                    btnSubmit.prop('disabled', false).html(originalText);
+                }, 5000);
+            }
+        });
+        
+        return false;
+    });
+    
+    // Auto-hide alert after 5 seconds (untuk flashdata lama)
     setTimeout(function() {
         $('.alert').fadeOut('slow');
     }, 5000);
