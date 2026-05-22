@@ -35,6 +35,6 @@ class Jadwal extends MY_Controller {
         $this->data['jadwal_grouped'] = $jadwal_grouped;
         $this->data['hari_list'] = $hari_list;
         
-        $this->load->view('templates/template', 'guru/jadwal', $this->data);
+        $this->load->view('templates/template', ['content' => 'guru/jadwal'] + $this->data);
     }
 }
