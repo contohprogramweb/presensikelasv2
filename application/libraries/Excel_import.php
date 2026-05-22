@@ -20,9 +20,9 @@ if (file_exists($composerAutoload)) {
     define('HAS_PHPSPREADSHEET', false);
 }
 
-if (HAS_PHPSPREADSHEET) {
-    use PhpOffice\PhpSpreadsheet\IOFactory;
-    use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+// Use statements hanya dieksekusi jika HAS_PHPSPREADSHEET true
+if (defined('HAS_PHPSPREADSHEET') && HAS_PHPSPREADSHEET) {
+    // Note: use statements harus di level global, jadi kita gunakan fully qualified class names di method
 }
 
 class Excel_import {
@@ -51,7 +51,7 @@ class Excel_import {
         }
         
         try {
-            $spreadsheet = IOFactory::load($file_path);
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file_path);
             $worksheet = $spreadsheet->getActiveSheet();
             
             $data = [];
@@ -102,7 +102,7 @@ class Excel_import {
         }
         
         try {
-            $spreadsheet = IOFactory::load($file_path);
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file_path);
             $worksheet = $spreadsheet->getActiveSheet();
             
             $data = [];
