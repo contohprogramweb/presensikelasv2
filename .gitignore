@@ -1,50 +1,57 @@
 ```php
-# Environment specific files
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
+
+# Dependencies
+node_modules/
+venv/
+.venv/
 .env
 .env.local
 .env.*
 
-# Logs
+# Logs and temp files
 *.log
-
-# Temporary files
 *.tmp
 *.swp
+*.swo
 
-# IDE specific files
+# Editors
 .vscode/
 .idea/
 
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# PHP specific
-*.php~
-phpunit.xml.dist
+# Coverage reports
 coverage/
 htmlcov/
 .coverage
 
-# Build artifacts
+# Build directories
 dist/
 build/
 target/
+.gradle/
 
-# Dependencies
-vendor/
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.PyInstaller/
+.pytest_cache/
+.mypy_cache/
 
-# Cache directories
-.cache/
-.php_cs.cache
-.phpunit.result.cache
-
-# Sensitive files
-config/database.php
-application/config/database.php
-application/config/config.php
+# System files
+.DS_Store
+Thumbs.db
 ```
