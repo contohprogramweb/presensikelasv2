@@ -1,23 +1,62 @@
-```
-# Logs
-application/logs/
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+dist/
+build/
+target/
+.gradle/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
 
 # Environment
 .env
 .env.local
 .env.*
 
-# Dependencies
-vendor/
-node_modules/
-composer.lock
-
-# Compiled/Generated
-*.log
-*.tmp
-*.swp
-
-# IDE
+# Editors
 .vscode/
 .idea/
-```
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.Python
+*.egg-info/
+.eggs/
+
+# Cache directories
+.mypy_cache/
+.pytest_cache/
+.hypothesis/

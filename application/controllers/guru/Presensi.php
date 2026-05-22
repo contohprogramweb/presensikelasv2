@@ -153,10 +153,10 @@ class Presensi extends MY_Controller {
 
         if ($result['status']) {
             log_aktivitas('INSERT_PRESENSI', 'tb_presensi', $id_jadwal, 'Presensi tanggal ' . $tanggal);
-            $json(['status' => true, 'message' => 'Presensi berhasil disimpan.']);
+            $json(['status' => true, 'message' => $result['message'] ?? 'Presensi berhasil disimpan.']);
         } else {
-            log_message('error', 'Presensi::simpan gagal - jadwal=' . $id_jadwal . ' tgl=' . $tanggal);
-            $json(['status' => false, 'message' => 'Gagal menyimpan ke database. Periksa log aplikasi.']);
+            log_message('error', 'Presensi::simpan gagal - jadwal=' . $id_jadwal . ' tgl=' . $tanggal . ' - ' . ($result['message'] ?? 'Unknown error'));
+            $json(['status' => false, 'message' => $result['message'] ?? 'Gagal menyimpan ke database. Periksa log aplikasi.']);
         }
     }
 }
