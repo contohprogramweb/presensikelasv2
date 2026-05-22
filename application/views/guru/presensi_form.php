@@ -43,12 +43,12 @@
                             <?php $no = 1; foreach ($jadwal_hari_ini as $jadwal): ?>
                                 <tr>
                                     <td><?= $no++; ?></td>
-                                    <td><?= html_escape($jadwal['mata_pelajaran_nama']); ?></td>
-                                    <td><?= html_escape($jadwal['kelas_nama']); ?></td>
-                                    <td><?= date('H:i', strtotime($jadwal['jam_mulai'])) ?> - <?= date('H:i', strtotime($jadwal['jam_selesai'])) ?></td>
-                                    <td><?= html_escape($jadwal['ruangan']); ?></td>
+                                    <td><?= html_escape($jadwal->nama_mapel); ?></td>
+                                    <td><?= html_escape($jadwal->nama_kelas); ?></td>
+                                    <td><?= date('H:i', strtotime($jadwal->jam_mulai)) ?> - <?= date('H:i', strtotime($jadwal->jam_selesai)) ?></td>
+                                    <td><?= html_escape($jadwal->ruangan ?? '-'); ?></td>
                                     <td>
-                                        <a href="<?= site_url('guru/presensi/form/' . encrypt_id($jadwal['id'])); ?>" class="btn btn-primary btn-sm">
+                                        <a href="<?= site_url('guru/presensi/form/' . encrypt_id($jadwal->id)); ?>" class="btn btn-primary btn-sm">
                                             <i class="fas fa-edit me-1"></i>Input Presensi
                                         </a>
                                     </td>
