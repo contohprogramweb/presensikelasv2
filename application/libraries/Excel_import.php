@@ -3,12 +3,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Excel Import Library
- * Wrapper untuk PhpSpreadsheet
+ * Wrapper untuk membaca file Excel/CSV
  */
-require_once APPPATH . 'third_party/phpspreadsheet/vendor/autoload.php';
 
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+// Cek apakah PhpSpreadsheet tersedia
+$composerAutoload = APPPATH . '../vendor/autoload.php';
+$localAutoload = APPPATH . 'third_party/phpspreadsheet/vendor/autoload.php';
+
+if (file_exists($composerAutoload)) {
+    require_once $composerAutoload;
+    define('HAS_PHPSPREADSHEET', true);
+} elseif (file_exists($localAutoload)) {
+    require_once $localAutoload;
+    define('HAS_PHPSPREADSHEET', true);
+} else {
+    define('HAS_PHPSPREADSHEET', false);
+}
+
+if (HAS_PHPSPREADSHEET) {
+    use PhpOffice\PhpSpreadsheet\IOFactory;
+    use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+}
 
 class Excel_import {
     
@@ -17,6 +32,11 @@ class Excel_import {
     
     public function __construct() {
         $this->CI =& get_instance();
+        
+        // Cek apakah PhpSpreadsheet tersedia
+        if (!defined('HAS_PHPSPREADSHEET') || !HAS_PHPSPREADSHEET) {
+            log_message('error', 'PhpSpreadsheet library tidak ditemukan. Pastikan sudah menjalankan composer install.');
+        }
     }
     
     /**
@@ -25,6 +45,11 @@ class Excel_import {
      * @return array Data dalam format array 2D
      */
     public function read_excel($file_path) {
+        if (!defined('HAS_PHPSPREADSHEET') || !HAS_PHPSPREADSHEET) {
+            log_message('error', 'PhpSpreadsheet library tidak ditemukan');
+            return false;
+        }
+        
         try {
             $spreadsheet = IOFactory::load($file_path);
             $worksheet = $spreadsheet->getActiveSheet();
@@ -61,6 +86,49 @@ class Excel_import {
         }
         
         return array_slice($data, 0, $limit);
+    }
+    
+    /**
+     * Baca file Excel/CSV dengan deteksi otomatis
+     * @param string $file_path Path file
+     * @param string $ext Ekstensi file (xlsx, xls, csv)
+     * @param int $limit Limit baris (opsional, untuk preview)
+     * @return array|false
+     */
+    public function read_file($file_path, $ext = 'xlsx', $limit = null) {
+        if (!defined('HAS_PHPSPREADSHEET') || !HAS_PHPSPREADSHEET) {
+            log_message('error', 'PhpSpreadsheet library tidak ditemukan');
+            return false;
+        }
+        
+        try {
+            $spreadsheet = IOFactory::load($file_path);
+            $worksheet = $spreadsheet->getActiveSheet();
+            
+            $data = [];
+            $rowCount = 0;
+            
+            foreach ($worksheet->getRowIterator() as $row) {
+                if ($limit !== null && $rowCount >= $limit) {
+                    break;
+                }
+                
+                $cellIterator = $row->getCellIterator();
+                $cellIterator->setIterateOnlyExistingCells(false);
+                
+                $rowData = [];
+                foreach ($cellIterator as $cell) {
+                    $rowData[] = $cell->getValue();
+                }
+                $data[] = $rowData;
+                $rowCount++;
+            }
+            
+            return $data;
+        } catch (Exception $e) {
+            log_message('error', 'Excel Read Error: ' . $e->getMessage());
+            return false;
+        }
     }
     
     /**

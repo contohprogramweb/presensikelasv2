@@ -91,10 +91,12 @@ $route['admin/kelassiswa/ajax_delete'] = 'admin/Kelassiswa/ajax_delete';
 $route['admin/kelassiswa/ajax_statistik'] = 'admin/Kelassiswa/ajax_statistik';
 $route['admin/kelassiswa/ajax_siswa_belum_kelas'] = 'admin/Kelassiswa/ajax_siswa_belum_kelas';
 $route['admin/kelassiswa/ajax_get_kelas'] = 'admin/Kelassiswa/ajax_get_kelas';
-$route['admin/kelassiswa/ajax_get_siswa'] = 'admin/Kelassiswa/ajax_get_siswa';
-$route['admin/kelassiswa/ajax_get_statistik'] = 'admin/Kelassiswa/ajax_get_statistik';
 $route['admin/kelassiswa/ajax_hapus_siswa'] = 'admin/Kelassiswa/ajax_hapus_siswa';
 $route['admin/kelassiswa/simpan_penempatan'] = 'admin/Kelassiswa/simpan_penempatan';
+
+// Route untuk penempatan siswa dengan parameter
+$route['admin/kelassiswa/ajax_get_siswa/(:any)'] = 'admin/Kelassiswa/ajax_get_siswa/$1';
+$route['admin/kelassiswa/ajax_get_statistik'] = 'admin/Kelassiswa/ajax_get_statistik';
 
 $route['admin/import'] = 'admin/Import/index';
 $route['admin/import/siswa'] = 'admin/Import/siswa';
