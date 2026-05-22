@@ -10,37 +10,38 @@ class M_riwayat extends CI_Model {
 
     public function get_riwayat_siswa_datatable($id_siswa, $start_date = null, $end_date = null, $status_filter = null, $search = null, $length = 10, $start = 0, $order = [])
     {
-        $this->db->select('p.*, m.nama_mapel, j.hari');
+        $this->db->select('ps.*, m.nama_mapel, j.hari');
         $this->db->select('a.status_approval, a.catatan as catatan_approval');
         $this->db->select('u.nama_lengkap as nama_guru');
-        $this->db->select('p.keterangan as materi_pelajaran');
-        $this->db->from('tb_presensi p');
+        $this->db->select('p.materi_pelajaran');
+        $this->db->from('tb_presensi_siswa ps');
+        $this->db->join('tb_presensi p', 'p.id = ps.id_presensi');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal');
         $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel');
         $this->db->join('tb_guru g', 'g.id = j.id_guru');
         $this->db->join('tb_user u', 'u.id = g.id_user');
         $this->db->join('tb_approval a', 'a.id_presensi = p.id', 'left');
-        $this->db->where('p.id_siswa', $id_siswa);
+        $this->db->where('ps.id_siswa', $id_siswa);
         
         if ($start_date) {
-            $this->db->where('p.tanggal >=', $start_date);
+            $this->db->where('ps.tanggal >=', $start_date);
         }
         if ($end_date) {
-            $this->db->where('p.tanggal <=', $end_date);
+            $this->db->where('ps.tanggal <=', $end_date);
         }
         if ($status_filter) {
-            $this->db->where('p.status', $status_filter);
+            $this->db->where('ps.status', $status_filter);
         }
         
         // Search
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->like('p.tanggal', $search);
+            $this->db->like('ps.tanggal', $search);
             $this->db->or_like('j.hari', $search);
             $this->db->or_like('m.nama_mapel', $search);
             $this->db->or_like('u.nama_lengkap', $search);
-            $this->db->or_like('p.status', $search);
-            $this->db->or_like('p.keterangan', $search);
+            $this->db->or_like('ps.status', $search);
+            $this->db->or_like('p.materi_pelajaran', $search);
             $this->db->group_end();
         }
         
@@ -51,16 +52,16 @@ class M_riwayat extends CI_Model {
                 $dir = $o['dir'];
                 
                 switch ($column_index) {
-                    case 1: $this->db->order_by('p.tanggal', $dir); break;
+                    case 1: $this->db->order_by('ps.tanggal', $dir); break;
                     case 2: $this->db->order_by('j.hari', $dir); break;
                     case 3: $this->db->order_by('m.nama_mapel', $dir); break;
                     case 4: $this->db->order_by('u.nama_lengkap', $dir); break;
-                    case 6: $this->db->order_by('p.status', $dir); break;
-                    default: $this->db->order_by('p.tanggal', 'DESC'); break;
+                    case 6: $this->db->order_by('ps.status', $dir); break;
+                    default: $this->db->order_by('ps.tanggal', 'DESC'); break;
                 }
             }
         } else {
-            $this->db->order_by('p.tanggal', 'DESC');
+            $this->db->order_by('ps.tanggal', 'DESC');
         }
         
         // Limit and offset
@@ -73,32 +74,33 @@ class M_riwayat extends CI_Model {
 
     public function count_all_riwayat($id_siswa, $start_date = null, $end_date = null, $status_filter = null, $search = null)
     {
-        $this->db->from('tb_presensi p');
+        $this->db->from('tb_presensi_siswa ps');
+        $this->db->join('tb_presensi p', 'p.id = ps.id_presensi');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal');
         $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel');
         $this->db->join('tb_guru g', 'g.id = j.id_guru');
         $this->db->join('tb_user u', 'u.id = g.id_user');
-        $this->db->where('p.id_siswa', $id_siswa);
+        $this->db->where('ps.id_siswa', $id_siswa);
         
         if ($start_date) {
-            $this->db->where('p.tanggal >=', $start_date);
+            $this->db->where('ps.tanggal >=', $start_date);
         }
         if ($end_date) {
-            $this->db->where('p.tanggal <=', $end_date);
+            $this->db->where('ps.tanggal <=', $end_date);
         }
         if ($status_filter) {
-            $this->db->where('p.status', $status_filter);
+            $this->db->where('ps.status', $status_filter);
         }
         
         // Search
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->like('p.tanggal', $search);
+            $this->db->like('ps.tanggal', $search);
             $this->db->or_like('j.hari', $search);
             $this->db->or_like('m.nama_mapel', $search);
             $this->db->or_like('u.nama_lengkap', $search);
-            $this->db->or_like('p.status', $search);
-            $this->db->or_like('p.keterangan', $search);
+            $this->db->or_like('ps.status', $search);
+            $this->db->or_like('p.materi_pelajaran', $search);
             $this->db->group_end();
         }
         
@@ -107,14 +109,14 @@ class M_riwayat extends CI_Model {
 
     public function get_statistik_bulan_ini($id_siswa)
     {
-        $this->db->select('SUM(CASE WHEN p.status = "Hadir" THEN 1 ELSE 0 END) as hadir');
-        $this->db->select('SUM(CASE WHEN p.status = "Izin" THEN 1 ELSE 0 END) as izin');
-        $this->db->select('SUM(CASE WHEN p.status = "Sakit" THEN 1 ELSE 0 END) as sakit');
-        $this->db->select('SUM(CASE WHEN p.status = "Alpa" THEN 1 ELSE 0 END) as alpa');
-        $this->db->from('tb_presensi p');
-        $this->db->where('p.id_siswa', $id_siswa);
-        $this->db->where('p.tanggal >=', date('Y-m-01'));
-        $this->db->where('p.tanggal <=', date('Y-m-t'));
+        $this->db->select('SUM(CASE WHEN ps.status = "Hadir" THEN 1 ELSE 0 END) as hadir');
+        $this->db->select('SUM(CASE WHEN ps.status = "Izin" THEN 1 ELSE 0 END) as izin');
+        $this->db->select('SUM(CASE WHEN ps.status = "Sakit" THEN 1 ELSE 0 END) as sakit');
+        $this->db->select('SUM(CASE WHEN ps.status = "Alpa" THEN 1 ELSE 0 END) as alpa');
+        $this->db->from('tb_presensi_siswa ps');
+        $this->db->where('ps.id_siswa', $id_siswa);
+        $this->db->where('ps.tanggal >=', date('Y-m-01'));
+        $this->db->where('ps.tanggal <=', date('Y-m-t'));
         
         return $this->db->get()->row_array();
     }

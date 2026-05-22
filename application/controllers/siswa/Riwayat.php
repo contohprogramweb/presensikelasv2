@@ -117,7 +117,7 @@ class Riwayat extends MY_Controller {
                     }
                 }
                  
-				$materi = !empty($row['keterangan']) ? $row['keterangan'] : '-';
+				$materi = !empty($row['materi_pelajaran']) ? $row['materi_pelajaran'] : '-';
                 $keterangan = !empty($row['catatan_approval']) ? $row['catatan_approval'] : '-';
                 
                 $output['data'][] = [

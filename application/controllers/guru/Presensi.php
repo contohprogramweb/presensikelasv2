@@ -139,7 +139,7 @@ class Presensi extends MY_Controller {
             // Create approval record for Izin/Sakit
             if (in_array($status, ['Izin', 'Sakit'])) {
                 $approval_data = [
-                    'id_presensi' => 0, // Will be updated after insert
+                    'id_presensi' => 0, // Will be updated after insert - need to get from presensi header
                     'status_approval' => 'pending'
                 ];
                 $data_approval[] = $approval_data;
@@ -151,9 +151,27 @@ class Presensi extends MY_Controller {
         
         if ($result['status']) {
             // Update approval records with presensi IDs
-            foreach ($data_approval as $key => $approval) {
-                $approval['id_presensi'] = $result['inserted_ids'][$key];
-                $this->db->insert('tb_approval', $approval);
+            // Get the presensi header ID first
+            $this->db->where('id_jadwal', $id_jadwal);
+            $this->db->where('tanggal', $tanggal);
+            $presensi_header = $this->db->get('tb_presensi')->row_array();
+            
+            if ($presensi_header) {
+                $id_presensi_header = $presensi_header['id'];
+                
+                // Get all presensi_siswa records for this header that have Izin/Sakit status
+                $this->db->where('id_presensi', $id_presensi_header);
+                $this->db->where_in('status', ['Izin', 'Sakit']);
+                $presensi_siswa_list = $this->db->get('tb_presensi_siswa')->result_array();
+                
+                foreach ($presensi_siswa_list as $idx => $ps) {
+                    $approval_data = [
+                        'id_presensi' => $id_presensi_header,
+                        'id_presensi_siswa' => $ps['id'],
+                        'status_approval' => 'pending'
+                    ];
+                    $this->db->insert('tb_approval', $approval_data);
+                }
             }
             
             log_aktivitas('INSERT_PRESENSI', 'tb_presensi', $id_jadwal, 'Input presensi tanggal ' . $tanggal);

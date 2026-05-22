@@ -26,20 +26,65 @@ class M_presensi extends CI_Model {
         $inserted_ids = [];
         
         foreach ($data_presensi as $presensi) {
-            // Check if already exists
-            $this->db->where('id_jadwal', $presensi['id_jadwal']);
-            $this->db->where('id_siswa', $presensi['id_siswa']);
-            $this->db->where('tanggal', $presensi['tanggal']);
-            $existing = $this->db->get('tb_presensi')->row_array();
+            // Extract presensi header data (untuk tb_presensi)
+            $id_jadwal = $presensi['id_jadwal'];
+            $tanggal = $presensi['tanggal'];
+            $id_guru = $presensi['id_guru'];
+            $materi_pelajaran = $presensi['materi_pelajaran'];
             
-            if ($existing) {
-                // Update existing
-                $this->db->where('id', $existing['id']);
-                $this->db->update('tb_presensi', $presensi);
-                $inserted_ids[] = $existing['id'];
+            // Check if presensi header already exists for this jadwal and tanggal
+            $this->db->where('id_jadwal', $id_jadwal);
+            $this->db->where('tanggal', $tanggal);
+            $existing_header = $this->db->get('tb_presensi')->row_array();
+            
+            if ($existing_header) {
+                // Update existing header
+                $this->db->where('id', $existing_header['id']);
+                $this->db->update('tb_presensi', [
+                    'materi_pelajaran' => $materi_pelajaran,
+                    'id_guru' => $id_guru
+                ]);
+                $id_presensi_header = $existing_header['id'];
             } else {
-                // Insert new
-                $this->db->insert('tb_presensi', $presensi);
+                // Insert new header
+                $header_data = [
+                    'id_jadwal' => $id_jadwal,
+                    'id_guru' => $id_guru,
+                    'tanggal' => $tanggal,
+                    'materi_pelajaran' => $materi_pelajaran
+                ];
+                $this->db->insert('tb_presensi', $header_data);
+                $id_presensi_header = $this->db->insert_id();
+            }
+            
+            // Insert/update detail presensi siswa
+            $id_siswa = $presensi['id_siswa'];
+            $status = $presensi['status'];
+            $keterangan = $presensi['keterangan'];
+            
+            // Check if detail already exists
+            $this->db->where('id_presensi', $id_presensi_header);
+            $this->db->where('id_siswa', $id_siswa);
+            $existing_detail = $this->db->get('tb_presensi_siswa')->row_array();
+            
+            if ($existing_detail) {
+                // Update existing detail
+                $this->db->where('id', $existing_detail['id']);
+                $this->db->update('tb_presensi_siswa', [
+                    'status' => $status,
+                    'keterangan' => $keterangan
+                ]);
+                $inserted_ids[] = $existing_detail['id'];
+            } else {
+                // Insert new detail
+                $detail_data = [
+                    'id_presensi' => $id_presensi_header,
+                    'id_siswa' => $id_siswa,
+                    'tanggal' => $tanggal,
+                    'status' => $status,
+                    'keterangan' => $keterangan
+                ];
+                $this->db->insert('tb_presensi_siswa', $detail_data);
                 $inserted_ids[] = $this->db->insert_id();
             }
         }
@@ -61,9 +106,10 @@ class M_presensi extends CI_Model {
 
     public function get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal)
     {
-        $this->db->select('p.*, s.nama_lengkap as nama_siswa, u.nama_lengkap');
-        $this->db->from('tb_presensi p');
-        $this->db->join('tb_siswa s', 's.id = p.id_siswa');
+        $this->db->select('ps.*, s.nama_lengkap as nama_siswa, u.nama_lengkap');
+        $this->db->from('tb_presensi_siswa ps');
+        $this->db->join('tb_presensi p', 'p.id = ps.id_presensi');
+        $this->db->join('tb_siswa s', 's.id = ps.id_siswa');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->where('p.id_jadwal', $id_jadwal);
         $this->db->where('p.tanggal', $tanggal);
@@ -74,14 +120,15 @@ class M_presensi extends CI_Model {
     public function get_rekap_presensi($id_guru, $start_date, $end_date, $id_kelas = null)
     {
         $this->db->select('s.id, u.nama_lengkap as nama_siswa, k.nama_kelas');
-        $this->db->select('SUM(CASE WHEN p.status = "Hadir" THEN 1 ELSE 0 END) as hadir');
-        $this->db->select('SUM(CASE WHEN p.status = "Izin" THEN 1 ELSE 0 END) as izin');
-        $this->db->select('SUM(CASE WHEN p.status = "Sakit" THEN 1 ELSE 0 END) as sakit');
-        $this->db->select('SUM(CASE WHEN p.status = "Alpa" THEN 1 ELSE 0 END) as alpa');
+        $this->db->select('SUM(CASE WHEN ps.status = "Hadir" THEN 1 ELSE 0 END) as hadir');
+        $this->db->select('SUM(CASE WHEN ps.status = "Izin" THEN 1 ELSE 0 END) as izin');
+        $this->db->select('SUM(CASE WHEN ps.status = "Sakit" THEN 1 ELSE 0 END) as sakit');
+        $this->db->select('SUM(CASE WHEN ps.status = "Alpa" THEN 1 ELSE 0 END) as alpa');
         $this->db->from('tb_siswa s');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
-        $this->db->join('tb_presensi p', 'p.id_siswa = s.id', 'left');
+        $this->db->join('tb_presensi_siswa ps', 'ps.id_siswa = s.id', 'left');
+        $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'left');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal', 'left');
         
         $this->db->where('j.id_guru', $id_guru);
