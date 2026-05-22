@@ -4,7 +4,7 @@
     <div class="page-heading">
         <h2><i class="fas fa-edit me-2"></i>Form Presensi</h2>
         <p class="text-muted">
-            <?= html_escape($jadwal['mata_pelajaran_nama']); ?> - Kelas <?= html_escape($jadwal['kelas_nama']); ?>
+            <?= html_escape($jadwal['nama_mapel']); ?> - Kelas <?= html_escape($jadwal['nama_kelas']); ?>
             <br>Tanggal: <?= date('d F Y', strtotime($tanggal)); ?>
         </p>
     </div>
