@@ -112,7 +112,7 @@ class M_presensi extends CI_Model {
     public function check_presensi_exists($id_jadwal, $tanggal)
     {
         $this->db->where('id_jadwal', $id_jadwal);
-        $this->db->where('DATE(tanggal)', $tanggal);
+        $this->db->where('tanggal', $tanggal);
         return $this->db->count_all_results('tb_presensi') > 0;
     }
 
