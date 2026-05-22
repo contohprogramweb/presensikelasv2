@@ -93,26 +93,15 @@ class Presensi extends MY_Controller {
      * Proses simpan presensi
      */
     public function simpan() {
-        // Cek apakah ini request AJAX
-        $is_ajax = $this->input->is_ajax_request();
-        
-        if ($this->input->method() !== 'post') {
-            if ($is_ajax) {
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'error',
-                    'pesan' => 'Method tidak diizinkan'
-                ]);
-                return;
-            }
-            show_error('Method tidak diizinkan', 403);
-        }
-        
         // Handle JSON input untuk AJAX request
         $raw_input = file_get_contents('php://input');
         $json_data = json_decode($raw_input, true);
         
-        if ($is_ajax && !empty($json_data)) {
+        // Log untuk debugging
+        log_message('debug', 'Presensi::simpan - Raw input: ' . substr($raw_input, 0, 500));
+        log_message('debug', 'Presensi::simpan - JSON decoded: ' . json_encode($json_data));
+        
+        if (!empty($json_data)) {
             $id_jadwal = $json_data['id_jadwal'] ?? null;
             $tanggal = $json_data['tanggal'] ?? null;
             $materi_pelajaran = trim($json_data['materi_pelajaran'] ?? '');
@@ -124,8 +113,28 @@ class Presensi extends MY_Controller {
             $siswa_data = $this->input->post('siswa');
         }
         
+        log_message('debug', 'Presensi::simpan - id_jadwal: ' . $id_jadwal . ', tanggal: ' . $tanggal . ', materi: ' . substr($materi_pelajaran, 0, 50));
+        log_message('debug', 'Presensi::simpan - siswa_data count: ' . (is_array($siswa_data) ? count($siswa_data) : 'null'));
+        
+        // Cek apakah ini request AJAX
+        $is_ajax = $this->input->is_ajax_request() || !empty($json_data);
+        
+        if ($this->input->method() !== 'post') {
+            log_message('error', 'Presensi::simpan - Method tidak diizinkan');
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => 'Method tidak diizinkan'
+                ]);
+                return;
+            }
+            show_error('Method tidak diizinkan', 403);
+        }
+        
         // Validasi data dasar
         if (!$id_jadwal || !$tanggal || empty($materi_pelajaran)) {
+            log_message('error', 'Presensi::simpan - Validasi gagal: id_jadwal=' . $id_jadwal . ', tanggal=' . $tanggal . ', materi kosong=' . (empty($materi_pelajaran) ? 'true' : 'false'));
             if ($is_ajax) {
                 header('Content-Type: application/json');
                 echo json_encode([
@@ -219,14 +228,23 @@ class Presensi extends MY_Controller {
             redirect('guru/presensi');
         }
         
+        // Get data id_guru dari tb_jadwal
+        $this->db->where('id', $id_jadwal);
+        $jadwal_row = $this->db->get('tb_jadwal')->row();
+        $id_guru = $jadwal_row->id_guru ?? null;
+        
+        log_message('debug', 'Presensi::simpan - Getting guru ID from jadwal. id_guru: ' . $id_guru);
+        
         // Simpan presensi
         $result = $this->M_presensi->simpan_presensi([
             'id_jadwal' => $id_jadwal,
-            'id_guru' => $jadwal['id_guru'],
+            'id_guru' => $id_guru,
             'tanggal' => $tanggal,
             'materi_pelajaran' => $materi_pelajaran,
             'siswa_data' => $siswa_data
         ]);
+        
+        log_message('debug', 'Presensi::simpan - Result from model: ' . json_encode($result));
         
         if ($is_ajax) {
             header('Content-Type: application/json');
