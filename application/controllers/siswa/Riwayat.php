@@ -33,6 +33,12 @@ class Riwayat extends MY_Controller {
 
     public function ajax_list()
     {
+        // Pastikan ini adalah request AJAX
+        if (!$this->input->is_ajax_request()) {
+            show_error('Akses tidak diizinkan', 403);
+            return;
+        }
+        
         try {
             $user_id = $this->session->userdata('id');
             $this->db->where('id_user', $user_id);
@@ -110,8 +116,8 @@ class Riwayat extends MY_Controller {
                     }
                 }
                 
-                $materi = !empty($row['materi_pelajaran']) ? $row['materi_pelajaran'] : '-';
-                $keterangan = !empty($row['keterangan']) ? $row['keterangan'] : '-';
+                $materi = !empty($row['keterangan']) ? $row['keterangan'] : '-';
+                $keterangan = !empty($row['catatan_approval']) ? $row['catatan_approval'] : '-';
                 
                 $output['data'][] = [
                     'no' => $no,

@@ -134,10 +134,24 @@ $(document).ready(function() {
                 d.tanggal_sampai = $('#filter_tanggal_sampai').val();
                 d.status = $('#filter_status').val();
             },
+            dataSrc: 'data',
             error: function(xhr, errorStatus, errorThrown) {
                 console.log('AJAX Error:', errorStatus, errorThrown);
                 console.log('Response:', xhr.responseText);
-                alert('Terjadi kesalahan saat memuat data: ' + xhr.responseText);
+                var errorMsg = 'Terjadi kesalahan saat memuat data';
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.error) {
+                        errorMsg += ': ' + response.error;
+                    }
+                } catch(e) {
+                    if (xhr.status === 403) {
+                        errorMsg = 'Akses ditolak. Silakan login ulang.';
+                    } else if (xhr.status === 500) {
+                        errorMsg = 'Error server. Silakan hubungi administrator.';
+                    }
+                }
+                alert(errorMsg);
             }
         },
         columns: [
