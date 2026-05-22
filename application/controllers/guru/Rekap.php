@@ -22,7 +22,7 @@ class Rekap extends MY_Controller {
         
         // Get kelas yang diampu guru
         $id_user = $this->session->userdata('id');
-        $this->db->select('DISTINCT j.id_kelas, k.nama_kelas');
+        $this->db->select('j.id_kelas, k.nama_kelas');
         $this->db->from('tb_jadwal j');
         $this->db->join('tb_guru g', 'g.id = j.id_guru');
         $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
@@ -30,6 +30,7 @@ class Rekap extends MY_Controller {
         if (isset($this->tahun_ajaran_aktif) && isset($this->tahun_ajaran_aktif->id)) {
             $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id);
         }
+        $this->db->group_by('j.id_kelas, k.nama_kelas');
         $kelas_list = $this->db->get()->result();
         
         $this->data['kelas_list'] = $kelas_list;
