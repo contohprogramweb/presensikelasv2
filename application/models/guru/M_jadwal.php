@@ -67,15 +67,24 @@ class M_jadwal extends CI_Model {
         
         $id_guru = $guru->id;
         
+        // Debug: Log query untuk troubleshooting
+        log_message('debug', 'get_jadwal_hari_ini - hari: ' . $hari_ini . ', id_guru: ' . $id_guru);
+        
         $this->db->select('j.*, k.nama_kelas, m.nama_mapel');
         $this->db->from('tb_jadwal j');
-        $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
-        $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel');
+        $this->db->join('tb_kelas k', 'k.id = j.id_kelas', 'left');
+        $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel', 'left');
         $this->db->where('j.id_guru', $id_guru);
         $this->db->where('j.hari', $hari_ini);
+        $this->db->where('j.status_aktif', 1);
         $this->db->order_by('j.jam_mulai', 'ASC');
         
-        return $this->db->get()->result();
+        $query = $this->db->get();
+        
+        // Debug: Log hasil query
+        log_message('debug', 'get_jadwal_hari_ini - result count: ' . $query->num_rows());
+        
+        return $query->result();
     }
 
     public function get_by_id($id)
