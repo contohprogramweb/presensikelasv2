@@ -21,12 +21,22 @@
 
     <div class="card">
         <div class="card-header">
-            <i class="fas fa-calendar-day me-2"></i>Jadwal Hari Ini
+            <i class="fas fa-calendar-day me-2"></i>Jadwal Hari Ini (<?= date('l') ?> / <?= $hari_ini_indo ?? 'Unknown' ?>)
+            <?php if(isset($tahun_ajaran_aktif)): ?>
+                <span class="badge bg-info ms-2">TA: <?= html_escape($tahun_ajaran_aktif->tahun_ajaran ?? '-') ?></span>
+            <?php endif; ?>
         </div>
         <div class="card-body">
             <?php if (empty($jadwal_hari_ini)): ?>
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>Tidak ada jadwal mengajar hari ini.
+                </div>
+                <!-- Debug info -->
+                <div class="alert alert-warning mt-3">
+                    <strong>Debug Info:</strong><br>
+                    Hari ini: <?= date('l') ?> (<?= $hari_ini_indo ?? 'Unknown' ?>)<br>
+                    ID Tahun Ajaran Aktif: <?= isset($tahun_ajaran_aktif->id) ? $tahun_ajaran_aktif->id : 'null' ?><br>
+                    Jumlah jadwal ditemukan: <?= count($jadwal_hari_ini) ?>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
