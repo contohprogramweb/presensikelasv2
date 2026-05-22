@@ -93,39 +93,48 @@ class Presensi extends MY_Controller {
      * Proses simpan presensi
      */
     public function simpan() {
-        // Handle JSON input untuk AJAX request
-        $raw_input = file_get_contents('php://input');
-        $json_data = json_decode($raw_input, true);
-        
         // Log untuk debugging
-        log_message('debug', 'Presensi::simpan - Raw input: ' . substr($raw_input, 0, 500));
-        log_message('debug', 'Presensi::simpan - JSON decoded: ' . json_encode($json_data));
+        log_message('debug', 'Presensi::simpan - Method: ' . $this->input->method());
+        log_message('debug', 'Presensi::simpan - POST data: ' . json_encode($this->input->post()));
         
-        if (!empty($json_data)) {
-            $id_jadwal = $json_data['id_jadwal'] ?? null;
-            $tanggal = $json_data['tanggal'] ?? null;
-            $materi_pelajaran = trim($json_data['materi_pelajaran'] ?? '');
-            $siswa_data = $json_data['siswa'] ?? null;
-            
-            // Handle CSRF token dari JSON payload
-            $csrf_name = $this->security->get_csrf_token_name();
-            if (isset($json_data[$csrf_name])) {
-                // Set token CSRF untuk validasi manual
-                $_POST[$csrf_name] = $json_data[$csrf_name];
-                log_message('debug', 'Presensi::simpan - CSRF token found in payload');
+        $csrf_name = $this->security->get_csrf_token_name();
+        
+        // Ambil data dari POST (format FormData)
+        $id_jadwal = $this->input->post('id_jadwal');
+        $tanggal = $this->input->post('tanggal');
+        $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
+        
+        // Handle CSRF token dari POST
+        if (isset($_POST[$csrf_name])) {
+            log_message('debug', 'Presensi::simpan - CSRF token found in POST: ' . substr($_POST[$csrf_name], 0, 20) . '...');
+        }
+        
+        // Ambil data siswa secara individual (format FormData: siswa[ID][status])
+        $siswa_data = [];
+        $post_data = $this->input->post();
+        
+        foreach ($post_data as $key => $value) {
+            if (preg_match('/siswa\[(\d+)\]\[status\]/', $key, $matches)) {
+                $id_siswa = $matches[1];
+                if (!isset($siswa_data[$id_siswa])) {
+                    $siswa_data[$id_siswa] = [];
+                }
+                $siswa_data[$id_siswa]['status'] = $value;
             }
-        } else {
-            $id_jadwal = $this->input->post('id_jadwal');
-            $tanggal = $this->input->post('tanggal');
-            $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
-            $siswa_data = $this->input->post('siswa');
+            if (preg_match('/siswa\[(\d+)\]\[keterangan\]/', $key, $matches)) {
+                $id_siswa = $matches[1];
+                if (!isset($siswa_data[$id_siswa])) {
+                    $siswa_data[$id_siswa] = [];
+                }
+                $siswa_data[$id_siswa]['keterangan'] = $value;
+            }
         }
         
         log_message('debug', 'Presensi::simpan - id_jadwal: ' . $id_jadwal . ', tanggal: ' . $tanggal . ', materi: ' . substr($materi_pelajaran, 0, 50));
-        log_message('debug', 'Presensi::simpan - siswa_data count: ' . (is_array($siswa_data) ? count($siswa_data) : 'null'));
+        log_message('debug', 'Presensi::simpan - siswa_data count: ' . count($siswa_data));
         
         // Cek apakah ini request AJAX
-        $is_ajax = $this->input->is_ajax_request() || !empty($json_data);
+        $is_ajax = $this->input->is_ajax_request();
         
         if ($this->input->method() !== 'post') {
             log_message('error', 'Presensi::simpan - Method tidak diizinkan');
@@ -153,29 +162,6 @@ class Presensi extends MY_Controller {
             }
             $this->session->set_flashdata('error', 'Materi pelajaran wajib diisi');
             redirect('guru/presensi/form/' . encrypt_id($id_jadwal));
-        }
-        
-        // Validasi data siswa - bisa dari array siswa atau individual
-        if (empty($siswa_data)) {
-            // Coba ambil data siswa secara individual (format FormData)
-            $siswa_data = [];
-            $post_data = $this->input->post();
-            foreach ($post_data as $key => $value) {
-                if (preg_match('/siswa\[(\d+)\]\[status\]/', $key, $matches)) {
-                    $id_siswa = $matches[1];
-                    if (!isset($siswa_data[$id_siswa])) {
-                        $siswa_data[$id_siswa] = [];
-                    }
-                    $siswa_data[$id_siswa]['status'] = $value;
-                }
-                if (preg_match('/siswa\[(\d+)\]\[keterangan\]/', $key, $matches)) {
-                    $id_siswa = $matches[1];
-                    if (!isset($siswa_data[$id_siswa])) {
-                        $siswa_data[$id_siswa] = [];
-                    }
-                    $siswa_data[$id_siswa]['keterangan'] = $value;
-                }
-            }
         }
         
         if (empty($siswa_data)) {
@@ -260,7 +246,8 @@ class Presensi extends MY_Controller {
                 log_aktivitas('input_presensi', 'tb_presensi', $result['id_presensi'], 'Input presensi untuk mata pelajaran ' . $jadwal['nama_mapel'] . ' kelas ' . $jadwal['nama_kelas']);
                 echo json_encode([
                     'status' => 'success',
-                    'pesan' => 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.'
+                    'pesan' => 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.',
+                    'csrf_hash' => $this->security->get_csrf_hash()
                 ]);
             } else {
                 echo json_encode([
