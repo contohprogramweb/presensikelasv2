@@ -9,143 +9,154 @@ class Presensi extends MY_Controller {
         $this->role_required = ['guru'];
         $this->load->model('guru/M_presensi');
         $this->load->model('guru/M_jadwal');
-        $this->load->model('M_dashboard');
-        $this->load->library('form_validation');
-        
-        // Load tahun ajaran aktif
-        $this->tahun_ajaran_aktif = $this->M_dashboard->get_tahun_ajaran_aktif();
-        
-        // Fallback ke tahun ajaran terbaru jika tidak ada yang aktif
-        if (!$this->tahun_ajaran_aktif) {
-            $this->tahun_ajaran_aktif = $this->M_dashboard->get_tahun_ajaran_terbaru();
-        }
     }
 
     public function index()
     {
         $data['judul'] = 'Input Presensi';
-        
-        // Get guru ID from session
+
         $user_id = $this->session->userdata('id');
         $this->db->where('id_user', $user_id);
         $guru = $this->db->get('tb_guru')->row_array();
-        
+
         if (!$guru) {
             $this->session->set_flashdata('error', 'Data guru tidak ditemukan. Hubungi administrator.');
             redirect('profil');
             return;
         }
-        
-        // Pastikan tahun ajaran aktif ada
-        $id_tahun_ajaran = null;
-        if ($this->tahun_ajaran_aktif && isset($this->tahun_ajaran_aktif->id)) {
-            $id_tahun_ajaran = (int)$this->tahun_ajaran_aktif->id;
-        }
-        
-        // Ambil jadwal hari ini - passing user_id, bukan guru_id
-        $data['jadwal_hari_ini'] = $this->M_jadwal->get_jadwal_hari_ini($user_id, $id_tahun_ajaran);
-        
-        // Data untuk view
+
+        $id_tahun_ajaran = ($this->tahun_ajaran_aktif && isset($this->tahun_ajaran_aktif->id))
+            ? (int) $this->tahun_ajaran_aktif->id
+            : null;
+
+        $data['jadwal_hari_ini']    = $this->M_jadwal->get_jadwal_hari_ini($user_id, $id_tahun_ajaran);
+        $data['tahun_ajaran_aktif'] = $this->tahun_ajaran_aktif;
+
         $hari_indo = [
-            'Sunday' => 'Minggu',
-            'Monday' => 'Senin',
-            'Tuesday' => 'Selasa',
-            'Wednesday' => 'Rabu',
-            'Thursday' => 'Kamis',
-            'Friday' => 'Jumat',
-            'Saturday' => 'Sabtu'
+            'Sunday' => 'Minggu', 'Monday'  => 'Senin',  'Tuesday'  => 'Selasa',
+            'Wednesday' => 'Rabu','Thursday' => 'Kamis',  'Friday'   => 'Jumat',
+            'Saturday' => 'Sabtu',
         ];
         $data['hari_ini_indo'] = $hari_indo[date('l')];
-        $data['tahun_ajaran_aktif'] = $this->tahun_ajaran_aktif;
-        
+
         $this->render_template('guru/presensi_form', $data);
     }
 
     public function form($id_jadwal, $tanggal = null)
     {
-        $data['judul'] = 'Form Presensi';
-        
-        $id_jadwal_decrypted = decrypt_id($id_jadwal);
-        $data['jadwal'] = $this->M_jadwal->get_by_id($id_jadwal_decrypted);
-        
-        if (!$data['jadwal']) {
-            show_403();
-            return;
-        }
-        
-        $data['tanggal'] = $tanggal ?: date('Y-m-d');
-        $data['siswa'] = $this->M_presensi->get_siswa_by_kelas($data['jadwal']['id_kelas']);
-        
-        // Check if already submitted
-        $existing = $this->M_presensi->get_presensi_by_jadwal_tanggal($id_jadwal_decrypted, $data['tanggal']);
-        $data['existing_presensi'] = $existing;
-        
+        $id_decrypted = decrypt_id($id_jadwal);
+        if (!$id_decrypted) { show_403(); return; }
+
+        $jadwal = $this->M_jadwal->get_by_id($id_decrypted);
+        if (!$jadwal) { show_403(); return; }
+
+        $data['judul']             = 'Form Presensi';
+        $data['jadwal']            = $jadwal;
+        $data['tanggal']           = $tanggal ?: date('Y-m-d');
+        $data['siswa']             = $this->M_presensi->get_siswa_by_kelas($jadwal['id_kelas']);
+        $data['existing_presensi'] = $this->M_presensi->get_presensi_by_jadwal_tanggal(
+            $id_decrypted, $data['tanggal']
+        );
+
         $this->render_template('guru/presensi_input', $data);
     }
 
     public function simpan()
     {
-        $id_jadwal = decrypt_id($this->input->post('id_jadwal'));
-        $tanggal = $this->input->post('tanggal');
-        $materi = $this->input->post('materi_pelajaran');
-        
-        $this->form_validation->set_rules('materi_pelajaran', 'Materi Pelajaran', 'required|min_length[5]');
-        
-        if ($this->form_validation->run() == FALSE) {
-            echo json_encode(['status' => false, 'message' => validation_errors()]);
-            return;
+        // Bersihkan semua output sebelumnya (PHP notice/warning dari environment development)
+        if (ob_get_level()) {
+            ob_end_clean();
         }
-        
-        // Get guru data
+        ob_start();
+
+        // Nonaktifkan display error agar tidak mencemari JSON
+        @ini_set('display_errors', 0);
+
+        header('Content-Type: application/json; charset=utf-8');
+
+        // Helper untuk kirim JSON dan exit
+        $json = function($data) {
+            // Bersihkan buffer lagi sebelum output final
+            if (ob_get_level()) ob_end_clean();
+            echo json_encode($data, JSON_UNESCAPED_UNICODE);
+            exit;
+        };
+
+        // Hanya terima POST
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            $json(['status' => false, 'message' => 'Method tidak diizinkan.']);
+        }
+
+        // Ambil input
+        $id_jadwal_enc  = $this->input->post('id_jadwal');
+        $tanggal        = $this->input->post('tanggal');
+        $materi         = trim((string)$this->input->post('materi_pelajaran'));
+        $siswa_ids      = $this->input->post('id_siswa');
+        $status_arr     = $this->input->post('status');
+        $keterangan_arr = $this->input->post('keterangan');
+
+        // Validasi dasar
+        if (empty($materi) || mb_strlen($materi) < 5) {
+            $json(['status' => false, 'message' => 'Materi pelajaran minimal 5 karakter.']);
+        }
+
+        $id_jadwal = decrypt_id($id_jadwal_enc);
+        if (!$id_jadwal) {
+            $json(['status' => false, 'message' => 'Data jadwal tidak valid.']);
+        }
+
+        if (empty($tanggal)) {
+            $json(['status' => false, 'message' => 'Tanggal tidak valid.']);
+        }
+
+        if (empty($siswa_ids) || !is_array($siswa_ids)) {
+            $json(['status' => false, 'message' => 'Tidak ada data siswa yang dikirim.']);
+        }
+
+        // Ambil data guru
         $user_id = $this->session->userdata('id');
         $this->db->where('id_user', $user_id);
         $guru = $this->db->get('tb_guru')->row_array();
-        
-        $data_presensi = [];
-        
-        $siswa_ids = $this->input->post('id_siswa');
-        $status_arr = $this->input->post('status');
-        $keterangan_arr = $this->input->post('keterangan');
-        
-        foreach ($siswa_ids as $key => $id_siswa) {
-            $status = $status_arr[$key];
-            $keterangan = isset($keterangan_arr[$key]) ? trim($keterangan_arr[$key]) : '';
-            
-            // Validate keterangan for Izin/Sakit
-            if (in_array($status, ['Izin', 'Sakit'])) {
-                if (empty($keterangan)) {
-                    echo json_encode(['status' => false, 'message' => 'Keterangan wajib diisi untuk status Izin/Sakit']);
-                    return;
-                }
-                if (strlen($keterangan) < 10) {
-                    echo json_encode(['status' => false, 'message' => 'Keterangan minimal 10 karakter untuk status Izin/Sakit']);
-                    return;
-                }
-            }
-            
-            $presensi_data = [
-                'id_jadwal' => $id_jadwal,
-                'id_siswa' => $id_siswa,
-                'tanggal' => $tanggal,
-                'status' => $status,
-                'materi_pelajaran' => $materi,
-                'keterangan' => in_array($status, ['Hadir', 'Alpa']) ? null : $keterangan,
-                'id_guru' => $guru['id'],
-                'metode' => 'web'
-            ];
-            
-            $data_presensi[] = $presensi_data;
+
+        if (!$guru) {
+            $json(['status' => false, 'message' => 'Data guru tidak ditemukan.']);
         }
-        
-        // Save presensi (model will handle approval creation internally)
+
+        // Susun data presensi
+        $data_presensi = [];
+
+        foreach ($siswa_ids as $key => $id_siswa) {
+            $status     = isset($status_arr[$key])     ? $status_arr[$key]     : '';
+            $keterangan = isset($keterangan_arr[$key]) ? trim((string)$keterangan_arr[$key]) : '';
+
+            if (!in_array($status, ['Hadir', 'Izin', 'Sakit', 'Alpa'])) {
+                $json(['status' => false, 'message' => 'Status kehadiran tidak valid.']);
+            }
+
+            if (in_array($status, ['Izin', 'Sakit']) && mb_strlen($keterangan) < 10) {
+                $json(['status' => false, 'message' => 'Keterangan minimal 10 karakter untuk Izin/Sakit.']);
+            }
+
+            $data_presensi[] = [
+                'id_jadwal'        => (int) $id_jadwal,
+                'id_siswa'         => (int) $id_siswa,
+                'tanggal'          => $tanggal,
+                'status'           => $status,
+                'materi_pelajaran' => $materi,
+                'keterangan'       => in_array($status, ['Hadir', 'Alpa']) ? null : $keterangan,
+                'id_guru'          => (int) $guru['id'],
+            ];
+        }
+
+        // Simpan
         $result = $this->M_presensi->simpan_presensi($data_presensi);
-        
+
         if ($result['status']) {
-            log_aktivitas('INSERT_PRESENSI', 'tb_presensi', $id_jadwal, 'Input presensi tanggal ' . $tanggal);
-            
-            echo json_encode(['status' => true, 'message' => 'Presensi berhasil disimpan']);
+            log_aktivitas('INSERT_PRESENSI', 'tb_presensi', $id_jadwal, 'Presensi tanggal ' . $tanggal);
+            $json(['status' => true, 'message' => 'Presensi berhasil disimpan.']);
         } else {
-            echo json_encode(['status' => false, 'message' => 'Gagal menyimpan presensi']);
+            log_message('error', 'Presensi::simpan gagal - jadwal=' . $id_jadwal . ' tgl=' . $tanggal);
+            $json(['status' => false, 'message' => 'Gagal menyimpan ke database. Periksa log aplikasi.']);
         }
     }
 }
