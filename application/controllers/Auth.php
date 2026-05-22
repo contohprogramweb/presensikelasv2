@@ -85,6 +85,14 @@ class Auth extends CI_Controller {
     /**
      * Logout
      */
+    public function get_csrf() {
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'csrf_hash' => $this->security->get_csrf_hash(),
+            ]));
+    }
+
     public function logout() {
         // Log activity before logout
         if ($this->session->userdata('logged_in')) {

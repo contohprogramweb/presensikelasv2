@@ -10,11 +10,11 @@ class M_presensi extends CI_Model {
 
     public function get_siswa_by_kelas($id_kelas)
     {
-        $this->db->select('s.*, u.nama_lengkap as user_nama');
+        $this->db->select('s.*');
         $this->db->from('tb_siswa s');
-        $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->where('s.id_kelas', $id_kelas);
-        $this->db->order_by('u.nama_lengkap', 'ASC');
+        $this->db->where('s.status_aktif', 1);
+        $this->db->order_by('s.nama_lengkap', 'ASC');
         
         return $this->db->get()->result_array();
     }
@@ -126,11 +126,10 @@ class M_presensi extends CI_Model {
 
     public function get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal)
     {
-        $this->db->select('ps.*, s.nama_lengkap as nama_siswa, u.nama_lengkap');
+        $this->db->select('ps.*, s.nama_lengkap as nama_siswa');
         $this->db->from('tb_presensi_siswa ps');
         $this->db->join('tb_presensi p', 'p.id = ps.id_presensi');
         $this->db->join('tb_siswa s', 's.id = ps.id_siswa');
-        $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->where('p.id_jadwal', $id_jadwal);
         $this->db->where('p.tanggal', $tanggal);
         
