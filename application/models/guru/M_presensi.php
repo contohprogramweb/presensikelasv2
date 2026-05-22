@@ -61,7 +61,7 @@ class M_presensi extends CI_Model {
 
     public function get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal)
     {
-        $this->db->select('p.*, s.nama as nama_siswa, u.nama_lengkap');
+        $this->db->select('p.*, s.nama_lengkap as nama_siswa, u.nama_lengkap');
         $this->db->from('tb_presensi p');
         $this->db->join('tb_siswa s', 's.id = p.id_siswa');
         $this->db->join('tb_user u', 'u.id = s.id_user');
