@@ -30,7 +30,7 @@
                         <li>No HP Orang Tua (min 10 digit)</li>
                     </ol>
                     <a href="<?= site_url('admin/import/download_template/siswa') ?>" class="btn btn-sm btn-outline-info" target="_blank">
-                        <i class="fas fa-download me-1"></i> Download Template PDF
+                        <i class="fas fa-download me-1"></i> Download Template Excel
                     </a>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                         <li>Alamat</li>
                     </ol>
                     <a href="<?= site_url('admin/import/download_template/guru') ?>" class="btn btn-sm btn-outline-success" target="_blank">
-                        <i class="fas fa-download me-1"></i> Download Template PDF
+                        <i class="fas fa-download me-1"></i> Download Template Excel
                     </a>
                 </div>
             </div>
