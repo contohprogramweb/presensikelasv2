@@ -27,7 +27,9 @@ class Rekap extends MY_Controller {
         $this->db->join('tb_guru g', 'g.id = j.id_guru');
         $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
         $this->db->where('g.id_user', $id_user);
-        $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id ?? null);
+        if (isset($this->tahun_ajaran_aktif) && isset($this->tahun_ajaran_aktif->id)) {
+            $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id);
+        }
         $kelas_list = $this->db->get()->result();
         
         $this->data['kelas_list'] = $kelas_list;
@@ -45,7 +47,7 @@ class Rekap extends MY_Controller {
             $this->data['rekap'] = $this->M_rekap->get_rekap_per_siswa($id_kelas, $start_date, $end_date);
         }
         
-        $this->load->view('templates/template', ['content' => 'guru/rekap'] + $this->data);
+        $this->render_template('guru/rekap', $this->data);
     }
     
     /**
