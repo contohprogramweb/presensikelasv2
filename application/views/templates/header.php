@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf_name" content="<?= $this->security->get_csrf_token_name(); ?>">
+    <meta name="csrf_hash" content="<?= $this->security->get_csrf_hash(); ?>">
     <title><?= isset($title) ? $title : 'Sistem Presensi Kelas'; ?></title>
     
     <!-- Bootstrap 5.3 CSS -->

@@ -98,10 +98,10 @@ class Presensi extends MY_Controller {
         
         if ($this->input->method() !== 'post') {
             if ($is_ajax) {
+                header('Content-Type: application/json');
                 echo json_encode([
                     'status' => 'error',
-                    'pesan' => 'Method tidak diizinkan',
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => 'Method tidak diizinkan'
                 ]);
                 return;
             }
@@ -110,19 +110,56 @@ class Presensi extends MY_Controller {
         
         $id_jadwal = $this->input->post('id_jadwal');
         $tanggal = $this->input->post('tanggal');
-        $materi_pelajaran = $this->input->post('materi_pelajaran');
+        $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
         $siswa_data = $this->input->post('siswa');
         
-        if (!$id_jadwal || !$tanggal || empty($siswa_data)) {
+        // Validasi data dasar
+        if (!$id_jadwal || !$tanggal || empty($materi_pelajaran)) {
             if ($is_ajax) {
+                header('Content-Type: application/json');
                 echo json_encode([
                     'status' => 'error',
-                    'pesan' => 'Data presensi tidak lengkap',
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => 'Materi pelajaran wajib diisi dan data harus lengkap'
                 ]);
                 return;
             }
-            $this->session->set_flashdata('error', 'Data presensi tidak lengkap');
+            $this->session->set_flashdata('error', 'Materi pelajaran wajib diisi');
+            redirect('guru/presensi/form/' . encrypt_id($id_jadwal));
+        }
+        
+        // Validasi data siswa - bisa dari array siswa atau individual
+        if (empty($siswa_data)) {
+            // Coba ambil data siswa secara individual (format FormData)
+            $siswa_data = [];
+            $post_data = $this->input->post();
+            foreach ($post_data as $key => $value) {
+                if (preg_match('/siswa\[(\d+)\]\[status\]/', $key, $matches)) {
+                    $id_siswa = $matches[1];
+                    if (!isset($siswa_data[$id_siswa])) {
+                        $siswa_data[$id_siswa] = [];
+                    }
+                    $siswa_data[$id_siswa]['status'] = $value;
+                }
+                if (preg_match('/siswa\[(\d+)\]\[keterangan\]/', $key, $matches)) {
+                    $id_siswa = $matches[1];
+                    if (!isset($siswa_data[$id_siswa])) {
+                        $siswa_data[$id_siswa] = [];
+                    }
+                    $siswa_data[$id_siswa]['keterangan'] = $value;
+                }
+            }
+        }
+        
+        if (empty($siswa_data)) {
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => 'Tidak ada data siswa yang diproses'
+                ]);
+                return;
+            }
+            $this->session->set_flashdata('error', 'Tidak ada data siswa');
             redirect('guru/presensi/form/' . encrypt_id($id_jadwal));
         }
         
@@ -130,10 +167,10 @@ class Presensi extends MY_Controller {
         $jadwal = $this->M_presensi->get_jadwal_detail($id_jadwal);
         if (!$jadwal) {
             if ($is_ajax) {
+                header('Content-Type: application/json');
                 echo json_encode([
                     'status' => 'error',
-                    'pesan' => 'Jadwal tidak ditemukan',
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => 'Jadwal tidak ditemukan'
                 ]);
                 return;
             }
@@ -145,10 +182,10 @@ class Presensi extends MY_Controller {
         $id_user = $this->session->userdata('id');
         if ($jadwal['id_guru_user'] != $id_user) {
             if ($is_ajax) {
+                header('Content-Type: application/json');
                 echo json_encode([
                     'status' => 'error',
-                    'pesan' => 'Anda tidak memiliki akses ke jadwal ini',
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => 'Anda tidak memiliki akses ke jadwal ini'
                 ]);
                 return;
             }
@@ -160,10 +197,10 @@ class Presensi extends MY_Controller {
         $presensi_exists = $this->M_presensi->check_presensi_exists($id_jadwal, $tanggal);
         if ($presensi_exists) {
             if ($is_ajax) {
+                header('Content-Type: application/json');
                 echo json_encode([
                     'status' => 'error',
-                    'pesan' => 'Presensi untuk jadwal ini sudah diinput pada tanggal ' . tanggal_indo($tanggal),
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => 'Presensi untuk jadwal ini sudah diinput pada tanggal ' . tanggal_indo($tanggal)
                 ]);
                 return;
             }
@@ -186,14 +223,12 @@ class Presensi extends MY_Controller {
                 log_aktivitas('input_presensi', 'tb_presensi', $result['id_presensi'], 'Input presensi untuk mata pelajaran ' . $jadwal['nama_mapel'] . ' kelas ' . $jadwal['nama_kelas']);
                 echo json_encode([
                     'status' => 'success',
-                    'pesan' => 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.',
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.'
                 ]);
             } else {
                 echo json_encode([
                     'status' => 'error',
-                    'pesan' => $result['message'],
-                    'csrf_hash' => $this->security->get_csrf_hash()
+                    'pesan' => $result['message']
                 ]);
             }
             return;
