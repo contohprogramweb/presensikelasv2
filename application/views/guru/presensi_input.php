@@ -301,17 +301,12 @@ $(document).ready(function() {
             }
         });
         
-        // Ambil token CSRF dari meta tag
-        var csrfName = $('meta[name="csrf_name"]').attr('content');
-        var csrfHash = $('meta[name="csrf_hash"]').attr('content');
-
-        // Kirim data sebagai FormData (bukan JSON) agar lebih kompatibel
+        // Kirim data sebagai FormData tanpa CSRF token
         var formData = new FormData();
         formData.append('id_jadwal', form.find('input[name="id_jadwal"]').val());
         formData.append('tanggal', form.find('input[name="tanggal"]').val());
         formData.append('materi_pelajaran', form.find('textarea[name="materi_pelajaran"]').val());
-        formData.append(csrfName, csrfHash);
-        
+
         // Append setiap siswa secara individual
         $.each(siswaData, function(idSiswa, data) {
             formData.append('siswa[' + idSiswa + '][status]', data.status);
@@ -326,10 +321,6 @@ $(document).ready(function() {
             processData: false,  // Jangan proses data
             contentType: false,  // Jangan set content type otomatis
             dataType: 'json',
-            headers: {
-                // Pastikan CSRF token dikirim dengan benar
-                'X-Requested-With': 'XMLHttpRequest'
-            },
             success: function(response) {
                 btnSubmit.prop('disabled', false).html(originalText);
                 
