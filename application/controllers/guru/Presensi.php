@@ -9,7 +9,15 @@ class Presensi extends MY_Controller {
         $this->role_required = ['guru'];
         $this->load->model('guru/M_presensi');
         $this->load->model('guru/M_jadwal');
+        $this->load->model('M_dashboard');
         $this->load->library('form_validation');
+        
+        // Load tahun ajaran aktif secara eksplisit di controller
+        $this->tahun_ajaran_aktif = $this->M_dashboard->get_tahun_ajaran_aktif();
+        
+        if (!$this->tahun_ajaran_aktif) {
+            $this->tahun_ajaran_aktif = $this->M_dashboard->get_tahun_ajaran_terbaru();
+        }
     }
 
     public function index()
@@ -27,7 +35,9 @@ class Presensi extends MY_Controller {
             return;
         }
         
-        $data['jadwal_hari_ini'] = $this->M_jadwal->get_jadwal_hari_ini($guru['id']);
+        // Pass tahun ajaran aktif ke model
+        $id_tahun_ajaran = isset($this->tahun_ajaran_aktif->id) ? $this->tahun_ajaran_aktif->id : null;
+        $data['jadwal_hari_ini'] = $this->M_jadwal->get_jadwal_hari_ini($guru['id'], $id_tahun_ajaran);
         $this->render_template('guru/presensi_form', $data);
     }
 
