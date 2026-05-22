@@ -145,7 +145,12 @@ $(document).ready(function() {
             {data: 'hari', orderable: true},
             {data: 'nama_mapel', orderable: true},
             {data: 'nama_guru', orderable: true},
-            {data: 'materi_pelajaran', orderable: false},
+            { 
+                data: function(row) {
+                    return row.materi_pelajaran || row.keterangan || '-';
+                },
+                orderable: false
+            },
             {data: 'status', orderable: true},
             {data: 'keterangan', orderable: false},
             {data: 'status_approval', orderable: false}

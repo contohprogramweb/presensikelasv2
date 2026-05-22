@@ -1,52 +1,62 @@
 ```php
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
+# CodeIgniter specific
+application/cache/
+application/logs/
+application/temp/
+system/database/
+!application/config/
 
 # Dependencies
-node_modules/
-venv/
-.venv/
+vendor/
+
+# Environment
 .env
 .env.local
 .env.*
 
-# Logs and temp files
+# Logs
 *.log
-*.tmp
+logs/
+
+# IDE
+.vscode/
+.idea/
 *.swp
 *.swo
 
-# Editors
-.vscode/
-.idea/
-
-# System files
+# OS
 .DS_Store
 Thumbs.db
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Build directories
+# Build artifacts
 dist/
 build/
 target/
-.gradle/
+*.o
+*.obj
+*.out
 
-# Python specific
-.mypy_cache/
-.pytest_cache/
+# Python (if applicable)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/modules/
+*.sublime-workspace
 
 # Compressed files
 *.zip

@@ -65,7 +65,16 @@ class M_riwayat extends CI_Model {
         // Limit and offset
         $this->db->limit($length, $start);
         
-        return $this->db->get()->result_array();
+        $result = $this->db->get()->result_array();
+        
+        // Add materi_pelajaran field from keterangan if not exists
+        foreach ($result as &$row) {
+            if (!isset($row['materi_pelajaran'])) {
+                $row['materi_pelajaran'] = $row['keterangan'] ?? '';
+            }
+        }
+        
+        return $result;
     }
 
     public function count_all_riwayat($id_siswa, $start_date = null, $end_date = null, $status_filter = null, $search = null)
