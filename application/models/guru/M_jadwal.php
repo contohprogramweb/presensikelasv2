@@ -33,7 +33,9 @@ class M_jadwal extends CI_Model {
             $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
         } else {
             // Default tahun ajaran aktif
-            $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id ?? null);
+            if (isset($this->tahun_ajaran_aktif) && isset($this->tahun_ajaran_aktif->id)) {
+                $this->db->where('j.id_tahun_ajaran', $this->tahun_ajaran_aktif->id);
+            }
         }
         
         $this->db->order_by('FIELD(j.hari, "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu")');

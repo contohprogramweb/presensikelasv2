@@ -43,7 +43,7 @@ class Laporan extends MY_Controller {
             $this->data['laporan'] = $this->M_laporan->get_laporan_detail($id_kelas, $start_date, $end_date);
         }
         
-        $this->load->view('templates/template', 'kepsek/laporan', $this->data);
+        $this->load->view('templates/template', ['content' => 'kepsek/laporan'] + $this->data);
     }
     
     /**

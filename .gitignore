@@ -2,18 +2,14 @@
 # Compiled and build artifacts
 *.pyc
 __pycache__/
-*.o
-*.obj
 
 # Dependencies
-.venv/
-venv/
+vendor/
 node_modules/
 
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
@@ -24,25 +20,12 @@ node_modules/
 .vscode/
 .idea/
 
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-
-# System files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Build directories
-dist/
-build/
-target/
-.gradle/
-
-# Python cache
-.mypy_cache/
-.pytest_cache/
-
-# Original rules preserved
-*.log
+# CodeIgniter specific
+application/logs/
+application/cache/
+system/
 ```

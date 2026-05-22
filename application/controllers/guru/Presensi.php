@@ -28,7 +28,7 @@ class Presensi extends MY_Controller {
         }
         
         $data['jadwal_hari_ini'] = $this->M_jadwal->get_jadwal_hari_ini($guru['id']);
-        $this->load->view('templates/template', ['contents' => $this->load->view('guru/presensi_form', $data, TRUE)]);
+        $this->load->view('templates/template', ['content' => 'guru/presensi_form'] + $data);
     }
 
     public function form($id_jadwal, $tanggal = null)
@@ -50,7 +50,7 @@ class Presensi extends MY_Controller {
         $existing = $this->M_presensi->get_presensi_by_jadwal_tanggal($id_jadwal_decrypted, $data['tanggal']);
         $data['existing_presensi'] = $existing;
         
-        $this->load->view('templates/template', ['contents' => $this->load->view('guru/presensi_input', $data, TRUE)]);
+        $this->load->view('templates/template', ['content' => 'guru/presensi_input'] + $data);
     }
 
     public function simpan()

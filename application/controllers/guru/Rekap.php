@@ -45,7 +45,7 @@ class Rekap extends MY_Controller {
             $this->data['rekap'] = $this->M_rekap->get_rekap_per_siswa($id_kelas, $start_date, $end_date);
         }
         
-        $this->load->view('templates/template', 'guru/rekap', $this->data);
+        $this->load->view('templates/template', ['content' => 'guru/rekap'] + $this->data);
     }
     
     /**
