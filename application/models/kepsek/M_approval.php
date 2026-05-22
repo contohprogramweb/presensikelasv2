@@ -11,8 +11,8 @@ class M_approval extends CI_Model {
     public function get_pending_approval()
     {
         $this->db->select('a.*, ps.status as status_presensi, ps.keterangan');
-        $this->db->select('s.nama as nama_siswa, k.nama_kelas');
-        $this->db->select('g.nama as nama_guru, u.nama_lengkap as user_nama');
+        $this->db->select('s.nama_lengkap as nama_siswa, k.nama_kelas');
+        $this->db->select('g.nama_lengkap as nama_guru, u.nama_lengkap as user_nama');
         $this->db->from('tb_approval a');
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
         $this->db->join('tb_presensi_siswa ps', 'ps.id_presensi = p.id');
@@ -78,8 +78,8 @@ class M_approval extends CI_Model {
     public function get_by_id($id)
     {
         $this->db->select('a.*, p.tanggal, ps.status as status_presensi, ps.keterangan');
-        $this->db->select('s.nama as nama_siswa, k.nama_kelas');
-        $this->db->select('g.nama as nama_guru, u.nama_lengkap as user_nama');
+        $this->db->select('s.nama_lengkap as nama_siswa, k.nama_kelas');
+        $this->db->select('g.nama_lengkap as nama_guru, u.nama_lengkap as user_nama');
         $this->db->from('tb_approval a');
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
         $this->db->join('tb_presensi_siswa ps', 'ps.id_presensi = p.id');

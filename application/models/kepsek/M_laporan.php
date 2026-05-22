@@ -57,7 +57,7 @@ class M_laporan extends CI_Model {
 
     public function get_laporan($id_kelas = null, $start_date, $end_date, $status = null)
     {
-        $this->db->select('ps.*, s.nama as nama_siswa, k.nama_kelas');
+        $this->db->select('ps.*, s.nama_lengkap as nama_siswa, k.nama_kelas');
         $this->db->select('m.nama_mapel, j.hari, u.nama_lengkap as user_nama');
         $this->db->from('tb_presensi_siswa ps');
         $this->db->join('tb_presensi p', 'p.id = ps.id_presensi');
