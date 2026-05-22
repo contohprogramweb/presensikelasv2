@@ -20,7 +20,7 @@ class M_jadwal extends CI_Model {
             $id_tahun_ajaran = $ta ? $ta->id : null;
         }
         
-        $this->db->select('j.*, m.nama_mapel, g.nama_guru, u.nama_lengkap as nama_guru_lengkap');
+        $this->db->select('j.*, m.nama_mapel, g.nama_lengkap as nama_guru, u.nama_lengkap as nama_guru_lengkap');
         $this->db->from('tb_jadwal j');
         $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel');
         $this->db->join('tb_guru g', 'g.id = j.id_guru');
