@@ -1,1 +1,75 @@
-(application/views/guru/presensi_form.php, application/views/guru/presensi_input.php, application/views/guru/rekap.php)
+```php
+# CodeIgniter specific
+application/logs/
+application/cache/
+application/temp/
+
+# Dependencies
+vendor/
+composer.lock
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Logs
+*.log
+error_log
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+target/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
+
+# Python (if any Python files exist in project)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```

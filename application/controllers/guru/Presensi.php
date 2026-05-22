@@ -93,7 +93,18 @@ class Presensi extends MY_Controller {
      * Proses simpan presensi
      */
     public function simpan() {
+        // Cek apakah ini request AJAX
+        $is_ajax = $this->input->is_ajax_request();
+        
         if ($this->input->method() !== 'post') {
+            if ($is_ajax) {
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => 'Method tidak diizinkan',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]);
+                return;
+            }
             show_error('Method tidak diizinkan', 403);
         }
         
@@ -103,6 +114,14 @@ class Presensi extends MY_Controller {
         $siswa_data = $this->input->post('siswa');
         
         if (!$id_jadwal || !$tanggal || empty($siswa_data)) {
+            if ($is_ajax) {
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => 'Data presensi tidak lengkap',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]);
+                return;
+            }
             $this->session->set_flashdata('error', 'Data presensi tidak lengkap');
             redirect('guru/presensi/form/' . encrypt_id($id_jadwal));
         }
@@ -110,6 +129,14 @@ class Presensi extends MY_Controller {
         // Validasi jadwal
         $jadwal = $this->M_presensi->get_jadwal_detail($id_jadwal);
         if (!$jadwal) {
+            if ($is_ajax) {
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => 'Jadwal tidak ditemukan',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]);
+                return;
+            }
             $this->session->set_flashdata('error', 'Jadwal tidak ditemukan');
             redirect('guru/presensi');
         }
@@ -117,6 +144,14 @@ class Presensi extends MY_Controller {
         // Validasi guru
         $id_user = $this->session->userdata('id');
         if ($jadwal['id_guru_user'] != $id_user) {
+            if ($is_ajax) {
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => 'Anda tidak memiliki akses ke jadwal ini',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]);
+                return;
+            }
             $this->session->set_flashdata('error', 'Anda tidak memiliki akses ke jadwal ini');
             redirect('guru/presensi');
         }
@@ -124,6 +159,14 @@ class Presensi extends MY_Controller {
         // Cek apakah sudah ada presensi
         $presensi_exists = $this->M_presensi->check_presensi_exists($id_jadwal, $tanggal);
         if ($presensi_exists) {
+            if ($is_ajax) {
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => 'Presensi untuk jadwal ini sudah diinput pada tanggal ' . tanggal_indo($tanggal),
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]);
+                return;
+            }
             $this->session->set_flashdata('error', 'Presensi untuk jadwal ini sudah diinput pada tanggal ' . tanggal_indo($tanggal));
             redirect('guru/presensi');
         }
@@ -137,6 +180,26 @@ class Presensi extends MY_Controller {
             'siswa_data' => $siswa_data
         ]);
         
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            if ($result['success']) {
+                log_aktivitas('input_presensi', 'tb_presensi', $result['id_presensi'], 'Input presensi untuk mata pelajaran ' . $jadwal['nama_mapel'] . ' kelas ' . $jadwal['nama_kelas']);
+                echo json_encode([
+                    'status' => 'success',
+                    'pesan' => 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.',
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'pesan' => $result['message'],
+                    'csrf_hash' => $this->security->get_csrf_hash()
+                ]);
+            }
+            return;
+        }
+        
+        // Fallback untuk non-AJAX (form submit biasa)
         if ($result['success']) {
             log_aktivitas('input_presensi', 'tb_presensi', $result['id_presensi'], 'Input presensi untuk mata pelajaran ' . $jadwal['nama_mapel'] . ' kelas ' . $jadwal['nama_kelas']);
             $this->session->set_flashdata('success', 'Data presensi berhasil disimpan untuk ' . count($siswa_data) . ' siswa.');
