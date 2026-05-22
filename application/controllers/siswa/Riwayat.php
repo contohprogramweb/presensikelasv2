@@ -55,7 +55,7 @@ class Riwayat extends MY_Controller {
         $search = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
         
         // Get total records
-        $total_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, $status_filter, '');
+        $total_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, null, '');
         
         // Get filtered records
         $filtered_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, $status_filter, $search);
@@ -93,7 +93,7 @@ class Riwayat extends MY_Controller {
             }
             
             $approval_status = '-';
-            if (in_array($row['status'], ['Izin', 'Sakit'])) {
+            if (isset($row['status_approval']) && in_array($row['status'], ['Izin', 'Sakit'])) {
                 if ($row['status_approval'] == 'disetujui') {
                     $approval_status = '<span class="badge bg-success"><i class="fas fa-check"></i> Disetujui</span>';
                 } else if ($row['status_approval'] == 'ditolak') {
@@ -106,10 +106,10 @@ class Riwayat extends MY_Controller {
             $output['data'][] = [
                 $no,
                 tanggal_indo($row['tanggal']),
-                $row['hari'],
-                $row['nama_mapel'],
+                $row['hari'] ?? '-',
+                $row['nama_mapel'] ?? '-',
                 $row['nama_guru'] ?? '-',
-                substr($row['materi_pelajaran'] ?? '', 0, 40) . (strlen($row['materi_pelajaran'] ?? '') > 40 ? '...' : ''),
+                substr($row['materi_pelajaran'] ?? $row['keterangan'] ?? '', 0, 40) . (strlen($row['materi_pelajaran'] ?? $row['keterangan'] ?? '') > 40 ? '...' : ''),
                 $status_badge,
                 $row['keterangan'] ?? '-',
                 $approval_status
