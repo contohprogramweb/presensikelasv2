@@ -47,16 +47,39 @@ class Riwayat extends MY_Controller {
         $tanggal_sampai = $this->input->post('tanggal_sampai') ?: date('Y-m-t');
         $status_filter = $this->input->post('status');
         
-        $list = $this->M_riwayat->get_riwayat_siswa($siswa['id'], $tanggal_mulai, $tanggal_sampai, $status_filter);
+        // Server-side processing parameters
+        $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 1;
+        $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
+        $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+        $order = isset($_POST['order']) ? $_POST['order'] : [];
+        $search = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
+        
+        // Get total records
+        $total_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, $status_filter, '');
+        
+        // Get filtered records
+        $filtered_records = $this->M_riwayat->count_all_riwayat($siswa['id'], $tanggal_mulai, $tanggal_sampai, $status_filter, $search);
+        
+        // Get data
+        $list = $this->M_riwayat->get_riwayat_siswa_datatable(
+            $siswa['id'], 
+            $tanggal_mulai, 
+            $tanggal_sampai, 
+            $status_filter, 
+            $search,
+            $length,
+            $start,
+            $order
+        );
         
         $output = [
-            'draw' => isset($_POST['draw']) ? intval($_POST['draw']) : 0,
-            'recordsTotal' => count($list),
-            'recordsFiltered' => count($list),
+            'draw' => $draw,
+            'recordsTotal' => $total_records,
+            'recordsFiltered' => $filtered_records,
             'data' => []
         ];
         
-        $no = 0;
+        $no = $start;
         foreach ($list as $row) {
             $no++;
             
