@@ -94,9 +94,7 @@
                             <th width="5%">No</th>
                             <th>Tanggal</th>
                             <th>Hari</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Guru</th>
-                            <th>Materi</th>
+                            <th>Jumlah Sesi</th>
                             <th>Status</th>
                             <th>Keterangan</th>
                             <th>Approval</th>
@@ -165,16 +163,8 @@ $(document).ready(function() {
                 data: 'hari',
                 orderable: true
             },
-            {
-                data: 'nama_mapel',
-                orderable: true
-            },
-            {
-                data: 'nama_guru',
-                orderable: true
-            },
             { 
-                data: 'materi',
+                data: 'jumlah_sesi',
                 orderable: false
             },
             {
