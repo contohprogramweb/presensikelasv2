@@ -54,6 +54,32 @@ class Laporan extends MY_Controller {
     }
     
     /**
+     * Generate laporan untuk ditampilkan di halaman (dipanggil via AJAX atau POST)
+     */
+    public function generate()
+    {
+        $kelas = $this->input->post('kelas');
+        $start_date = $this->input->post('start_date');
+        $end_date = $this->input->post('end_date');
+
+        if (empty($kelas) || empty($start_date) || empty($end_date)) {
+            $this->session->set_flashdata('error', 'Mohon lengkapi semua filter (Kelas, Tanggal Mulai, Tanggal Akhir).');
+            redirect('kepsek/laporan');
+        }
+
+        $this->data['page_title'] = 'Laporan Presensi';
+        $this->data['kelas_list'] = $this->db->where('status_aktif', 1)->order_by('nama_kelas', 'ASC')->get('tb_kelas')->result();
+        $this->data['filter_kelas'] = $kelas;
+        $this->data['filter_start'] = $start_date;
+        $this->data['filter_end'] = $end_date;
+        
+        $this->data['statistik'] = $this->M_laporan->get_statistik($kelas, $start_date, $end_date);
+        $this->data['laporan'] = $this->M_laporan->get_laporan_detail($kelas, $start_date, $end_date);
+        
+        $this->render_template('kepsek/laporan', $this->data);
+    }
+    
+    /**
      * Preview PDF laporan (tampilkan di browser)
      */
     public function preview_pdf() {

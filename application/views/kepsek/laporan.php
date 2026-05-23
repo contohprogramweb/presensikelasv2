@@ -7,7 +7,7 @@
                 </div>
                 <div class="card-body">
                     <!-- Filter Form -->
-                    <form method="get" action="<?= site_url('kepsek/laporan') ?>" class="mb-4">
+                    <form method="post" action="<?= site_url('kepsek/laporan/generate') ?>" class="mb-4">
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label">Kelas</label>
