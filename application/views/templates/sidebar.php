@@ -82,7 +82,7 @@
                 </a>
                 
                 <a class="nav-link <?= ($this->uri->segment(2) == 'laporan') ? 'active' : ''; ?>" href="<?= site_url('kepsek/laporan'); ?>">
-                    <i class="fas fa-chart-bar"></i> Laporan
+                    <i class="fas fa-chart-bar"></i> Laporan Presensi
                 </a>
                 
                 <a class="nav-link <?= ($this->uri->segment(2) == 'logapproval') ? 'active' : ''; ?>" href="<?= site_url('kepsek/logapproval'); ?>">
