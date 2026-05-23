@@ -94,6 +94,9 @@ class Presensi extends MY_Controller {
      * Handles both create and update
      */
     public function simpan() {
+        // Pastikan tidak ada output sebelum JSON
+        ob_clean();
+        
         // Hanya terima AJAX request
         if (!$this->input->is_ajax_request()) {
             $this->json_response(['status' => false, 'message' => 'Akses ditolak'], 403);
