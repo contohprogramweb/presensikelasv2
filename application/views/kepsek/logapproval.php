@@ -34,7 +34,7 @@
                         <button type="button" class="btn btn-primary me-2" onclick="reload_table()">
                             <i class="fas fa-search me-1"></i> Tampilkan
                         </button>
-                        <button type="button" class="btn btn-success me-2" onclick="preview_pdf()">
+                        <button type="button" class="btn btn-danger me-2" onclick="preview_pdf()">
                             <i class="fas fa-file-pdf me-1"></i> PDF
                         </button>
                         
