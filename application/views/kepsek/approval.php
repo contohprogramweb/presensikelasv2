@@ -92,7 +92,10 @@ $(document).ready(function() {
                     return '<span class="keterangan-cell" title="' + (data.length > 50 ? data : '') + '">' + displayText + '</span>';
                 }
             },
-            { 'data': 'status_approval', 'orderable': false },
+            { 
+                'data': 'status_approval', 
+                'orderable': false 
+            },
             { 
                 'data': 'actions',
                 'orderable': false,

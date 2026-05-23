@@ -53,22 +53,18 @@ class Approval extends MY_Controller {
                 $status_presensi_badge = '<span class="badge bg-warning text-dark">Sakit</span>';
             }
             
-            // Tentukan aksi berdasarkan status approval
-            $actions = '';
-            if ($row['status_approval'] == 'pending') {
-                $actions = '<button class="btn btn-sm btn-success approve-btn" data-id="' . encrypt_id($row['id']) . '" title="Setujui"><i class="fas fa-check"></i></button>
+            
+            // Tentukan aksi berdasarkan status approval - tombol selalu ditampilkan agar kepsek bisa mengubah status lagi jika diperlukan
+            $actions = '<button class="btn btn-sm btn-success approve-btn" data-id="' . encrypt_id($row['id']) . '" title="Setujui"><i class="fas fa-check"></i></button>
                  <button class="btn btn-sm btn-danger reject-btn" data-id="' . encrypt_id($row['id']) . '" title="Tolak"><i class="fas fa-times"></i></button>';
-            } else {
-                $actions = '<span class="text-muted">-</span>';
-            }
             
             $output['data'][] = [ 
 				'tanggal' => tanggal_indo($row['tanggal']),
                 'nama_siswa' => $row['nama_siswa'],
                 'nama_kelas' => $row['nama_kelas'] ?? '-',
                 'nama_guru' => $row['nama_guru'],
-                'keterangan' => $row['keterangan'] ?? '',
                 'status_presensi' => $status_presensi_badge,
+                'keterangan' => $row['keterangan'] ?? '',
                 'status_approval' => $status_approval_badge,
                 'actions' => $actions
 			];

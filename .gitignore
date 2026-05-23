@@ -1,1 +1,85 @@
-(application/controllers/kepsek/Approval.php, application/views/kepsek/approval.php, application/views/kepsek/logapproval.php, application/views/siswa/riwayat.php)
+```php
+# Environment specific files
+.env
+.env.local
+.env.*
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Cache directories
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build and distribution
+dist/
+build/
+*.out
+
+# Dependencies
+node_modules/
+vendor/
+
+# IDE specific
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Session
+sess_*
+
+# Uploads
+uploads/
+files/
+
+# Composer/Packagist
+composer.lock
+composer.phar
+
+# PHPUnit
+.phpunit.result.cache
+
+# Codeception
+cept_*
+
+# Laravel specific
+storage/
+bootstrap/cache/
+
+# Symfony specific
+var/
+
+# WordPress specific
+wp-content/cache/
+
+# Magento specific
+var/
+generated/
+pub/static/_cache/
+
+# Drupal specific
+sites/default/files/
+```
