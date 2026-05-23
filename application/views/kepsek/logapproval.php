@@ -104,13 +104,7 @@ $(document).ready(function() {
             {data: 'catatan'},
             {data: 'nama_approver'}
         ],
-        order: [[1, 'desc']],
-        drawCallback: function() {
-            // Refresh CSRF token
-            $.getJSON('<?= site_url('security/get_csrf_hash') ?>', function(data) {
-                $('input[name="<?= $csrf_name ?>"]').val(data.csrf_hash);
-            });
-        }
+        order: [[1, 'desc']]
     });
 });
 
