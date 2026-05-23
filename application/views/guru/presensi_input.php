@@ -204,7 +204,28 @@ $(document).ready(function() {
             type: 'POST',
             data: $(this).serialize(),
             dataType: 'json',
+            beforeSend: function() {
+                // Pastikan response diharapkan sebagai JSON
+                $.ajaxSetup({
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+            },
             success: function(response) {
+                // Validasi response adalah object JSON
+                if (typeof response !== 'object') {
+                    console.error('Response bukan JSON:', response);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Response server tidak valid. Silakan coba lagi.',
+                        confirmButtonText: 'OK'
+                    });
+                    btnSubmit.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Simpan Presensi');
+                    return;
+                }
+                
                 if (response.status) {
                     Swal.fire({
                         icon: 'success',
@@ -228,15 +249,30 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                var errorMessage = 'Terjadi kesalahan pada server.';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                } else if (xhr.status === 401) {
-                    errorMessage = 'Sesi telah berakhir. Silakan refresh halaman dan login kembali.';
-                } else if (xhr.status === 403) {
-                    errorMessage = 'Akses ditolak.';
-                }
+                console.error('AJAX Error:', status, error);
+                console.error('Response Text:', xhr.responseText.substring(0, 500));
                 
+                var errorMessage = 'Terjadi kesalahan pada server.';
+                
+                // Coba parse response manual jika ada
+                if (xhr.responseText) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch(e) {
+                        // Response bukan JSON, tampilkan info error
+                        if (xhr.status === 401) {
+                            errorMessage = 'Sesi telah berakhir. Silakan refresh halaman dan login kembali.';
+                        } else if (xhr.status === 403) {
+                            errorMessage = 'Akses ditolak.';
+                        } else {
+                            errorMessage = 'Server error (' + xhr.status + '): ' + xhr.responseText.substring(0, 200);
+                        }
+                    }
+                }
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
