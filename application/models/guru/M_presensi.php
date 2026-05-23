@@ -178,6 +178,9 @@ class M_presensi extends CI_Model {
      */
     public function simpan_presensi($data, $id_jadwal = null, $id_presensi = null)
     {
+        log_message('debug', 'M_presensi::simpan_presensi - Start with id_jadwal: ' . $id_jadwal);
+        log_message('debug', 'M_presensi::simpan_presensi - Data: ' . print_r($data, true));
+        
         $this->db->trans_start();
         
         $created_at = date('Y-m-d H:i:s');
@@ -186,8 +189,16 @@ class M_presensi extends CI_Model {
         $id_guru = $data['id_guru'];
         $siswa_data = isset($data['siswa']) ? $data['siswa'] : [];
         
+        log_message('debug', "M_presensi::simpan_presensi - Processing {$tanggal}, guru: {$id_guru}, siswa count: " . count($siswa_data));
+        
         // Cek apakah sudah ada presensi untuk jadwal dan tanggal ini
         $existing_presensi = $this->get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal);
+        
+        if ($existing_presensi) {
+            log_message('debug', 'M_presensi::simpan_presensi - Existing presensi found: ' . $existing_presensi['id']);
+        } else {
+            log_message('debug', 'M_presensi::simpan_presensi - No existing presensi, will create new');
+        }
         
         $final_id_presensi = null;
         
@@ -203,10 +214,12 @@ class M_presensi extends CI_Model {
             
             $this->db->where('id', $final_id_presensi);
             $this->db->update('tb_presensi', $update_data);
+            log_message('debug', 'M_presensi::simpan_presensi - Updated tb_presensi ID: ' . $final_id_presensi);
             
             // Delete existing siswa presensi
             $this->db->where('id_presensi', $final_id_presensi);
             $this->db->delete('tb_presensi_siswa');
+            log_message('debug', 'M_presensi::simpan_presensi - Deleted existing siswa presensi');
             
         } else {
             // CREATE new presensi
@@ -221,10 +234,12 @@ class M_presensi extends CI_Model {
             
             $this->db->insert('tb_presensi', $presensi_data);
             $final_id_presensi = $this->db->insert_id();
+            log_message('debug', 'M_presensi::simpan_presensi - Inserted new tb_presensi ID: ' . $final_id_presensi);
         }
         
         // Insert data siswa presensi
         if ($final_id_presensi && is_array($siswa_data) && count($siswa_data) > 0) {
+            $insert_count = 0;
             foreach ($siswa_data as $id_siswa => $data_siswa) {
                 $status = isset($data_siswa['status']) ? $data_siswa['status'] : 'Hadir';
                 $keterangan = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
@@ -239,19 +254,25 @@ class M_presensi extends CI_Model {
                 ];
                 
                 $this->db->insert('tb_presensi_siswa', $presensi_siswa_data);
+                $insert_count++;
             }
+            log_message('debug', "M_presensi::simpan_presensi - Inserted {$insert_count} siswa presensi records");
+        } else {
+            log_message('warning', 'M_presensi::simpan_presensi - No siswa data to insert or final_id_presensi is null');
         }
         
         $this->db->trans_complete();
         
         if ($this->db->trans_status() === FALSE) {
-            log_message('error', 'Transaksi database gagal saat menyimpan presensi - M_presensi::simpan_presensi');
+            log_message('error', 'M_presensi::simpan_presensi - Transaksi database gagal');
             return [
                 'success' => false,
                 'message' => 'Gagal menyimpan presensi ke database!',
                 'id_presensi' => null
             ];
         }
+        
+        log_message('info', 'M_presensi::simpan_presensi - Success! Final ID: ' . $final_id_presensi);
         
         return [
             'success' => true,

@@ -94,19 +94,27 @@ class Presensi extends MY_Controller {
      * Handles both create and update
      */
     public function simpan() {
+        // Debug logging
+        log_message('debug', 'Presensi::simpan - POST data: ' . print_r($_POST, true));
+        
         $id_jadwal = $this->input->post('id_jadwal');
         $tanggal = $this->input->post('tanggal');
         $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
         $siswa_data = $this->input->post('siswa');
         
+        log_message('debug', "Presensi::simpan - id_jadwal: {$id_jadwal}, tanggal: {$tanggal}, materi: " . substr($materi_pelajaran, 0, 50));
+        log_message('debug', 'Presensi::simpan - siswa_data count: ' . (is_array($siswa_data) ? count($siswa_data) : 0));
+        
         // Validasi input
         if (empty($id_jadwal) || empty($tanggal) || empty($materi_pelajaran)) {
+            log_message('error', 'Presensi::simpan - Validasi gagal: data tidak lengkap');
             $this->session->set_flashdata('error', 'Data tidak lengkap! Materi pelajaran wajib diisi.');
             redirect("guru/presensi/form/{$id_jadwal}");
             return;
         }
         
         if (empty($siswa_data) || !is_array($siswa_data)) {
+            log_message('error', 'Presensi::simpan - Validasi gagal: tidak ada data siswa');
             $this->session->set_flashdata('error', 'Tidak ada data siswa!');
             redirect("guru/presensi/form/{$id_jadwal}");
             return;
@@ -117,6 +125,7 @@ class Presensi extends MY_Controller {
         $jadwal = $this->M_presensi->get_jadwal_detail($id_jadwal);
         
         if (!$jadwal || $jadwal['id_guru_user'] != $id_user) {
+            log_message('error', 'Presensi::simpan - Validasi gagal: jadwal tidak valid atau bukan milik user ini');
             $this->session->set_flashdata('error', 'Anda tidak memiliki akses ke jadwal ini!');
             redirect("guru/presensi/form/{$id_jadwal}");
             return;
@@ -127,12 +136,14 @@ class Presensi extends MY_Controller {
         $guru = $this->db->get('tb_guru')->row();
         
         if (!$guru) {
+            log_message('error', 'Presensi::simpan - Guru tidak ditemukan untuk user_id: ' . $id_user);
             $this->session->set_flashdata('error', 'Data guru tidak ditemukan!');
             redirect("guru/presensi/form/{$id_jadwal}");
             return;
         }
         
         $id_guru = $guru->id;
+        log_message('debug', "Presensi::simpan - id_guru: {$id_guru}");
         
         // Siapkan data untuk model
         $data_presensi = [
@@ -142,10 +153,15 @@ class Presensi extends MY_Controller {
             'siswa' => $siswa_data
         ];
         
+        log_message('debug', 'Presensi::simpan - Memanggil model simpan_presensi');
+        
         // Gunakan method simpan_presensi di model
         $result = $this->M_presensi->simpan_presensi($data_presensi, $id_jadwal);
         
+        log_message('debug', 'Presensi::simpan - Result: ' . print_r($result, true));
+        
         if ($result['success']) {
+            log_message('info', 'Presensi berhasil disimpan untuk jadwal ID: ' . $id_jadwal);
             $this->session->set_flashdata('success', $result['message']);
             redirect('guru/rekap');
         } else {
