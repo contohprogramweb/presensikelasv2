@@ -1,1 +1,5 @@
-(application/controllers/kepsek/Logapproval.php, application/models/kepsek/M_logapproval.php, application/views/kepsek/logapproval.php)
+```
+# Logs
+*.log
+application/logs/
+```
