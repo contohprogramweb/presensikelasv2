@@ -63,10 +63,14 @@ class Riwayat extends MY_Controller {
                 return;
             }
             
+            log_message('debug', 'Riwayat::ajax_list - Siswa ID: ' . $siswa['id']);
+            
             // Get filter parameters from POST with default values
             $tanggal_mulai = $this->input->post('tanggal_mulai') ?: date('Y-m-01'); // Default: tanggal 01 bulan ini
             $tanggal_sampai = $this->input->post('tanggal_sampai') ?: date('Y-m-d'); // Default: tanggal hari ini
             $status_filter = $this->input->post('status');
+            
+            log_message('debug', 'Riwayat::ajax_list - Filter: tanggal_mulai=' . $tanggal_mulai . ', tanggal_sampai=' . $tanggal_sampai . ', status=' . $status_filter);
             
             // Server-side processing parameters
             $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 1;
@@ -92,6 +96,8 @@ class Riwayat extends MY_Controller {
                 $start,
                 $order
             );
+            
+            log_message('debug', 'Riwayat::ajax_list - Total records: ' . $total_records . ', Filtered: ' . $filtered_records . ', Returned: ' . count($list));
             
             $output = [
                 'draw' => $draw,
