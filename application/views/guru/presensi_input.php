@@ -70,7 +70,6 @@
     <form action="<?= site_url('guru/presensi/simpan'); ?>" method="post" id="formPresensi">
         <?= form_hidden('id_jadwal', $jadwal['id'] ?? ''); ?>
         <?= form_hidden('tanggal', $tanggal ?? date('Y-m-d')); ?>
-        <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
         
         <div class="card mt-3">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -164,6 +163,8 @@
                 <button type="submit" class="btn btn-primary" id="btnSimpanPresensi">
                     <i class="fas fa-save me-1"></i>Simpan Presensi
                 </button>
+                <!-- Hidden submit button untuk trigger submit setelah konfirmasi -->
+                <button type="submit" id="hiddenSubmit" style="display:none;"></button>
             </div>
         </div>
     </form>
@@ -232,11 +233,11 @@ $(document).ready(function() {
                         '<td style="padding: 5px 0; text-align: right;"><strong>' + sakitCount + '</strong> siswa</td>' +
                     '</tr>' +
                     '<tr>' +
-                        '<td style="padding: 5px 0;"><span style="color: #fd7e14;"><i class="fas fa-file-alt"></i> <strong>Ijin:</strong></span></td>' +
+                        '<td style="padding: 5px 0;"><span style="color: #fd7e14;"><i class="fas fa-envelope"></i> <strong>Izin:</strong></span></td>' +
                         '<td style="padding: 5px 0; text-align: right;"><strong>' + izinCount + '</strong> siswa</td>' +
                     '</tr>' +
                     '<tr>' +
-                        '<td style="padding: 5px 0;"><span style="color: #dc3545;"><i class="fas fa-times-circle"></i> <strong>Alpha:</strong></span></td>' +
+                        '<td style="padding: 5px 0;"><span style="color: #dc3545;"><i class="fas fa-times-circle"></i> <strong>Alpa:</strong></span></td>' +
                         '<td style="padding: 5px 0; text-align: right;"><strong>' + alphaCount + '</strong> siswa</td>' +
                     '</tr>' +
                     '<tr style="border-top: 2px solid #dee2e6;">' +
@@ -273,9 +274,23 @@ $(document).ready(function() {
                     }
                 });
                 
-                // Submit form menggunakan native form submit
+                // Hapus event handler submit untuk mencegah loop
+                $('#formPresensi').off('submit');
+                
+                // Tambahkan CSRF token sebelum submit
                 var form = document.getElementById('formPresensi');
-                form.submit();
+                var csrfName = '<?= $this->security->get_csrf_token_name(); ?>';
+                var csrfHash = '<?= $this->security->get_csrf_hash(); ?>';
+                
+                // Buat hidden input untuk CSRF jika belum ada
+                var csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = csrfName;
+                csrfInput.value = csrfHash;
+                form.appendChild(csrfInput);
+                
+                // Submit form secara native - gunakan click pada button submit asli
+                document.getElementById('btnSimpanPresensi').click();
             }
         });
         
