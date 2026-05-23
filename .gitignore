@@ -1,1 +1,53 @@
-Nothing needs to be added to the .gitignore file based on the provided file changes, as they only include PHP source files (.php) which should not be ignored.
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+
+# Dependencies
+vendor/
+node_modules/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*~
+*.bak
+*.backup
+
+# Cache directories
+.cache/
+.php_cs.cache
+
+# PHPUnit
+.phpunit.result.cache
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Build results
+build/
+dist/
+*.phar
+
+# Composer
+composer.lock
+
+# Session
+sess_*

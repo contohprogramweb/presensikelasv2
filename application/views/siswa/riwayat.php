@@ -48,7 +48,7 @@
             <i class="fas fa-filter me-1"></i> Filter
         </div>
         <div class="card-body">
-            <form id="form_filter" method="get">
+            <form id="form_filter" method="post" onsubmit="return false;">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label for="filter_tanggal_mulai" class="form-label">Tanggal Mulai</label>
@@ -72,7 +72,7 @@
                         <button type="button" class="btn btn-primary me-2" onclick="reload_table()">
                             <i class="fas fa-search me-1"></i> Filter
                         </button>
-                        <button type="reset" class="btn btn-secondary">
+                        <button type="button" class="btn btn-secondary" onclick="reset_filter()">
                             <i class="fas fa-redo me-1"></i> Reset
                         </button>
                     </div>
@@ -211,6 +211,14 @@ function load_statistik() {
 }
 
 function reload_table() {
+    table.ajax.reload(null, false);
+    load_statistik();
+}
+
+function reset_filter() {
+    $('#filter_tanggal_mulai').val('<?= $tanggal_mulai_default ?>');
+    $('#filter_tanggal_sampai').val('<?= $tanggal_sampai_default ?>');
+    $('#filter_status').val('');
     table.ajax.reload(null, false);
     load_statistik();
 }
