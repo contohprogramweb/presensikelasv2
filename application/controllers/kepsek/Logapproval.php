@@ -105,4 +105,27 @@ class Logapproval extends MY_Controller {
         $this->load->library('dompdf_generator');
         $this->dompdf_generator->generate($html, 'log_approval_' . date('Y-m-d') . '.pdf');
     }
+
+    /**
+     * Preview PDF log approval
+     * 
+     * @return void
+     */
+    public function preview_pdf() {
+        $filter = array(
+            'tanggal_mulai' => $this->input->get('tanggal_mulai'),
+            'tanggal_sampai' => $this->input->get('tanggal_sampai'),
+            'status' => $this->input->get('status')
+        );
+        
+        $data['logs'] = $this->M_logapproval->get_all_logs($filter);
+        $data['page_title'] = 'Preview Log Approval Presensi';
+        $data['filter_info'] = $filter;
+        
+        // Load view untuk preview PDF
+        $html = $this->load->view('kepsek/logapproval_excel', $data, TRUE);
+        
+        $this->load->library('dompdf_generator');
+        $this->dompdf_generator->preview($html);
+    }
 }
