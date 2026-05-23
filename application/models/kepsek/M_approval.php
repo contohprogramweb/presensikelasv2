@@ -45,7 +45,15 @@ class M_approval extends CI_Model {
     {
         $this->db->trans_start();
         
-        // Update approval status - hanya ubah status approval, status presensi siswa tetap (Izin/Sakit)
+        // Get current approval data to check previous status
+        $this->db->where('id', $id_approval);
+        $current_approval = $this->db->get('tb_approval')->row_array();
+        
+        if (!$current_approval) {
+            return false;
+        }
+        
+        // Update approval status - hanya ubah status approval
         $data_approval = [
             'status_approval' => 'disetujui',
             'tanggal_approval' => date('Y-m-d H:i:s'),
@@ -55,7 +63,20 @@ class M_approval extends CI_Model {
         $this->db->where('id', $id_approval);
         $this->db->update('tb_approval', $data_approval);
         
-        // Tidak mengubah status presensi siswa - status tetap Izin atau Sakit
+        // Jika sebelumnya ditolak (status presensi = Alpa), kembalikan ke status asli (Izin/Sakit)
+        if ($current_approval['status_approval'] == 'ditolak') {
+            // Get the presensi_siswa record
+            $this->db->where('id_presensi', $current_approval['id_presensi']);
+            $this->db->where('id_siswa', $current_approval['id_siswa']);
+            $presensi_siswa = $this->db->get('tb_presensi_siswa')->row_array();
+            
+            if ($presensi_siswa && $presensi_siswa['status'] == 'Alpa') {
+                // Kembalikan ke status asli (Izin atau Sakit)
+                $status_asli = $current_approval['status_asli'];
+                $this->db->where('id', $presensi_siswa['id']);
+                $this->db->update('tb_presensi_siswa', ['status' => $status_asli]);
+            }
+        }
         
         $this->db->trans_complete();
         
