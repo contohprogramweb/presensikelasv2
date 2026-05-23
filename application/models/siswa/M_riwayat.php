@@ -18,8 +18,9 @@ class M_riwayat extends CI_Model {
         $this->db->select('MAX(j.hari) as hari');
         $this->db->select("COUNT(ps.id) as jumlah_sesi");
         $this->db->select("MAX(ps.status) as status");
+        $this->db->select("MAX(ps.keterangan) as keterangan");
         $this->db->select("MAX(a.status_approval) as status_approval");
-        $this->db->select("MAX(a.catatan_penolakan) as catatan_approval");
+        $this->db->select("MAX(a.catatan_penolakan) as catatan_penolakan");
         
         $this->db->from('tb_presensi_siswa ps');
         $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'inner');
