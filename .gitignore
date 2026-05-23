@@ -5,22 +5,69 @@ __pycache__/
 
 # Dependencies
 vendor/
-composer.lock
+node_modules/
 
 # Logs and temp files
 *.log
 *.tmp
+
+# Editors
+.vscode/
+.idea/
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
-
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Build and distribution
+dist/
+build/
+target/
+
+# Python specific
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.out
+*.pid
+*.seed
+*.prof
+
+# Web specific
+*.min.js
+*.min.css
+public/assets/build/
+
+# CodeIgniter specific
+application/logs/
+application/cache/
+application/temp/
+system/
+!system/index.html
+
+# Session files
+sess_*
+
+# Backup files
+*.bak
+*.backup
+*~
 ```
