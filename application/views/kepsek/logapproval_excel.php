@@ -11,14 +11,16 @@
         th, td { border: 1px solid #000; padding: 6px; text-align: left; }
         th { background-color: #f0f0f0; font-weight: bold; text-align: center; }
         .text-center { text-align: center; }
-        .no { width: 5%; text-align: center; }
-        .tanggal { width: 12%; }
-        .siswa { width: 20%; }
-        .kelas { width: 10%; }
-        .status { width: 10%; text-align: center; }
-        .approval { width: 10%; text-align: center; }
-        .catatan { width: 18%; }
-        .approver { width: 15%; }
+        .no { width: 4%; text-align: center; }
+        .tanggal { width: 10%; }
+        .siswa { width: 18%; }
+        .kelas { width: 8%; }
+        .status { width: 8%; text-align: center; }
+        .pengajuan { width: 8%; text-align: center; }
+        .keterangan { width: 12%; }
+        .approval { width: 8%; text-align: center; }
+        .alasan { width: 12%; }
+        .approver { width: 12%; }
     </style>
 </head>
 <body>
@@ -44,8 +46,10 @@
                 <th class="siswa">Nama Siswa</th>
                 <th class="kelas">Kelas</th>
                 <th class="status">Status Presensi</th>
+                <th class="pengajuan">Pengajuan</th>
+                <th class="keterangan">Keterangan</th>
                 <th class="approval">Approval</th>
-                <th class="catatan">Catatan</th>
+                <th class="alasan">Alasan</th>
                 <th class="approver">Approver</th>
             </tr>
         </thead>
@@ -61,8 +65,10 @@
                     <td><?= htmlspecialchars($log['nama_siswa']) ?></td>
                     <td><?= htmlspecialchars($log['nama_kelas'] ?? '-') ?></td>
                     <td class="text-center"><?= htmlspecialchars($log['status_presensi']) ?></td>
+                    <td class="text-center"><?= htmlspecialchars($log['status_asli']) ?></td>
+                    <td><?= htmlspecialchars($log['keterangan'] ?? '-') ?></td>
                     <td class="text-center"><?= htmlspecialchars($log['status_approval']) ?></td>
-                    <td><?= htmlspecialchars($log['catatan'] ?? '-') ?></td>
+                    <td><?= ($log['status_approval'] === 'ditolak') ? htmlspecialchars($log['alasan_penolakan'] ?? '-') : '-' ?></td>
                     <td><?= htmlspecialchars($log['approver_nama'] ?? 'System') ?></td>
                 </tr>
             <?php 
@@ -70,7 +76,7 @@
             else:
             ?>
                 <tr>
-                    <td colspan="8" class="text-center">Tidak ada data log approval</td>
+                    <td colspan="10" class="text-center">Tidak ada data log approval</td>
                 </tr>
             <?php endif; ?>
         </tbody>

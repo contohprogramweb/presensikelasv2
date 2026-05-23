@@ -61,8 +61,10 @@
                             <th>Nama Siswa</th>
                             <th>Kelas</th>
                             <th>Status Presensi</th>
+                            <th>Pengajuan</th>
+                            <th>Keterangan</th>
                             <th>Approval</th>
-                            <th>Catatan</th>
+                            <th>Alasan</th>
                             <th>Approver</th>
                         </tr>
                     </thead>
@@ -107,8 +109,19 @@ $(document).ready(function() {
             {data: 'nama_siswa'},
             {data: 'nama_kelas'},
             {data: 'status_presensi'},
+            {data: 'status_asli'},
+            {data: 'keterangan'},
             {data: 'status_approval'},
-            {data: 'catatan'},
+            {
+                data: 'alasan_penolakan',
+                render: function(data, type, row) {
+                    // Kolom Alasan hanya tampil jika approval "Ditolak"
+                    if (row.status_approval && row.status_approval.includes('Ditolak')) {
+                        return data ?? '-';
+                    }
+                    return '-';
+                }
+            },
             {data: 'nama_approver'}
         ],
         order: [[1, 'desc']]
