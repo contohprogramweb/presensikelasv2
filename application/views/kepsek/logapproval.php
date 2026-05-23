@@ -99,7 +99,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            {data: null, orderable: false},
+            {data: 'no'},
             {data: 'tanggal_approval'},
             {data: 'nama_siswa'},
             {data: 'nama_kelas'},

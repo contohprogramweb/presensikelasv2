@@ -58,15 +58,16 @@ class Logapproval extends MY_Controller {
         
         foreach ($list as $item) {
             $no++;
-            $row = array();
-            $row[] = $no;
-            $row[] = tanggal_indo($item->tanggal_approval);
-            $row[] = $item->nama_siswa;
-            $row[] = $item->nama_kelas ?? '-';
-            $row[] = badge_presensi($item->status_presensi);
-            $row[] = badge_approval($item->status_approval);
-            $row[] = $item->catatan ?? '-';
-            $row[] = $item->nama_approver ?? 'System';
+            $row = array(
+                'no' => $no,
+                'tanggal_approval' => tanggal_indo($item->tanggal_approval),
+                'nama_siswa' => $item->nama_siswa,
+                'nama_kelas' => $item->nama_kelas ?? '-',
+                'status_presensi' => badge_presensi($item->status_presensi),
+                'status_approval' => badge_approval($item->status_approval),
+                'catatan' => $item->catatan ?? '-',
+                'nama_approver' => $item->nama_approver ?? 'System'
+            );
             
             $data[] = $row;
         }
