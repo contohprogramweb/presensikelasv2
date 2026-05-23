@@ -169,7 +169,96 @@ class M_presensi extends CI_Model {
         return $this->db->get()->result_array();
     }
 
-
-
+    /**
+     * Simpan presensi (create atau update)
+     * @param array $data Data presensi lengkap
+     * @param int|null $id_jadwal ID jadwal (untuk create)
+     * @param int|null $id_presensi ID presensi (untuk update)
+     * @return array ['success' => bool, 'message' => string, 'id_presensi' => int|null]
+     */
+    public function simpan_presensi($data, $id_jadwal = null, $id_presensi = null)
+    {
+        $this->db->trans_start();
+        
+        $created_at = date('Y-m-d H:i:s');
+        $tanggal = $data['tanggal'];
+        $materi_pelajaran = $data['materi_pelajaran'];
+        $id_guru = $data['id_guru'];
+        $siswa_data = isset($data['siswa']) ? $data['siswa'] : [];
+        
+        // Cek apakah sudah ada presensi untuk jadwal dan tanggal ini
+        $existing_presensi = $this->get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal);
+        
+        $final_id_presensi = null;
+        
+        if ($existing_presensi) {
+            // UPDATE existing presensi
+            $final_id_presensi = $existing_presensi['id'];
+            
+            // Update materi pelajaran
+            $update_data = [
+                'materi_pelajaran' => $materi_pelajaran,
+                'id_guru' => $id_guru
+            ];
+            
+            $this->db->where('id', $final_id_presensi);
+            $this->db->update('tb_presensi', $update_data);
+            
+            // Delete existing siswa presensi
+            $this->db->where('id_presensi', $final_id_presensi);
+            $this->db->delete('tb_presensi_siswa');
+            
+        } else {
+            // CREATE new presensi
+            $presensi_data = [
+                'id_jadwal' => $id_jadwal,
+                'id_guru' => $id_guru,
+                'materi_pelajaran' => $materi_pelajaran,
+                'tanggal' => $tanggal,
+                'waktu_input' => $created_at,
+                'created_at' => $created_at
+            ];
+            
+            $this->db->insert('tb_presensi', $presensi_data);
+            $final_id_presensi = $this->db->insert_id();
+        }
+        
+        // Insert data siswa presensi
+        if ($final_id_presensi && is_array($siswa_data) && count($siswa_data) > 0) {
+            foreach ($siswa_data as $id_siswa => $data_siswa) {
+                $status = isset($data_siswa['status']) ? $data_siswa['status'] : 'Hadir';
+                $keterangan = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
+                
+                $presensi_siswa_data = [
+                    'id_presensi' => $final_id_presensi,
+                    'id_siswa' => $id_siswa,
+                    'tanggal' => $tanggal,
+                    'status' => $status,
+                    'keterangan' => $keterangan,
+                    'created_at' => $created_at
+                ];
+                
+                $this->db->insert('tb_presensi_siswa', $presensi_siswa_data);
+            }
+        }
+        
+        $this->db->trans_complete();
+        
+        if ($this->db->trans_status() === FALSE) {
+            log_message('error', 'Transaksi database gagal saat menyimpan presensi - M_presensi::simpan_presensi');
+            return [
+                'success' => false,
+                'message' => 'Gagal menyimpan presensi ke database!',
+                'id_presensi' => null
+            ];
+        }
+        
+        return [
+            'success' => true,
+            'message' => $existing_presensi ? 'Presensi berhasil diperbarui!' : 'Presensi berhasil disimpan!',
+            'id_presensi' => $final_id_presensi,
+            'is_update' => (bool)$existing_presensi
+        ];
+    }
 
 }
