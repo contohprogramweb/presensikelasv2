@@ -66,7 +66,7 @@
                     <td class="text-center"><?= htmlspecialchars($log['status_asli']) ?></td>
                     <td><?= htmlspecialchars($log['keterangan'] ?? '-') ?></td>
                     <td class="text-center"><?= htmlspecialchars($log['status_approval']) ?></td>
-                    <td><?= ($log['status_approval'] === 'ditolak') ? htmlspecialchars($log['alasan_penolakan'] ?? '-') : '-' ?></td>
+                    <td><?= ($log['status_approval'] === 'ditolak') ? htmlspecialchars($log['catatan_penolakan'] ?? '-') : '-' ?></td>
                 </tr>
             <?php 
                 endforeach;
