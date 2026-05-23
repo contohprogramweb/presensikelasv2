@@ -32,10 +32,10 @@
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button type="button" class="btn btn-primary me-2" onclick="reload_table()">
-                            <i class="fas fa-search me-1"></i> Filter
+                            <i class="fas fa-search me-1"></i> Tampilkan
                         </button>
-                        <button type="button" class="btn btn-success" onclick="export_excel()">
-                            <i class="fas fa-file-pdf me-1"></i> Export PDF
+                        <button type="button" class="btn btn-danger" onclick="export_excel()">
+                            <i class="fas fa-file-pdf me-1"></i> PDF
                         </button>
                     </div>
                 </div>
@@ -95,6 +95,7 @@ $(document).ready(function() {
                 d.tanggal_mulai = $('#filter_tanggal_mulai').val() || default_tanggal_mulai;
                 d.tanggal_sampai = $('#filter_tanggal_sampai').val() || default_tanggal_sampai;
                 d.status = $('#filter_status').val();
+          
             }
         },
         columns: [
