@@ -1,7 +1,23 @@
+<?php
+$mode              = $mode ?? 'tambah';
+$is_edit           = ($mode === 'edit');
+$presensi_existing = $presensi_existing ?? null;
+$siswa_presensi_map = $siswa_presensi_map ?? [];
+$form_action       = $is_edit
+    ? site_url('guru/presensi/update')
+    : site_url('guru/presensi/simpan');
+$materi_default    = $is_edit ? html_escape($presensi_existing['materi_pelajaran'] ?? '') : '';
+?>
 <div class="content-wrapper">
 <div class="container-fluid">
-    <div class="page-heading">
-        <h2><i class="fas fa-clipboard-check me-2"></i><?= $page_title ?? 'Input Presensi'; ?></h2>
+    <div class="page-heading d-flex align-items-center justify-content-between">
+        <h2>
+            <i class="fas fa-clipboard-check me-2"></i>
+            <?= $page_title ?? ($is_edit ? 'Edit Presensi' : 'Input Presensi'); ?>
+        </h2>
+        <?php if ($is_edit): ?>
+            <span class="badge bg-warning text-dark fs-6"><i class="fas fa-pencil-alt me-1"></i>Mode Edit</span>
+        <?php endif; ?>
     </div>
     
     <?php if ($this->session->flashdata('error')): ?>
@@ -67,25 +83,32 @@
         </div>
     </div>
 
-    <form action="<?= site_url('guru/presensi/simpan'); ?>" method="post" id="formPresensi">
-        <?= form_hidden('id_jadwal', $jadwal['id'] ?? ''); ?>
-        <?= form_hidden('tanggal', $tanggal ?? date('Y-m-d')); ?>
+    <form action="<?= $form_action; ?>" method="post" id="formPresensi">
+        <?php if ($is_edit): ?>
+            <?= form_hidden('id_presensi', $presensi_existing['id'] ?? ''); ?>
+        <?php else: ?>
+            <?= form_hidden('id_jadwal', $jadwal['id'] ?? ''); ?>
+            <?= form_hidden('tanggal', $tanggal ?? date('Y-m-d')); ?>
+        <?php endif; ?>
         
         <div class="card mt-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-book me-2"></i>Materi Pelajaran</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <textarea name="materi_pelajaran" class="form-control" rows="3" placeholder="Tulis materi pelajaran yang diajarkan hari ini..." required><?= set_value('materi_pelajaran'); ?></textarea>
+                    <textarea name="materi_pelajaran" class="form-control" rows="3"
+                        placeholder="Tulis materi pelajaran yang diajarkan hari ini..."
+                        required><?= $materi_default ?: set_value('materi_pelajaran'); ?></textarea>
                     <small class="text-muted">Materi pelajaran wajib diisi sebelum menyimpan presensi.</small>
                 </div>
             </div>
         </div>
 
         <div class="card mt-3">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-users me-2"></i>Daftar Siswa</h5>
+                <small class="text-muted"><?= count($siswa_list); ?> siswa</small>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -93,13 +116,11 @@
                         <thead class="table-light">
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="25%">Nama Siswa</th>
-                                <th width="15%">NIS</th>
+                                <th width="35%">Nama Siswa</th>
                                 <th width="45%" colspan="4">Status Kehadiran</th>
                                 <th width="15%">Keterangan</th>
                             </tr>
                             <tr>
-                                <th></th>
                                 <th></th>
                                 <th></th>
                                 <th width="10%"><label class="radio-inline"><input type="radio" name="status_all" value="Hadir" class="status-all"> Hadir</label></th>
@@ -112,39 +133,49 @@
                         <tbody>
                             <?php if (empty($siswa_list)): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">Tidak ada siswa di kelas ini</td>
+                                    <td colspan="7" class="text-center text-muted">Tidak ada siswa di kelas ini</td>
                                 </tr>
                             <?php else: ?>
-                                <?php $no = 1; foreach ($siswa_list as $siswa): ?>
+                                <?php $no = 1; foreach ($siswa_list as $siswa):
+                                    // Untuk mode edit: ambil status & keterangan dari data existing
+                                    $existing_status     = $siswa_presensi_map[$siswa['id']]['status']     ?? 'Hadir';
+                                    $existing_keterangan = $siswa_presensi_map[$siswa['id']]['keterangan'] ?? '';
+                                ?>
                                     <tr>
                                         <td><?= $no++; ?></td>
                                         <td>
                                             <strong><?= html_escape($siswa['nama_lengkap']); ?></strong>
-                                            <br><small class="text-muted"><?= ($siswa['jenis_kelamin'] == 'L') ? 'Laki-laki' : 'Perempuan'; ?></small>
                                         </td>
-                                        <td><?= html_escape($siswa['nis']); ?></td>
                                         <td>
                                             <label class="radio-inline">
-                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Hadir" checked> H
+                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Hadir"
+                                                    <?= ($existing_status === 'Hadir') ? 'checked' : ''; ?>> H
                                             </label>
                                         </td>
                                         <td>
                                             <label class="radio-inline">
-                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Izin"> I
+                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Izin"
+                                                    <?= ($existing_status === 'Izin') ? 'checked' : ''; ?>> I
                                             </label>
                                         </td>
                                         <td>
                                             <label class="radio-inline">
-                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Sakit"> S
+                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Sakit"
+                                                    <?= ($existing_status === 'Sakit') ? 'checked' : ''; ?>> S
                                             </label>
                                         </td>
                                         <td>
                                             <label class="radio-inline">
-                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Alpa"> A
+                                                <input type="radio" name="siswa[<?= $siswa['id']; ?>][status]" value="Alpa"
+                                                    <?= ($existing_status === 'Alpa') ? 'checked' : ''; ?>> A
                                             </label>
                                         </td>
                                         <td>
-                                            <input type="text" name="siswa[<?= $siswa['id']; ?>][keterangan]" class="form-control form-control-sm keterangan-siswa" placeholder="Keterangan...">
+                                            <input type="text"
+                                                name="siswa[<?= $siswa['id']; ?>][keterangan]"
+                                                class="form-control form-control-sm keterangan-siswa"
+                                                placeholder="Keterangan..."
+                                                value="<?= html_escape($existing_keterangan); ?>">
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -160,11 +191,9 @@
                 <a href="<?= site_url('guru/presensi'); ?>" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i>Batal
                 </a>
-                <button type="submit" class="btn btn-primary" id="btnSimpanPresensi">
-                    <i class="fas fa-save me-1"></i>Simpan Presensi
+                <button type="submit" class="btn <?= $is_edit ? 'btn-warning' : 'btn-primary'; ?>" id="btnSimpanPresensi">
+                    <i class="fas fa-save me-1"></i><?= $is_edit ? 'Simpan Perubahan' : 'Simpan Presensi'; ?>
                 </button>
-                <!-- Hidden submit button untuk trigger submit setelah konfirmasi -->
-                <button type="submit" id="hiddenSubmit" style="display:none;"></button>
             </div>
         </div>
     </form>
@@ -175,6 +204,7 @@
 <script>
 $(document).ready(function() {
     var isSubmitting = false;
+    var isEdit = <?= $is_edit ? 'true' : 'false'; ?>;
     
     // Handle radio button "select all" untuk status
     $('input[name="status_all"]').on('change', function() {
@@ -186,10 +216,7 @@ $(document).ready(function() {
     $('#formPresensi').on('submit', function(e) {
         e.preventDefault();
         
-        // Cegah double submit
-        if (isSubmitting) {
-            return false;
-        }
+        if (isSubmitting) return false;
         
         // Validasi materi pelajaran
         var materiPelajaran = $('textarea[name="materi_pelajaran"]').val().trim();
@@ -206,10 +233,7 @@ $(document).ready(function() {
         
         // Hitung jumlah siswa per status
         var totalSiswa = <?= count($siswa_list); ?>;
-        var hadirCount = 0;
-        var sakitCount = 0;
-        var izinCount = 0;
-        var alphaCount = 0;
+        var hadirCount = 0, sakitCount = 0, izinCount = 0, alphaCount = 0;
         
         $('input[name^="siswa"][name$="[status]"]:checked').each(function() {
             var status = $(this).val();
@@ -219,78 +243,46 @@ $(document).ready(function() {
             else if (status === 'Alpa') alphaCount++;
         });
         
-        // Tampilkan konfirmasi dengan ringkasan
         var summaryHtml = '<div style="text-align: left; padding: 10px;">' +
             '<div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">' +
                 '<h6 style="margin-bottom: 10px; color: #495057;"><i class="fas fa-users"></i> Ringkasan Kehadiran</h6>' +
                 '<table style="width: 100%;">' +
-                    '<tr>' +
-                        '<td style="padding: 5px 0;"><span style="color: #28a745;"><i class="fas fa-check-circle"></i> <strong>Hadir:</strong></span></td>' +
-                        '<td style="padding: 5px 0; text-align: right;"><strong>' + hadirCount + '</strong> siswa</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td style="padding: 5px 0;"><span style="color: #17a2b8;"><i class="fas fa-bed"></i> <strong>Sakit:</strong></span></td>' +
-                        '<td style="padding: 5px 0; text-align: right;"><strong>' + sakitCount + '</strong> siswa</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td style="padding: 5px 0;"><span style="color: #fd7e14;"><i class="fas fa-envelope"></i> <strong>Izin:</strong></span></td>' +
-                        '<td style="padding: 5px 0; text-align: right;"><strong>' + izinCount + '</strong> siswa</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td style="padding: 5px 0;"><span style="color: #dc3545;"><i class="fas fa-times-circle"></i> <strong>Alpa:</strong></span></td>' +
-                        '<td style="padding: 5px 0; text-align: right;"><strong>' + alphaCount + '</strong> siswa</td>' +
-                    '</tr>' +
-                    '<tr style="border-top: 2px solid #dee2e6;">' +
-                        '<td style="padding: 10px 0 5px 0;"><strong>Total:</strong></td>' +
-                        '<td style="padding: 10px 0 5px 0; text-align: right;"><strong>' + totalSiswa + '</strong> siswa</td>' +
-                    '</tr>' +
+                    '<tr><td style="padding:5px 0;"><span style="color:#28a745;"><i class="fas fa-check-circle"></i> <strong>Hadir:</strong></span></td><td style="padding:5px 0;text-align:right;"><strong>' + hadirCount + '</strong> siswa</td></tr>' +
+                    '<tr><td style="padding:5px 0;"><span style="color:#17a2b8;"><i class="fas fa-bed"></i> <strong>Sakit:</strong></span></td><td style="padding:5px 0;text-align:right;"><strong>' + sakitCount + '</strong> siswa</td></tr>' +
+                    '<tr><td style="padding:5px 0;"><span style="color:#fd7e14;"><i class="fas fa-envelope"></i> <strong>Izin:</strong></span></td><td style="padding:5px 0;text-align:right;"><strong>' + izinCount + '</strong> siswa</td></tr>' +
+                    '<tr><td style="padding:5px 0;"><span style="color:#dc3545;"><i class="fas fa-times-circle"></i> <strong>Alpa:</strong></span></td><td style="padding:5px 0;text-align:right;"><strong>' + alphaCount + '</strong> siswa</td></tr>' +
+                    '<tr style="border-top:2px solid #dee2e6;"><td style="padding:10px 0 5px 0;"><strong>Total:</strong></td><td style="padding:10px 0 5px 0;text-align:right;"><strong>' + totalSiswa + '</strong> siswa</td></tr>' +
                 '</table>' +
             '</div>' +
-            '<p style="color: #6c757d; font-size: 14px;"><i class="fas fa-info-circle"></i> Pastikan data sudah benar sebelum menyimpan.</p>' +
+            '<p style="color:#6c757d;font-size:14px;"><i class="fas fa-info-circle"></i> Pastikan data sudah benar sebelum menyimpan.</p>' +
             '</div>';
         
         Swal.fire({
-            title: '<i class="fas fa-clipboard-check"></i> Konfirmasi Presensi',
+            title: isEdit
+                ? '<i class="fas fa-pencil-alt"></i> Konfirmasi Edit Presensi'
+                : '<i class="fas fa-clipboard-check"></i> Konfirmasi Presensi',
             html: summaryHtml,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#28a745',
+            confirmButtonColor: isEdit ? '#ffc107' : '#28a745',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-save"></i> Ya, Simpan!',
+            confirmButtonText: isEdit
+                ? '<i class="fas fa-save"></i> Ya, Simpan Perubahan!'
+                : '<i class="fas fa-save"></i> Ya, Simpan!',
             cancelButtonText: '<i class="fas fa-times"></i> Batal',
             reverseButtons: true,
             focusConfirm: false
         }).then((result) => {
             if (result.isConfirmed) {
                 isSubmitting = true;
-                
-                // Show loading
                 Swal.fire({
-                    title: 'Menyimpan...',
-                    text: 'Data presensi sedang disimpan.',
+                    title: isEdit ? 'Memperbarui...' : 'Menyimpan...',
+                    text: 'Data presensi sedang diproses.',
                     allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+                    didOpen: () => { Swal.showLoading(); }
                 });
-                
-                // Hapus event handler submit untuk mencegah loop
                 $('#formPresensi').off('submit');
-                
-                // Tambahkan CSRF token sebelum submit
-                var form = document.getElementById('formPresensi');
-                var csrfName = '<?= $this->security->get_csrf_token_name(); ?>';
-                var csrfHash = '<?= $this->security->get_csrf_hash(); ?>';
-                
-                // Buat hidden input untuk CSRF jika belum ada
-                var csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = csrfName;
-                csrfInput.value = csrfHash;
-                form.appendChild(csrfInput);
-                
-                // Submit form secara native - gunakan click pada button submit asli
-                document.getElementById('btnSimpanPresensi').click();
+                document.getElementById('formPresensi').submit();
             }
         });
         
