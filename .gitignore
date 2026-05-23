@@ -1,28 +1,21 @@
-```
-# Logs
-*.log
+# Compiled and build artifacts
+*.pyc
+__pycache__/
 
-# CodeIgniter specific
-application/logs/*
-!application/logs/.gitkeep
+# Dependencies
+vendor/
+composer.lock
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
 
 # Environment
 .env
 .env.local
-.env.*
-
-# Dependencies
-vendor/
-node_modules/
+*.env.*
 
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
-*.tmp
-
-# OS
-.DS_Store
-Thumbs.db
-```

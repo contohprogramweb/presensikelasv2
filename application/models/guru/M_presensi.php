@@ -115,6 +115,19 @@ class M_presensi extends CI_Model {
 		$this->db->where('tanggal', $tanggal);
         return $this->db->count_all_results('tb_presensi') > 0;
     }
+    
+    /**
+     * Get presensi by jadwal and tanggal
+     * @param int $id_jadwal ID jadwal
+     * @param string $tanggal Tanggal (Y-m-d)
+     * @return array|null Data presensi jika ada
+     */
+    public function get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal)
+    {
+        $this->db->where('id_jadwal', $id_jadwal);
+        $this->db->where('tanggal', $tanggal);
+        return $this->db->get('tb_presensi')->row_array();
+    }
  
     /**
      * Get detail presensi dengan informasi lengkap
