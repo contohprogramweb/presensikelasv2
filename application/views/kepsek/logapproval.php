@@ -65,7 +65,6 @@
                             <th>Keterangan</th>
                             <th>Approval</th>
                             <th>Alasan</th>
-                            <th>Approver</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -121,8 +120,7 @@ $(document).ready(function() {
                     }
                     return '-';
                 }
-            },
-            {data: 'nama_approver'}
+            }
         ],
         order: [[1, 'desc']]
     });
