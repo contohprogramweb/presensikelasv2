@@ -18,11 +18,12 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="10%">Tanggal</th>
-                                    <th width="20%">Nama Siswa</th>
-                                    <th width="15%">Kelas</th>
+                                    <th width="18%">Nama Siswa</th>
+                                    <th width="12%">Kelas</th>
                                     <th width="15%">Guru Pengampu</th>
-                                    <th width="10%">Status</th>
-                                    <th width="20%">Keterangan</th>
+                                    <th width="10%">Status Presensi</th>
+                                    <th width="10%">Status Approval</th>
+                                    <th width="15%">Keterangan</th>
                                     <th width="10%" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -80,7 +81,8 @@ $(document).ready(function() {
             { 'data': 'nama_siswa' },
             { 'data': 'nama_kelas' },
             { 'data': 'nama_guru' },
-            { 'data': 'status', 'orderable': false },
+            { 'data': 'status_presensi', 'orderable': false },
+            { 'data': 'status_approval', 'orderable': false },
             { 
                 'data': 'keterangan',
                 'render': function(data) {
@@ -99,7 +101,7 @@ $(document).ready(function() {
         ],
         'language': {
             'processing': '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>',
-            'emptyTable': 'Tidak ada data presensi yang menunggu approval',
+            'emptyTable': 'Tidak ada data approval',
             'zeroRecords': 'Tidak ditemukan data yang cocok',
             'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
             'infoEmpty': 'Tidak ada data yang tersedia',

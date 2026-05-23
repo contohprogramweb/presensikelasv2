@@ -8,10 +8,9 @@ class M_approval extends CI_Model {
         parent::__construct();
     }
 
-    public function get_pending_approval()
+    public function get_all_approval()
     {
-        // Hanya ambil data dari tb_approval yang status_approval='pending'
-        // Tidak perlu join ke tb_presensi_siswa untuk filter status
+        // Ambil SEMUA data dari tb_approval (pending, disetujui, ditolak)
         $this->db->select('a.*, a.status_asli as status_presensi');
         $this->db->select('s.nama_lengkap as nama_siswa, k.nama_kelas');
         $this->db->select('g.nama_lengkap as nama_guru, u.nama_lengkap as user_nama');
@@ -20,7 +19,6 @@ class M_approval extends CI_Model {
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
         $this->db->join('tb_guru g', 'g.id = a.id_guru');
-        $this->db->where('a.status_approval', 'pending');
         $this->db->order_by('a.tanggal', 'DESC');
         
         $query = $this->db->get();
