@@ -70,6 +70,7 @@
     <form action="<?= site_url('guru/presensi/simpan'); ?>" method="post" id="formPresensi">
         <?= form_hidden('id_jadwal', $jadwal['id'] ?? ''); ?>
         <?= form_hidden('tanggal', $tanggal ?? date('Y-m-d')); ?>
+        <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
         
         <div class="card mt-3">
             <div class="card-header d-flex justify-content-between align-items-center">
