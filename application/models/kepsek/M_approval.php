@@ -45,7 +45,7 @@ class M_approval extends CI_Model {
     {
         $this->db->trans_start();
         
-        // Update approval status
+        // Update approval status - hanya ubah status approval, status presensi siswa tetap (Izin/Sakit)
         $data_approval = [
             'status_approval' => 'disetujui',
             'tanggal_approval' => date('Y-m-d H:i:s'),
@@ -55,22 +55,7 @@ class M_approval extends CI_Model {
         $this->db->where('id', $id_approval);
         $this->db->update('tb_approval', $data_approval);
         
-        // Get presensi ID and siswa ID
-        $this->db->where('id', $id_approval);
-        $approval = $this->db->get('tb_approval')->row_array();
-        
-        if ($approval) {
-            // Get the presensi_siswa record
-            $this->db->where('id_presensi', $approval['id_presensi']);
-            $this->db->where('id_siswa', $approval['id_siswa']);
-            $presensi_siswa = $this->db->get('tb_presensi_siswa')->row_array();
-            
-            if ($presensi_siswa) {
-                // Update presensi_siswa status to Hadir
-                $this->db->where('id', $presensi_siswa['id']);
-                $this->db->update('tb_presensi_siswa', ['status' => 'Hadir']);
-            }
-        }
+        // Tidak mengubah status presensi siswa - status tetap Izin atau Sakit
         
         $this->db->trans_complete();
         
@@ -81,7 +66,7 @@ class M_approval extends CI_Model {
     {
         $this->db->trans_start();
         
-        // Update approval status
+        // Update approval status dan ubah presensi siswa menjadi Alpa
         $data_approval = [
             'status_approval' => 'ditolak',
             'tanggal_approval' => date('Y-m-d H:i:s'),
@@ -99,10 +84,11 @@ class M_approval extends CI_Model {
         if ($approval) {
             // Get the presensi_siswa record
             $this->db->where('id_presensi', $approval['id_presensi']);
+            $this->db->where('id_siswa', $approval['id_siswa']);
             $presensi_siswa = $this->db->get('tb_presensi_siswa')->row_array();
             
             if ($presensi_siswa) {
-                // Update presensi_siswa status to Alpa
+                // Update presensi_siswa status to Alpa (karena izin/sakit tidak disetujui)
                 $this->db->where('id', $presensi_siswa['id']);
                 $this->db->update('tb_presensi_siswa', ['status' => 'Alpa']);
             }
