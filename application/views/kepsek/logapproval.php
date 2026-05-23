@@ -37,9 +37,7 @@
                         <button type="button" class="btn btn-success me-2" onclick="preview_pdf()">
                             <i class="fas fa-file-pdf me-1"></i> PDF
                         </button>
-                        <button type="button" class="btn btn-danger" onclick="export_excel()">
-                            <i class="fas fa-download me-1"></i> Download PDF
-                        </button>
+                        
                     </div>
                 </div>
             </form>
