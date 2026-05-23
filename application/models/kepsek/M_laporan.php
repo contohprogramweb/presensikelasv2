@@ -20,13 +20,12 @@ class M_laporan extends CI_Model {
                 COALESCE(SUM(CASE WHEN ps.status = 'Sakit' THEN 1 ELSE 0 END), 0) as sakit,
                 COALESCE(SUM(CASE WHEN ps.status = 'Alpa' THEN 1 ELSE 0 END), 0) as alpa
             FROM tb_presensi_siswa ps
-            JOIN tb_presensi p ON p.id = ps.id_presensi
-            WHERE p.id_kelas = ?
-                AND ps.tanggal >= ?
+            WHERE ps.tanggal >= ?
                 AND ps.tanggal <= ?
+                AND ps.id_siswa IN (SELECT id FROM tb_siswa WHERE id_kelas = ?)
         ";
         
-        return $this->db->query($sql, [$id_kelas, $start_date, $end_date])->row();
+        return $this->db->query($sql, [$start_date, $end_date, $id_kelas])->row();
     }
     
     /**

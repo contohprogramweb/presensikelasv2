@@ -132,6 +132,7 @@ $route['guru/rekap/preview_pdf'] = 'guru/Rekap/preview_pdf';
 */
 $route['kepsek/approval'] = 'kepsek/Approval/index';
 $route['kepsek/laporan'] = 'kepsek/Laporan/index';
+$route['kepsek/laporan/generate'] = 'kepsek/Laporan/generate';
 $route['kepsek/laporan/export_pdf'] = 'kepsek/Laporan/export_pdf';
 $route['kepsek/laporan/preview_pdf'] = 'kepsek/Laporan/preview_pdf';
 $route['kepsek/logapproval'] = 'kepsek/Logapproval/index';
