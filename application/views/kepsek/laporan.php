@@ -1,3 +1,5 @@
+<div class="content-wrapper">
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -7,7 +9,7 @@
                 </div>
                 <div class="card-body">
                     <!-- Filter Form -->
-                    <form method="post" action="<?= site_url('kepsek/laporan/generate') ?>" class="mb-4">
+                   <form method="post" action="<?= site_url('kepsek/laporan/generate') ?>" class="mb-4">
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label">Kelas</label>
@@ -32,7 +34,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-search"></i> Tampilkan
                                 </button>
-                                <?php if (!empty($statistik) && !empty($laporan)): ?>
+                               <?php if (!empty($statistik) && !empty($laporan)): ?>
                                     <a href="<?= site_url('kepsek/laporan/preview_pdf?kelas='.$filter_kelas.'&start_date='.$filter_start.'&end_date='.$filter_end) ?>" class="btn btn-danger" target="_blank">
                                         <i class="bi bi-file-pdf"></i> PDF
                                     </a>
@@ -134,4 +136,6 @@
             </div>
         </div>
     </div>
+</div>
+
 </div>
