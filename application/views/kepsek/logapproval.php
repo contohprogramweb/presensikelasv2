@@ -34,8 +34,11 @@
                         <button type="button" class="btn btn-primary me-2" onclick="reload_table()">
                             <i class="fas fa-search me-1"></i> Tampilkan
                         </button>
-                        <button type="button" class="btn btn-danger" onclick="export_excel()">
+                        <button type="button" class="btn btn-success me-2" onclick="preview_pdf()">
                             <i class="fas fa-file-pdf me-1"></i> PDF
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="export_excel()">
+                            <i class="fas fa-download me-1"></i> Download PDF
                         </button>
                     </div>
                 </div>
@@ -135,5 +138,27 @@ function export_excel() {
     }
     
     window.location.href = url;
+}
+
+function preview_pdf() {
+    var params = [];
+    
+    if ($('#filter_tanggal_mulai').val()) {
+        params.push('tanggal_mulai=' + $('#filter_tanggal_mulai').val());
+    }
+    if ($('#filter_tanggal_sampai').val()) {
+        params.push('tanggal_sampai=' + $('#filter_tanggal_sampai').val());
+    }
+    if ($('#filter_status').val()) {
+        params.push('status=' + $('#filter_status').val());
+    }
+    
+    var url = '<?= site_url('kepsek/logapproval/preview_pdf') ?>';
+    if (params.length > 0) {
+        url += '?' + params.join('&');
+    }
+    
+    // Buka di tab baru untuk preview
+    window.open(url, '_blank');
 }
 </script>

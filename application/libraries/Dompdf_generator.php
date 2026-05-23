@@ -66,4 +66,28 @@ class Dompdf_generator {
     public function get_dompdf() {
         return $this->dompdf;
     }
+    
+    /**
+     * Preview PDF di browser (inline)
+     * @param string $html
+     * @param string $filename
+     */
+    public function preview($html, $filename = 'document.pdf') {
+        try {
+            $this->dompdf->setPaper('A4', 'portrait');
+            $this->dompdf->loadHtml($html);
+            
+            // Render PDF
+            $this->dompdf->render();
+            
+            // Preview di browser (inline) - tidak download otomatis
+            $this->dompdf->stream($filename, array('Attachment' => false));
+            
+            return true;
+        } catch (Exception $e) {
+            log_message('error', 'PDF Preview Error: ' . $e->getMessage());
+            show_error('Gagal menampilkan preview PDF: ' . $e->getMessage(), 500);
+            return false;
+        }
+    }
 }
