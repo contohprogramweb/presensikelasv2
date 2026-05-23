@@ -1,1 +1,71 @@
-(application/controllers/kepsek/Logapproval.php, application/models/kepsek/M_logapproval.php, application/views/kepsek/logapproval.php, application/views/kepsek/logapproval_excel.php)
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+
+# Dependencies
+venv/
+.venv/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Web specific
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup and swap files
+*~
+*.bak
+*.backup
+*.old
+```
