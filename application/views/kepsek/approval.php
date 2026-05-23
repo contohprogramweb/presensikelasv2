@@ -42,7 +42,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="modalRejectLabel"><i class="fas fa-times-circle me-2"></i>Tolak Presensi</h5>
+                <h5 class="modal-title" id="modalRejectLabel"><i class="fas fa-times-circle me-2"></i>Tolak Status Presensi</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="form-reject">
@@ -50,14 +50,14 @@
                     <input type="hidden" id="reject-id-presensi">
                     <div class="mb-3">
                         <label for="catatan" class="form-label">Catatan Penolakan <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="catatan" name="catatan" rows="4" required placeholder="Jelaskan alasan penolakan presensi ini..."></textarea>
+                        <textarea class="form-control" id="catatan" name="catatan" rows="4" required placeholder="Jelaskan alasan penolakan status presensi ini..."></textarea>
                         <small class="text-muted">Catatan ini akan disimpan sebagai referensi dan wajib diisi.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-danger" id="btn-confirm-reject">
-                        <i class="fas fa-times me-1"></i> Tolak Presensi
+                        <i class="fas fa-times me-1"></i> Tolak 
                     </button>
                 </div>
             </form>
@@ -143,8 +143,8 @@ $(document).ready(function() {
     // Confirm Approve
     function confirmApprove(id) {
         Swal.fire({
-            title: 'Setujui Presensi?',
-            text: 'Apakah Anda yakin ingin menyetujui presensi ini? Status presensi akan berubah menjadi Hadir.',
+            title: 'Setujui Status Presensi?',
+            text: 'Apakah Anda yakin ingin menyetujui status presensi ini? ',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#28a745',
@@ -233,8 +233,8 @@ $(document).ready(function() {
         }
 
         Swal.fire({
-            title: 'Tolak Presensi?',
-            text: 'Apakah Anda yakin ingin menolak presensi ini? Status presensi akan berubah menjadi Alpa.',
+            title: 'Tolak Status Presensi?',
+            text: 'Apakah Anda yakin ingin menolak sttaus presensi ini? Status presensi akan berubah menjadi Alpa.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
