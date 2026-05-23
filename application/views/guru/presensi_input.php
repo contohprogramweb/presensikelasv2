@@ -178,13 +178,12 @@ $(document).ready(function() {
         $('input[name^="siswa"][name$="[status]"][value="' + selectedStatus + '"]').prop('checked', true);
     });
 
-    // Handle form submit dengan AJAX
+    // Handle form submit dengan konfirmasi JS
     $('#formPresensi').on('submit', function(e) {
-        e.preventDefault();
-        
         // Validasi materi pelajaran
         var materiPelajaran = $('textarea[name="materi_pelajaran"]').val().trim();
         if (materiPelajaran === '') {
+            e.preventDefault();
             Swal.fire({
                 icon: 'warning',
                 title: 'Peringatan',
@@ -194,92 +193,45 @@ $(document).ready(function() {
             return false;
         }
         
-        // Disable tombol submit
-        var btnSubmit = $('#btnSimpanPresensi');
-        btnSubmit.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...');
+        // Hitung jumlah siswa per status
+        var totalSiswa = <?= count($siswa_list); ?>;
+        var hadirCount = 0;
+        var sakitCount = 0;
+        var izinCount = 0;
+        var alphaCount = 0;
         
-        // Kirim data via AJAX
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            beforeSend: function() {
-                // Pastikan response diharapkan sebagai JSON
-                $.ajaxSetup({
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-            },
-            success: function(response) {
-                // Validasi response adalah object JSON
-                if (typeof response !== 'object') {
-                    console.error('Response bukan JSON:', response);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Response server tidak valid. Silakan coba lagi.',
-                        confirmButtonText: 'OK'
-                    });
-                    btnSubmit.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Simpan Presensi');
-                    return;
-                }
-                
-                if (response.status) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.message,
-                        confirmButtonText: 'OK'
-                    }).then(function() {
-                        // Redirect setelah user klik OK
-                        if (response.redirect) {
-                            window.location.href = response.redirect;
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: response.message || 'Terjadi kesalahan saat menyimpan presensi.',
-                        confirmButtonText: 'OK'
-                    });
-                    btnSubmit.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Simpan Presensi');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText.substring(0, 500));
-                
-                var errorMessage = 'Terjadi kesalahan pada server.';
-                
-                // Coba parse response manual jika ada
-                if (xhr.responseText) {
-                    try {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.message) {
-                            errorMessage = response.message;
-                        }
-                    } catch(e) {
-                        // Response bukan JSON, tampilkan info error
-                        if (xhr.status === 401) {
-                            errorMessage = 'Sesi telah berakhir. Silakan refresh halaman dan login kembali.';
-                        } else if (xhr.status === 403) {
-                            errorMessage = 'Akses ditolak.';
-                        } else {
-                            errorMessage = 'Server error (' + xhr.status + '): ' + xhr.responseText.substring(0, 200);
-                        }
-                    }
-                }
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                    confirmButtonText: 'OK'
-                });
-                btnSubmit.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Simpan Presensi');
+        $('input[name^="siswa"][name$="[status]"]:checked').each(function() {
+            var status = $(this).val();
+            if (status === 'Hadir') hadirCount++;
+            else if (status === 'Sakit') sakitCount++;
+            else if (status === 'Izin') izinCount++;
+            else if (status === 'Alpa') alphaCount++;
+        });
+        
+        // Tampilkan konfirmasi dengan ringkasan
+        e.preventDefault();
+        
+        var summaryHtml = '<div style="text-align: left;">' +
+            '<p><strong>Total Siswa:</strong> ' + totalSiswa + '</p>' +
+            '<p><span style="color: green;"><strong>Hadir:</strong> ' + hadirCount + '</span></p>' +
+            '<p><span style="color: blue;"><strong>Sakit:</strong> ' + sakitCount + '</span></p>' +
+            '<p><span style="color: orange;"><strong>Ijin:</strong> ' + izinCount + '</span></p>' +
+            '<p><span style="color: red;"><strong>Alpha:</strong> ' + alphaCount + '</span></p>' +
+            '</div>';
+        
+        Swal.fire({
+            title: 'Konfirmasi Presensi',
+            html: summaryHtml,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit form secara normal
+                $('#formPresensi')[0].submit();
             }
         });
         

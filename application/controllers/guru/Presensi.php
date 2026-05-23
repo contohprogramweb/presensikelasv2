@@ -90,129 +90,116 @@ class Presensi extends MY_Controller {
     }
     
     /**
-     * Simpan presensi via AJAX
+     * Simpan presensi via POST form biasa
      * Handles both create and update
      */
     public function simpan() {
-        // Pastikan tidak ada output sebelum JSON
-        ob_clean();
+        $id_jadwal = $this->input->post('id_jadwal');
+        $tanggal = $this->input->post('tanggal');
+        $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
+        $siswa_data = $this->input->post('siswa');
         
-        // Hanya terima AJAX request
-        if (!$this->input->is_ajax_request()) {
-            $this->json_response(['status' => false, 'message' => 'Akses ditolak'], 403);
+        // Validasi input
+        if (empty($id_jadwal) || empty($tanggal) || empty($materi_pelajaran)) {
+            $this->session->set_flashdata('error', 'Data tidak lengkap!');
+            redirect("guru/presensi/form/{$id_jadwal}");
             return;
         }
         
-        try {
-            $id_jadwal = $this->input->post('id_jadwal');
-            $tanggal = $this->input->post('tanggal');
-            $materi_pelajaran = trim($this->input->post('materi_pelajaran'));
-            $siswa_data = $this->input->post('siswa');
+        if (empty($siswa_data) || !is_array($siswa_data)) {
+            $this->session->set_flashdata('error', 'Tidak ada data siswa!');
+            redirect("guru/presensi/form/{$id_jadwal}");
+            return;
+        }
+        
+        // Validasi jadwal milik guru yang login
+        $id_user = $this->session->userdata('id');
+        $jadwal = $this->M_presensi->get_jadwal_detail($id_jadwal);
+        
+        if (!$jadwal || $jadwal['id_guru_user'] != $id_user) {
+            $this->session->set_flashdata('error', 'Anda tidak memiliki akses ke jadwal ini!');
+            redirect("guru/presensi/form/{$id_jadwal}");
+            return;
+        }
+        
+        // Dapatkan id_guru dari tb_guru
+        $this->db->where('id_user', $id_user);
+        $guru = $this->db->get('tb_guru')->row();
+        
+        if (!$guru) {
+            $this->session->set_flashdata('error', 'Data guru tidak ditemukan!');
+            redirect("guru/presensi/form/{$id_jadwal}");
+            return;
+        }
+        
+        $id_guru = $guru->id;
+        
+        // Cek apakah sudah ada presensi untuk jadwal dan tanggal ini
+        $existing_presensi = $this->M_presensi->get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal);
+        
+        $this->db->trans_start();
+        
+        $id_presensi = null;
+        
+        if ($existing_presensi) {
+            // UPDATE existing presensi
+            $id_presensi = $existing_presensi['id'];
             
-            // Validasi input
-            if (empty($id_jadwal) || empty($tanggal) || empty($materi_pelajaran)) {
-                $this->json_response(['status' => false, 'message' => 'Data tidak lengkap!'], 400);
-                return;
-            }
+            // Update materi pelajaran
+            $this->db->where('id', $id_presensi);
+            $this->db->update('tb_presensi', [
+                'materi_pelajaran' => $materi_pelajaran,
+                'id_guru' => $id_guru
+            ]);
             
-            if (empty($siswa_data) || !is_array($siswa_data)) {
-                $this->json_response(['status' => false, 'message' => 'Tidak ada data siswa!'], 400);
-                return;
-            }
+            // Delete existing siswa presensi
+            $this->db->where('id_presensi', $id_presensi);
+            $this->db->delete('tb_presensi_siswa');
             
-            // Validasi jadwal milik guru yang login
-            $id_user = $this->session->userdata('id');
-            $jadwal = $this->M_presensi->get_jadwal_detail($id_jadwal);
+        } else {
+            // CREATE new presensi
+            $presensi_data = [
+                'id_jadwal' => $id_jadwal,
+                'id_guru' => $id_guru,
+                'materi_pelajaran' => $materi_pelajaran,
+                'tanggal' => $tanggal,
+                'waktu_input' => date('Y-m-d H:i:s'),
+                'created_at' => date('Y-m-d H:i:s')
+            ];
             
-            if (!$jadwal || $jadwal['id_guru_user'] != $id_user) {
-                $this->json_response(['status' => false, 'message' => 'Anda tidak memiliki akses ke jadwal ini!'], 403);
-                return;
-            }
-            
-            // Dapatkan id_guru dari tb_guru
-            $this->db->where('id_user', $id_user);
-            $guru = $this->db->get('tb_guru')->row();
-            
-            if (!$guru) {
-                $this->json_response(['status' => false, 'message' => 'Data guru tidak ditemukan!'], 500);
-                return;
-            }
-            
-            $id_guru = $guru->id;
-            
-            // Cek apakah sudah ada presensi untuk jadwal dan tanggal ini
-            $existing_presensi = $this->M_presensi->get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal);
-            
-            $this->db->trans_start();
-            
-            $id_presensi = null;
-            
-            if ($existing_presensi) {
-                // UPDATE existing presensi
-                $id_presensi = $existing_presensi['id'];
+            $this->db->insert('tb_presensi', $presensi_data);
+            $id_presensi = $this->db->insert_id();
+        }
+        
+        // Insert data siswa presensi
+        if ($id_presensi && is_array($siswa_data)) {
+            foreach ($siswa_data as $id_siswa => $data_siswa) {
+                $status = isset($data_siswa['status']) ? $data_siswa['status'] : 'Hadir';
+                $keterangan = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
                 
-                // Update materi pelajaran
-                $this->db->where('id', $id_presensi);
-                $this->db->update('tb_presensi', [
-                    'materi_pelajaran' => $materi_pelajaran,
-                    'id_guru' => $id_guru
-                ]);
-                
-                // Delete existing siswa presensi
-                $this->db->where('id_presensi', $id_presensi);
-                $this->db->delete('tb_presensi_siswa');
-                
-            } else {
-                // CREATE new presensi
-                $presensi_data = [
-                    'id_jadwal' => $id_jadwal,
-                    'id_guru' => $id_guru,
-                    'materi_pelajaran' => $materi_pelajaran,
+                $presensi_siswa_data = [
+                    'id_presensi' => $id_presensi,
+                    'id_siswa' => $id_siswa,
                     'tanggal' => $tanggal,
-                    'waktu_input' => date('Y-m-d H:i:s'),
+                    'status' => $status,
+                    'keterangan' => $keterangan,
                     'created_at' => date('Y-m-d H:i:s')
                 ];
                 
-                $this->db->insert('tb_presensi', $presensi_data);
-                $id_presensi = $this->db->insert_id();
+                $this->db->insert('tb_presensi_siswa', $presensi_siswa_data);
             }
-            
-            // Insert data siswa presensi
-            if ($id_presensi && is_array($siswa_data)) {
-                foreach ($siswa_data as $id_siswa => $data_siswa) {
-                    $status = isset($data_siswa['status']) ? $data_siswa['status'] : 'Hadir';
-                    $keterangan = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
-                    
-                    $presensi_siswa_data = [
-                        'id_presensi' => $id_presensi,
-                        'id_siswa' => $id_siswa,
-                        'tanggal' => $tanggal,
-                        'status' => $status,
-                        'keterangan' => $keterangan,
-                        'created_at' => date('Y-m-d H:i:s')
-                    ];
-                    
-                    $this->db->insert('tb_presensi_siswa', $presensi_siswa_data);
-                }
-            }
-            
-            $this->db->trans_complete();
-            
-            if ($this->db->trans_status() === FALSE) {
-                log_message('error', 'Transaksi database gagal saat menyimpan presensi');
-                $this->json_response(['status' => false, 'message' => 'Gagal menyimpan presensi!'], 500);
-            } else {
-                $action = $existing_presensi ? 'diperbarui' : 'disimpan';
-                $this->json_response([
-                    'status' => true, 
-                    'message' => "Presensi berhasil {$action}!",
-                    'redirect' => site_url('guru/rekap')
-                ]);
-            }
-            
-        } catch (Exception $e) {
-            log_message('error', 'Error saat menyimpan presensi: ' . $e->getMessage());
-            $this->json_response(['status' => false, 'message' => 'Terjadi kesalahan pada server!'], 500);
+        }
+        
+        $this->db->trans_complete();
+        
+        if ($this->db->trans_status() === FALSE) {
+            log_message('error', 'Transaksi database gagal saat menyimpan presensi');
+            $this->session->set_flashdata('error', 'Gagal menyimpan presensi!');
+            redirect("guru/presensi/form/{$id_jadwal}");
+        } else {
+            $action = $existing_presensi ? 'diperbarui' : 'disimpan';
+            $this->session->set_flashdata('success', "Presensi berhasil {$action}!");
+            redirect('guru/rekap');
         }
     }
     
