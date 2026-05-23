@@ -133,23 +133,19 @@ class Riwayat extends MY_Controller {
                     }
                 }
                  
-                $materi = !empty($row['materi_pelajaran']) ? $row['materi_pelajaran'] : '-';
                 $keterangan = !empty($row['catatan_approval']) ? $row['catatan_approval'] : '-';
                 
                 // Tambahkan info jumlah sesi jika lebih dari 1
-                $nama_mapel_display = $row['nama_mapel'] ?? '-';
-                $nama_guru_display = $row['nama_guru'] ?? '-';
+                $jumlah_sesi_display = '';
                 if (isset($row['jumlah_sesi']) && $row['jumlah_sesi'] > 1) {
-                    $nama_mapel_display .= ' <small class="text-muted">(' . $row['jumlah_sesi'] . ' sesi)</small>';
+                    $jumlah_sesi_display = ' <small class="text-muted">(' . $row['jumlah_sesi'] . ' sesi)</small>';
                 }
                 
                 $output['data'][] = [
                     'no' => $no,
                     'tanggal' => $tanggal_indo,
                     'hari' => $row['hari'] ?? '-',
-                    'nama_mapel' => $nama_mapel_display,
-                    'nama_guru' => $nama_guru_display,
-                    'materi' => substr($materi, 0, 40) . (strlen($materi) > 40 ? '...' : ''),
+                    'jumlah_sesi' => ($row['jumlah_sesi'] ?? 0) . $jumlah_sesi_display,
                     'status' => $status_badge,
                     'keterangan' => $keterangan,
                     'status_approval' => $approval_status

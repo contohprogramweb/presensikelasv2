@@ -16,9 +16,6 @@ class M_riwayat extends CI_Model {
         // Query untuk mendapatkan data distinct per tanggal
         $this->db->select('DATE(ps.tanggal) as tanggal');
         $this->db->select('MAX(j.hari) as hari');
-        $this->db->select("GROUP_CONCAT(DISTINCT m.nama_mapel SEPARATOR ', ') as nama_mapel");
-        $this->db->select("GROUP_CONCAT(DISTINCT u.nama_lengkap SEPARATOR ', ') as nama_guru");
-        $this->db->select("GROUP_CONCAT(DISTINCT p.materi_pelajaran SEPARATOR '; ') as materi_pelajaran");
         $this->db->select("COUNT(ps.id) as jumlah_sesi");
         $this->db->select("MAX(ps.status) as status");
         $this->db->select("MAX(a.status_approval) as status_approval");
@@ -27,9 +24,6 @@ class M_riwayat extends CI_Model {
         $this->db->from('tb_presensi_siswa ps');
         $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'inner');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal', 'inner');
-        $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel', 'inner');
-        $this->db->join('tb_guru g', 'g.id = j.id_guru', 'inner');
-        $this->db->join('tb_user u', 'u.id = g.id_user', 'inner');
         $this->db->join('tb_approval a', 'a.id_presensi = p.id AND a.id_siswa = ps.id_siswa', 'left');
         
         $this->db->where('ps.id_siswa', $id_siswa);
@@ -49,10 +43,7 @@ class M_riwayat extends CI_Model {
             $this->db->group_start();
             $this->db->like('DATE(ps.tanggal)', $search);
             $this->db->or_like('j.hari', $search);
-            $this->db->or_like('m.nama_mapel', $search);
-            $this->db->or_like('u.nama_lengkap', $search);
             $this->db->or_like('ps.status', $search);
-            $this->db->or_like('p.materi_pelajaran', $search);
             $this->db->group_end();
         }
         
@@ -68,9 +59,7 @@ class M_riwayat extends CI_Model {
                 switch ($column_index) {
                     case 1: $this->db->order_by('tanggal', $dir); break;
                     case 2: $this->db->order_by('hari', $dir); break;
-                    case 3: $this->db->order_by('nama_mapel', $dir); break;
-                    case 4: $this->db->order_by('nama_guru', $dir); break;
-                    case 6: $this->db->order_by('status', $dir); break;
+                    case 5: $this->db->order_by('status', $dir); break;
                     default: $this->db->order_by('tanggal', 'DESC'); break;
                 }
             }
@@ -100,9 +89,6 @@ class M_riwayat extends CI_Model {
         $this->db->from('tb_presensi_siswa ps');
         $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'inner');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal', 'inner');
-        $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel', 'inner');
-        $this->db->join('tb_guru g', 'g.id = j.id_guru', 'inner');
-        $this->db->join('tb_user u', 'u.id = g.id_user', 'inner');
         $this->db->where('ps.id_siswa', $id_siswa);
         
         if ($start_date) {
@@ -120,10 +106,7 @@ class M_riwayat extends CI_Model {
             $this->db->group_start();
             $this->db->like('DATE(ps.tanggal)', $search);
             $this->db->or_like('j.hari', $search);
-            $this->db->or_like('m.nama_mapel', $search);
-            $this->db->or_like('u.nama_lengkap', $search);
             $this->db->or_like('ps.status', $search);
-            $this->db->or_like('p.materi_pelajaran', $search);
             $this->db->group_end();
         }
         
