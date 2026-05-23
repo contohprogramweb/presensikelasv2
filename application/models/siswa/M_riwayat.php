@@ -13,10 +13,17 @@ class M_riwayat extends CI_Model {
         // Debug logging
         log_message('debug', 'M_riwayat::get_riwayat_siswa_datatable - id_siswa: ' . $id_siswa . ', start_date: ' . $start_date . ', end_date: ' . $end_date);
         
-        $this->db->select('ps.*, m.nama_mapel, j.hari');
-        $this->db->select('a.status_approval, a.catatan_penolakan as catatan_approval');
-        $this->db->select('u.nama_lengkap as nama_guru');
-        $this->db->select('p.materi_pelajaran');
+        // Query untuk mendapatkan data distinct per tanggal
+        $this->db->select('DATE(ps.tanggal) as tanggal');
+        $this->db->select('MAX(j.hari) as hari');
+        $this->db->select("GROUP_CONCAT(DISTINCT m.nama_mapel SEPARATOR ', ') as nama_mapel");
+        $this->db->select("GROUP_CONCAT(DISTINCT u.nama_lengkap SEPARATOR ', ') as nama_guru");
+        $this->db->select("GROUP_CONCAT(DISTINCT p.materi_pelajaran SEPARATOR '; ') as materi_pelajaran");
+        $this->db->select("COUNT(ps.id) as jumlah_sesi");
+        $this->db->select("MAX(ps.status) as status");
+        $this->db->select("MAX(a.status_approval) as status_approval");
+        $this->db->select("MAX(a.catatan_penolakan) as catatan_approval");
+        
         $this->db->from('tb_presensi_siswa ps');
         $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'inner');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal', 'inner');
@@ -24,13 +31,14 @@ class M_riwayat extends CI_Model {
         $this->db->join('tb_guru g', 'g.id = j.id_guru', 'inner');
         $this->db->join('tb_user u', 'u.id = g.id_user', 'inner');
         $this->db->join('tb_approval a', 'a.id_presensi = p.id AND a.id_siswa = ps.id_siswa', 'left');
+        
         $this->db->where('ps.id_siswa', $id_siswa);
         
         if ($start_date) {
-            $this->db->where('ps.tanggal >=', $start_date);
+            $this->db->where('DATE(ps.tanggal) >=', $start_date);
         }
         if ($end_date) {
-            $this->db->where('ps.tanggal <=', $end_date);
+            $this->db->where('DATE(ps.tanggal) <=', $end_date);
         }
         if ($status_filter) {
             $this->db->where('ps.status', $status_filter);
@@ -39,7 +47,7 @@ class M_riwayat extends CI_Model {
         // Search
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->like('ps.tanggal', $search);
+            $this->db->like('DATE(ps.tanggal)', $search);
             $this->db->or_like('j.hari', $search);
             $this->db->or_like('m.nama_mapel', $search);
             $this->db->or_like('u.nama_lengkap', $search);
@@ -48,6 +56,9 @@ class M_riwayat extends CI_Model {
             $this->db->group_end();
         }
         
+        // Group by tanggal untuk mendapatkan satu record per hari
+        $this->db->group_by('DATE(ps.tanggal)');
+        
         // Ordering
         if (!empty($order)) {
             foreach ($order as $o) {
@@ -55,16 +66,16 @@ class M_riwayat extends CI_Model {
                 $dir = $o['dir'];
                 
                 switch ($column_index) {
-                    case 1: $this->db->order_by('ps.tanggal', $dir); break;
-                    case 2: $this->db->order_by('j.hari', $dir); break;
-                    case 3: $this->db->order_by('m.nama_mapel', $dir); break;
-                    case 4: $this->db->order_by('u.nama_lengkap', $dir); break;
-                    case 6: $this->db->order_by('ps.status', $dir); break;
-                    default: $this->db->order_by('ps.tanggal', 'DESC'); break;
+                    case 1: $this->db->order_by('tanggal', $dir); break;
+                    case 2: $this->db->order_by('hari', $dir); break;
+                    case 3: $this->db->order_by('nama_mapel', $dir); break;
+                    case 4: $this->db->order_by('nama_guru', $dir); break;
+                    case 6: $this->db->order_by('status', $dir); break;
+                    default: $this->db->order_by('tanggal', 'DESC'); break;
                 }
             }
         } else {
-            $this->db->order_by('ps.tanggal', 'DESC');
+            $this->db->order_by('tanggal', 'DESC');
         }
         
         // Limit and offset
@@ -85,6 +96,7 @@ class M_riwayat extends CI_Model {
         // Debug logging
         log_message('debug', 'M_riwayat::count_all_riwayat - id_siswa: ' . $id_siswa . ', start_date: ' . $start_date . ', end_date: ' . $end_date);
         
+        $this->db->select('DATE(ps.tanggal) as tanggal');
         $this->db->from('tb_presensi_siswa ps');
         $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'inner');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal', 'inner');
@@ -94,10 +106,10 @@ class M_riwayat extends CI_Model {
         $this->db->where('ps.id_siswa', $id_siswa);
         
         if ($start_date) {
-            $this->db->where('ps.tanggal >=', $start_date);
+            $this->db->where('DATE(ps.tanggal) >=', $start_date);
         }
         if ($end_date) {
-            $this->db->where('ps.tanggal <=', $end_date);
+            $this->db->where('DATE(ps.tanggal) <=', $end_date);
         }
         if ($status_filter) {
             $this->db->where('ps.status', $status_filter);
@@ -106,7 +118,7 @@ class M_riwayat extends CI_Model {
         // Search
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->like('ps.tanggal', $search);
+            $this->db->like('DATE(ps.tanggal)', $search);
             $this->db->or_like('j.hari', $search);
             $this->db->or_like('m.nama_mapel', $search);
             $this->db->or_like('u.nama_lengkap', $search);
@@ -114,6 +126,9 @@ class M_riwayat extends CI_Model {
             $this->db->or_like('p.materi_pelajaran', $search);
             $this->db->group_end();
         }
+        
+        // Group by tanggal untuk mendapatkan satu record per hari
+        $this->db->group_by('DATE(ps.tanggal)');
         
         // Debug: log the SQL query
         log_message('debug', 'M_riwayat::count_all_riwayat - SQL: ' . $this->db->last_query());

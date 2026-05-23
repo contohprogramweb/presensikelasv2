@@ -1,1 +1,49 @@
-Nothing to output - the modified file 'application/models/siswa/M_riwayat.php' is a source code file and should not be added to .gitignore. No build artifacts, dependencies, or temporary files were detected in the changes.
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.so
+*.dll
+*.exe
+*.out
+
+# Dependencies
+venv/
+.venv/
+.env
+.env.local
+.env.*
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Editors
+.vscode/
+.idea/
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+
+# MyPy cache
+.mypy_cache/
+.pytest_cache/
+
+# Build directories
+build/
+dist/
+*.egg-info/
