@@ -1,1 +1,1 @@
-(application/controllers/guru/Presensi.php, application/models/guru/M_presensi.php, application/views/guru/presensi_input.php)
+Nothing should be ignored based on the provided file changes. The only modified file is a PHP source file (`application/views/guru/presensi_input.php`), which is a legitimate source code file that should not be ignored. There are no build artifacts, dependency directories, temporary files, or other items that require ignoring.
