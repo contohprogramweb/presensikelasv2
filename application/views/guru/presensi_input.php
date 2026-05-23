@@ -168,4 +168,86 @@
     </form>
 </div>
 </div>
- 
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+    // Handle radio button "select all" untuk status
+    $('input[name="status_all"]').on('change', function() {
+        var selectedStatus = $(this).val();
+        $('input[name^="siswa"][name$="[status]"][value="' + selectedStatus + '"]').prop('checked', true);
+    });
+
+    // Handle form submit dengan AJAX
+    $('#formPresensi').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Validasi materi pelajaran
+        var materiPelajaran = $('textarea[name="materi_pelajaran"]').val().trim();
+        if (materiPelajaran === '') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan',
+                text: 'Materi pelajaran wajib diisi!',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+        
+        // Disable tombol submit
+        var btnSubmit = $('#btnSimpanPresensi');
+        btnSubmit.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...');
+        
+        // Kirim data via AJAX
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    }).then(function() {
+                        // Redirect setelah user klik OK
+                        if (response.redirect) {
+                            window.location.href = response.redirect;
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message || 'Terjadi kesalahan saat menyimpan presensi.',
+                        confirmButtonText: 'OK'
+                    });
+                    btnSubmit.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Simpan Presensi');
+                }
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = 'Terjadi kesalahan pada server.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.status === 401) {
+                    errorMessage = 'Sesi telah berakhir. Silakan refresh halaman dan login kembali.';
+                } else if (xhr.status === 403) {
+                    errorMessage = 'Akses ditolak.';
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    confirmButtonText: 'OK'
+                });
+                btnSubmit.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Simpan Presensi');
+            }
+        });
+        
+        return false;
+    });
+});
+</script>
