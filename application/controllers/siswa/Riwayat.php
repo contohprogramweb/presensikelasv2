@@ -14,6 +14,13 @@ class Riwayat extends MY_Controller {
     {
         $this->data['judul'] = 'Riwayat Presensi';
         
+        // Set default filter dates
+        $tanggal_mulai_default = date('Y-m-01'); // Tanggal 01 bulan ini
+        $tanggal_sampai_default = date('Y-m-d');  // Tanggal hari ini
+        
+        $this->data['tanggal_mulai_default'] = $tanggal_mulai_default;
+        $this->data['tanggal_sampai_default'] = $tanggal_sampai_default;
+        
         // Get siswa ID from session
         $user_id = $this->session->userdata('id');
         $this->db->where('id_user', $user_id);
@@ -56,9 +63,9 @@ class Riwayat extends MY_Controller {
                 return;
             }
             
-            // Get filter parameters from POST
-            $tanggal_mulai = $this->input->post('tanggal_mulai') ?: date('Y-m-01');
-            $tanggal_sampai = $this->input->post('tanggal_sampai') ?: date('Y-m-t');
+            // Get filter parameters from POST with default values
+            $tanggal_mulai = $this->input->post('tanggal_mulai') ?: date('Y-m-01'); // Default: tanggal 01 bulan ini
+            $tanggal_sampai = $this->input->post('tanggal_sampai') ?: date('Y-m-d'); // Default: tanggal hari ini
             $status_filter = $this->input->post('status');
             
             // Server-side processing parameters
