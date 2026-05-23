@@ -62,10 +62,9 @@ class Logapproval extends MY_Controller {
             $row[] = $no;
             $row[] = tanggal_indo($item->tanggal_approval);
             $row[] = $item->nama_siswa;
-			$row[] = $item->nama_kelas ?? '-';
+            $row[] = $item->nama_kelas ?? '-';
             $row[] = badge_presensi($item->status_presensi);
             $row[] = badge_approval($item->status_approval);
-			
             $row[] = $item->catatan ?? '-';
             $row[] = $item->nama_approver ?? 'System';
             
@@ -77,6 +76,7 @@ class Logapproval extends MY_Controller {
             "recordsTotal" => $this->M_logapproval->count_all(),
             "recordsFiltered" => $this->M_logapproval->count_filtered(),
             "data" => $data,
+            "csrf_hash" => $this->security->get_csrf_hash()
         );
         
         $this->output->set_content_type('application/json')->set_output(json_encode($output));

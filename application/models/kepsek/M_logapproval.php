@@ -3,8 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class M_logapproval extends CI_Model {
 
-    var $column_order = array(null, 'a.tanggal_approval', 's.nama_lengkap', null, 'p.status_presensi', 'a.status_approval', 'a.catatan', 'u.nama_lengkap');
-    var $column_search = array('s.nama_lengkap', 'p.status_presensi', 'a.status_approval', 'a.catatan', 'u.nama_lengkap');
+    var $column_order = array(null, 'a.tanggal_approval', 's.nama_lengkap', 'k.nama_kelas', 'p.status_presensi', 'a.status_approval', 'a.catatan', 'u.nama_lengkap');
+    var $column_search = array('s.nama_lengkap', 'k.nama_kelas', 'p.status_presensi', 'a.status_approval', 'a.catatan', 'u.nama_lengkap');
     var $order = array('a.tanggal_approval' => 'DESC');
 
     public function __construct()
@@ -72,6 +72,7 @@ class M_logapproval extends CI_Model {
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
         $this->db->join('tb_siswa s', 's.id = p.id_siswa');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
+        $this->db->join('tb_user u', 'u.id = a.id_approver', 'left');
         return $this->db->count_all_results();
     }
 

@@ -95,7 +95,6 @@ $(document).ready(function() {
                 d.tanggal_mulai = $('#filter_tanggal_mulai').val() || default_tanggal_mulai;
                 d.tanggal_sampai = $('#filter_tanggal_sampai').val() || default_tanggal_sampai;
                 d.status = $('#filter_status').val();
-                d.<?= $csrf_name ?> = '<?= $csrf_hash ?>';
             }
         },
         columns: [
