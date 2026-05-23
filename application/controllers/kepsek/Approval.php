@@ -26,7 +26,7 @@ class Approval extends MY_Controller {
 
     public function ajax_list()
     {
-        $list = $this->M_approval->get_pending_approval();
+        $list = $this->M_approval->get_all_approval();
         
         $output = [
             'draw' => 0,
@@ -36,11 +36,30 @@ class Approval extends MY_Controller {
         ];
         
         foreach ($list as $row) {
-            $status_badge = '';
+            // Tampilkan badge status approval dan status presensi
+            $status_approval_badge = '';
+            if ($row['status_approval'] == 'pending') {
+                $status_approval_badge = '<span class="badge bg-warning text-dark">Pending</span>';
+            } else if ($row['status_approval'] == 'disetujui') {
+                $status_approval_badge = '<span class="badge bg-success">Disetujui</span>';
+            } else if ($row['status_approval'] == 'ditolak') {
+                $status_approval_badge = '<span class="badge bg-danger">Ditolak</span>';
+            }
+            
+            $status_presensi_badge = '';
             if ($row['status_presensi'] == 'Izin') {
-                $status_badge = '<span class="badge bg-info">Izin</span>';
+                $status_presensi_badge = '<span class="badge bg-info">Izin</span>';
             } else if ($row['status_presensi'] == 'Sakit') {
-                $status_badge = '<span class="badge bg-warning text-dark">Sakit</span>';
+                $status_presensi_badge = '<span class="badge bg-warning text-dark">Sakit</span>';
+            }
+            
+            // Tentukan aksi berdasarkan status approval
+            $actions = '';
+            if ($row['status_approval'] == 'pending') {
+                $actions = '<button class="btn btn-sm btn-success approve-btn" data-id="' . encrypt_id($row['id']) . '" title="Setujui"><i class="fas fa-check"></i></button>
+                 <button class="btn btn-sm btn-danger reject-btn" data-id="' . encrypt_id($row['id']) . '" title="Tolak"><i class="fas fa-times"></i></button>';
+            } else {
+                $actions = '<span class="text-muted">-</span>';
             }
             
             $output['data'][] = [ 
@@ -48,12 +67,11 @@ class Approval extends MY_Controller {
                 'nama_siswa' => $row['nama_siswa'],
                 'nama_kelas' => $row['nama_kelas'] ?? '-',
                 'nama_guru' => $row['nama_guru'],
-                'status' => $status_badge,
+                'status_presensi' => $status_presensi_badge,
+                'status_approval' => $status_approval_badge,
                 'keterangan' => $row['keterangan'] ?? '',
-                'actions' => '<button class="btn btn-sm btn-success approve-btn" data-id="' . encrypt_id($row['id']) . '" title="Setujui"><i class="fas fa-check"></i></button>
-                 <button class="btn btn-sm btn-danger reject-btn" data-id="' . encrypt_id($row['id']) . '" title="Tolak"><i class="fas fa-times"></i></button>'
-				 
-            ];
+                'actions' => $actions
+			];
         }
         
         echo json_encode($output);
