@@ -123,13 +123,15 @@ class M_dashboard extends CI_Model {
             'alpa' => 0
         );
         
-        // Get presensi bulan ini
-        $this->db->select('status, COUNT(*) as jumlah');
-        $this->db->where('id_siswa', $siswa_id);
-        $this->db->where('MONTH(tanggal)', date('n'));
-        $this->db->where('YEAR(tanggal)', date('Y'));
-        $this->db->group_by('status');
-        $query = $this->db->get('tb_presensi');
+        // Get presensi bulan ini dari tb_presensi_siswa
+        $this->db->select('ps.status, COUNT(*) as jumlah');
+        $this->db->from('tb_presensi_siswa ps');
+        $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'inner');
+        $this->db->where('ps.id_siswa', $siswa_id);
+        $this->db->where('MONTH(p.tanggal)', date('n'));
+        $this->db->where('YEAR(p.tanggal)', date('Y'));
+        $this->db->group_by('ps.status');
+        $query = $this->db->get();
         
         foreach ($query->result() as $row) {
             $status_lower = strtolower($row->status);
