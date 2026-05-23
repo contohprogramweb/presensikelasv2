@@ -64,8 +64,10 @@ class Logapproval extends MY_Controller {
                 'nama_siswa' => $item->nama_siswa,
                 'nama_kelas' => $item->nama_kelas ?? '-',
                 'status_presensi' => badge_presensi($item->status_presensi),
+                'status_asli' => badge_presensi($item->status_asli),
+                'keterangan' => $item->keterangan ?? '-',
                 'status_approval' => badge_approval($item->status_approval),
-                'catatan' => $item->catatan ?? '-',
+                'alasan_penolakan' => $item->alasan_penolakan ?? '-',
                 'nama_approver' => $item->nama_approver ?? 'System'
             );
             
