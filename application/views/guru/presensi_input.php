@@ -173,6 +173,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
+    var isSubmitting = false;
+    
     // Handle radio button "select all" untuk status
     $('input[name="status_all"]').on('change', function() {
         var selectedStatus = $(this).val();
@@ -181,10 +183,16 @@ $(document).ready(function() {
 
     // Handle form submit dengan konfirmasi JS
     $('#formPresensi').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Cegah double submit
+        if (isSubmitting) {
+            return false;
+        }
+        
         // Validasi materi pelajaran
         var materiPelajaran = $('textarea[name="materi_pelajaran"]').val().trim();
         if (materiPelajaran === '') {
-            e.preventDefault();
             Swal.fire({
                 icon: 'warning',
                 title: 'Peringatan',
@@ -211,8 +219,6 @@ $(document).ready(function() {
         });
         
         // Tampilkan konfirmasi dengan ringkasan
-        e.preventDefault();
-        
         var summaryHtml = '<div style="text-align: left; padding: 10px;">' +
             '<div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">' +
                 '<h6 style="margin-bottom: 10px; color: #495057;"><i class="fas fa-users"></i> Ringkasan Kehadiran</h6>' +
@@ -252,12 +258,11 @@ $(document).ready(function() {
             confirmButtonText: '<i class="fas fa-save"></i> Ya, Simpan!',
             cancelButtonText: '<i class="fas fa-times"></i> Batal',
             reverseButtons: true,
-            focusConfirm: false,
-            preConfirm: () => {
-                return true;
-            }
+            focusConfirm: false
         }).then((result) => {
             if (result.isConfirmed) {
+                isSubmitting = true;
+                
                 // Show loading
                 Swal.fire({
                     title: 'Menyimpan...',
@@ -268,8 +273,9 @@ $(document).ready(function() {
                     }
                 });
                 
-                // Submit form secara normal
-                $('#formPresensi')[0].submit();
+                // Submit form menggunakan native form submit
+                var form = document.getElementById('formPresensi');
+                form.submit();
             }
         });
         
