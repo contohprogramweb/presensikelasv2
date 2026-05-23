@@ -67,9 +67,9 @@ class Approval extends MY_Controller {
                 'nama_siswa' => $row['nama_siswa'],
                 'nama_kelas' => $row['nama_kelas'] ?? '-',
                 'nama_guru' => $row['nama_guru'],
+                'keterangan' => $row['keterangan'] ?? '',
                 'status_presensi' => $status_presensi_badge,
                 'status_approval' => $status_approval_badge,
-                'keterangan' => $row['keterangan'] ?? '',
                 'actions' => $actions
 			];
         }
