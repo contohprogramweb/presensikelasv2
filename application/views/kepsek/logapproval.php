@@ -23,7 +23,7 @@
                         <input type="date" class="form-control" id="filter_tanggal_sampai" name="tanggal_sampai">
                     </div>
                     <div class="col-md-3">
-                        <label for="filter_status" class="form-label">Status Approval</label>
+                        <label for="filter_status" class="form-label">Approval</label>
                         <select class="form-select" id="filter_status" name="status">
                             <option value="">Semua Status</option>
                             <option value="disetujui">Disetujui</option>
@@ -58,7 +58,7 @@
                             <th>Nama Siswa</th>
                             <th>Kelas</th>
                             <th>Status Presensi</th>
-                            <th>Status Approval</th>
+                            <th>Approval</th>
                             <th>Catatan</th>
                             <th>Approver</th>
                         </tr>

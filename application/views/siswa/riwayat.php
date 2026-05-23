@@ -99,7 +99,7 @@
                             <th>Materi</th>
                             <th>Status</th>
                             <th>Keterangan</th>
-                            <th>Status Approval</th>
+                            <th>Approval</th>
                         </tr>
                     </thead>
                     <tbody>

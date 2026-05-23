@@ -22,8 +22,8 @@
                                     <th width="12%">Kelas</th>
                                     <th width="15%">Guru Pengampu</th>
                                     <th width="10%">Status Presensi</th>
-                                    <th width="10%">Status Approval</th>
                                     <th width="15%">Keterangan</th>
+                                    <th width="10%">Approval</th>
                                     <th width="10%" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -82,7 +82,6 @@ $(document).ready(function() {
             { 'data': 'nama_kelas' },
             { 'data': 'nama_guru' },
             { 'data': 'status_presensi', 'orderable': false },
-            { 'data': 'status_approval', 'orderable': false },
             { 
                 'data': 'keterangan',
                 'render': function(data) {
@@ -93,6 +92,7 @@ $(document).ready(function() {
                     return '<span class="keterangan-cell" title="' + (data.length > 50 ? data : '') + '">' + displayText + '</span>';
                 }
             },
+            { 'data': 'status_approval', 'orderable': false },
             { 
                 'data': 'actions',
                 'orderable': false,
