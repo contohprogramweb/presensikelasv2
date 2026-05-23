@@ -36,6 +36,7 @@ class Laporan extends MY_Controller {
         $this->data['statistik'] = null;
         $this->data['laporan'] = [];
         
+        // Hanya tampilkan data jika semua filter diisi
         if ($this->input->get('kelas') && $this->input->get('start_date') && $this->input->get('end_date')) {
             $id_kelas = $this->input->get('kelas');
             $start_date = $this->input->get('start_date');

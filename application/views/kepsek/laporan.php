@@ -32,7 +32,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-search"></i> Tampilkan
                                 </button>
-                                <?php if (!empty($statistik)): ?>
+                                <?php if (!empty($statistik) && !empty($laporan)): ?>
                                     <a href="<?= site_url('kepsek/laporan/preview_pdf?kelas='.$filter_kelas.'&start_date='.$filter_start.'&end_date='.$filter_end) ?>" class="btn btn-danger" target="_blank">
                                         <i class="bi bi-file-pdf"></i> PDF
                                     </a>
