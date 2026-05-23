@@ -80,7 +80,7 @@ class Approval extends MY_Controller {
         
         if ($this->M_approval->approve($id, $id_approver)) {
             log_aktivitas('APPROVE_PRESENSI', 'tb_approval', $id, 'Approval disetujui');
-            echo json_encode(['status' => true, 'message' => 'Presensi berhasil disetujui']);
+            echo json_encode(['status' => true, 'message' => 'Status Presensi berhasil disetujui']);
         } else {
             echo json_encode(['status' => false, 'message' => 'Gagal menyetujui presensi']);
         }
@@ -99,7 +99,7 @@ class Approval extends MY_Controller {
         
         if ($this->M_approval->reject($id, $id_approver, $catatan)) {
             log_aktivitas('REJECT_PRESENSI', 'tb_approval', $id, 'Approval ditolak: ' . $catatan);
-            echo json_encode(['status' => true, 'message' => 'Presensi berhasil ditolak']);
+            echo json_encode(['status' => true, 'message' => 'Status Presensi berhasil ditolak']);
         } else {
             echo json_encode(['status' => false, 'message' => 'Gagal menolak presensi']);
         }
