@@ -2,8 +2,13 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-calendar-week"></i> <?= $page_title ?></h5>
+                    <?php if (empty($error_message) && !empty($jadwal_grouped['Senin']) || !empty($jadwal_grouped['Selasa']) || !empty($jadwal_grouped['Rabu']) || !empty($jadwal_grouped['Kamis']) || !empty($jadwal_grouped['Jumat']) || !empty($jadwal_grouped['Sabtu'])): ?>
+                        <a href="<?= site_url('siswa/jadwal/export_pdf') ?>" class="btn btn-light btn-sm" target="_blank">
+                            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                        </a>
+                    <?php endif; ?>
                 </div>
                 <div class="card-body">
                     <?php if (isset($error_message)): ?>
