@@ -20,6 +20,7 @@ class M_riwayat extends CI_Model {
         $this->db->select("MAX(ps.status) as status");
         $this->db->select("MAX(ps.keterangan) as keterangan");
         $this->db->select("MAX(a.status_approval) as status_approval");
+        $this->db->select("MAX(a.status_asli) as status_asli");
         $this->db->select("MAX(a.catatan_penolakan) as catatan_penolakan");
         
         $this->db->from('tb_presensi_siswa ps');

@@ -95,10 +95,11 @@
                             <th>Hari</th>
                             <th>Tanggal</th>
                             <th>Jml Mapel/Sesi</th>
-                            <th>Status Presensi</th>
+                            <th>Status Asli</th>
                             <th>Keterangan</th>
                             <th>Status Approval</th>
                             <th>Alasan Penolakan</th>
+                            <th>Status Akhir</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -169,8 +170,8 @@ $(document).ready(function() {
                 orderable: false
             },
             {
-                data: 'status',
-                orderable: true
+                data: 'status_asli',
+                orderable: false
             },
             {
                 data: 'keterangan',
@@ -183,6 +184,10 @@ $(document).ready(function() {
             {
                 data: 'alasan_penolakan',
                 orderable: false
+            },
+            {
+                data: 'status_akhir',
+                orderable: true
             }
         ],
         order: [[1, 'desc']],

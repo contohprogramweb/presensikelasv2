@@ -123,7 +123,7 @@ class Riwayat extends MY_Controller {
                 }
                 
                 $approval_status = '-';
-                if (isset($row['status_approval']) && in_array($row['status'], ['Izin', 'Sakit'])) {
+                if (isset($row['status_approval'])) {
                     if ($row['status_approval'] == 'disetujui') {
                         $approval_status = '<span class="badge bg-success"><i class="fas fa-check"></i> Disetujui</span>';
                     } else if ($row['status_approval'] == 'ditolak') {
@@ -147,15 +147,30 @@ class Riwayat extends MY_Controller {
                     $alasan_penolakan = !empty($row['catatan_penolakan']) ? $row['catatan_penolakan'] : 'Tanpa catatan';
                 }
                 
+                // Status asli dari approval
+                $status_asli_badge = '';
+                if (isset($row['status_asli'])) {
+                    switch ($row['status_asli']) {
+                        case 'Hadir': $status_asli_badge = '<span class="badge bg-success">Hadir</span>'; break;
+                        case 'Izin': $status_asli_badge = '<span class="badge bg-info">Izin</span>'; break;
+                        case 'Sakit': $status_asli_badge = '<span class="badge bg-warning text-dark">Sakit</span>'; break;
+                        case 'Alpa': $status_asli_badge = '<span class="badge bg-danger">Alpa</span>'; break;
+                        default: $status_asli_badge = '<span class="badge bg-secondary">-</span>'; break;
+                    }
+                } else {
+                    $status_asli_badge = '<span class="badge bg-secondary">-</span>';
+                }
+                
                 $output['data'][] = [
                     'no' => $no,
                     'hari' => $row['hari'] ?? '-',
                     'tanggal' => $tanggal_indo,
                     'jumlah_sesi' => ($row['jumlah_sesi'] ?? 0) . $jumlah_sesi_display,
-                    'status' => $status_badge,
+                    'status_asli' => $status_asli_badge,
                     'keterangan' => $keterangan,
                     'status_approval' => $approval_status,
-                    'alasan_penolakan' => $alasan_penolakan
+                    'alasan_penolakan' => $alasan_penolakan,
+                    'status_akhir' => $status_badge
                 ];
             }
             
