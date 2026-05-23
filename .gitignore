@@ -1,1 +1,29 @@
-Nothing should be ignored based on the provided file changes. The only modified file is a PHP source file (`application/views/guru/presensi_input.php`), which is a legitimate source code file that should not be ignored.
+```
+# CodeIgniter specific ignores
+application/cache/
+application/logs/
+application/sessions/
+
+# Environment specific files
+.env
+.env.local
+.env.*
+
+# Compiled and temporary files
+*.log
+*.tmp
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Build artifacts (if any)
+dist/
+build/
+target/
+```

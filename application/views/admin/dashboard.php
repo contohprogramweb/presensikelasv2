@@ -127,56 +127,7 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <span><i class="fas fa-bolt me-2"></i>Aksi Cepat</span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-2 col-sm-4 mb-2">
-                            <a href="<?= site_url('admin/siswa'); ?>" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-user-graduate d-block mb-1"></i>
-                                <small>Kelola Siswa</small>
-                            </a>
-                        </div>
-                        <div class="col-md-2 col-sm-4 mb-2">
-                            <a href="<?= site_url('admin/guru'); ?>" class="btn btn-outline-success w-100">
-                                <i class="fas fa-chalkboard-teacher d-block mb-1"></i>
-                                <small>Kelola Guru</small>
-                            </a>
-                        </div>
-                        <div class="col-md-2 col-sm-4 mb-2">
-                            <a href="<?= site_url('admin/kelas'); ?>" class="btn btn-outline-info w-100">
-                                <i class="fas fa-chalkboard d-block mb-1"></i>
-                                <small>Kelola Kelas</small>
-                            </a>
-                        </div>
-                        <div class="col-md-2 col-sm-4 mb-2">
-                            <a href="<?= site_url('admin/jadwal'); ?>" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-calendar-alt d-block mb-1"></i>
-                                <small>Jadwal</small>
-                            </a>
-                        </div>
-                        <div class="col-md-2 col-sm-4 mb-2">
-                            <a href="<?= site_url('admin/import'); ?>" class="btn btn-outline-secondary w-100">
-                                <i class="fas fa-file-excel d-block mb-1"></i>
-                                <small>Import</small>
-                            </a>
-                        </div>
-                        <div class="col-md-2 col-sm-4 mb-2">
-                            <a href="<?= site_url('profil'); ?>" class="btn btn-outline-dark w-100">
-                                <i class="fas fa-user-cog d-block mb-1"></i>
-                                <small>Profil</small>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 </div>
 
 </div>

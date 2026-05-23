@@ -282,4 +282,57 @@ class M_presensi extends CI_Model {
         ];
     }
 
+
+    /**
+     * Update presensi yang sudah ada
+     * @param int $id_presensi ID presensi
+     * @param array $data Data update (materi_pelajaran, siswa, tanggal)
+     * @return array ['success' => bool, 'message' => string]
+     */
+    public function update_presensi($id_presensi, $data)
+    {
+        log_message('debug', 'M_presensi::update_presensi - id: ' . $id_presensi);
+
+        $this->db->trans_start();
+
+        $materi_pelajaran = $data['materi_pelajaran'];
+        $siswa_data       = isset($data['siswa']) ? $data['siswa'] : [];
+        $tanggal          = $data['tanggal'];
+        $updated_at       = date('Y-m-d H:i:s');
+
+        // Update header presensi
+        $this->db->where('id', $id_presensi);
+        $this->db->update('tb_presensi', [
+            'materi_pelajaran' => $materi_pelajaran,
+        ]);
+
+        // Hapus detail siswa lama lalu insert ulang
+        $this->db->where('id_presensi', $id_presensi);
+        $this->db->delete('tb_presensi_siswa');
+
+        foreach ($siswa_data as $id_siswa => $data_siswa) {
+            $status      = isset($data_siswa['status'])     ? $data_siswa['status']                           : 'Hadir';
+            $keterangan  = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
+
+            $this->db->insert('tb_presensi_siswa', [
+                'id_presensi' => $id_presensi,
+                'id_siswa'    => $id_siswa,
+                'tanggal'     => $tanggal,
+                'status'      => $status,
+                'keterangan'  => $keterangan,
+                'created_at'  => $updated_at,
+            ]);
+        }
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            log_message('error', 'M_presensi::update_presensi - Transaksi gagal');
+            return ['success' => false, 'message' => 'Gagal memperbarui presensi ke database!'];
+        }
+
+        log_message('info', 'M_presensi::update_presensi - Berhasil update ID: ' . $id_presensi);
+        return ['success' => true, 'message' => 'Presensi berhasil diperbarui!'];
+    }
+
 }

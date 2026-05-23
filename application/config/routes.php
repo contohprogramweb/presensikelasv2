@@ -116,6 +116,10 @@ $route['admin/import/download_template/(:any)'] = 'admin/Import/download_templat
 */
 $route['guru/jadwal'] = 'guru/Jadwal/index';
 $route['guru/presensi'] = 'guru/Presensi/index';
+$route['guru/presensi/simpan'] = 'guru/Presensi/simpan';
+$route['guru/presensi/form/(:any)'] = 'guru/Presensi/form/$1';
+$route['guru/presensi/edit/(:any)'] = 'guru/Presensi/edit/$1';
+$route['guru/presensi/update'] = 'guru/Presensi/update';
 $route['guru/presensi/(:any)'] = 'guru/Presensi/index/$1';
 $route['guru/rekap'] = 'guru/Rekap/index';
 $route['guru/rekap/export_pdf'] = 'guru/Rekap/export_pdf';

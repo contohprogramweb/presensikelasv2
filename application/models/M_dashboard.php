@@ -172,11 +172,14 @@ class M_dashboard extends CI_Model {
         $stats['total_kelas'] = $this->db->count_all_results('tb_kelas');
 
         // Ringkasan presensi hari ini (hadir, izin, sakit, alpa)
+        // status ada di tb_presensi_siswa, bukan tb_presensi
         $today = date('Y-m-d');
-        $this->db->select('status, COUNT(*) as jumlah');
-        $this->db->where('tanggal', $today);
-        $this->db->group_by('status');
-        $query = $this->db->get('tb_presensi');
+        $this->db->select('ps.status, COUNT(*) as jumlah');
+        $this->db->from('tb_presensi_siswa ps');
+        $this->db->join('tb_presensi p', 'p.id = ps.id_presensi', 'inner');
+        $this->db->where('p.tanggal', $today);
+        $this->db->group_by('ps.status');
+        $query = $this->db->get();
 
         $ringkasan = array(
             'hadir' => 0,

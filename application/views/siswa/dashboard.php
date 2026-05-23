@@ -144,43 +144,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <span><i class="fas fa-bolt me-2"></i>Aksi Cepat</span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6 mb-2">
-                            <a href="<?= site_url('siswa/riwayat'); ?>" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-history d-block mb-1"></i>
-                                <small>Riwayat Presensi</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-2">
-                            <a href="<?= site_url('siswa/jadwal'); ?>" class="btn btn-outline-success w-100">
-                                <i class="fas fa-calendar-week d-block mb-1"></i>
-                                <small>Jadwal Pelajaran</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-2">
-                            <a href="<?= site_url('profil'); ?>" class="btn btn-outline-info w-100">
-                                <i class="fas fa-user-cog d-block mb-1"></i>
-                                <small>Profil Saya</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-2">
-                            <a href="<?= site_url('auth/logout'); ?>" class="btn btn-outline-danger w-100">
-                                <i class="fas fa-sign-out-alt d-block mb-1"></i>
-                                <small>Keluar</small>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 </div>
 </div>

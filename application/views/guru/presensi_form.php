@@ -47,21 +47,36 @@
                                 <th>Kelas</th>
                                 <th>Jam</th>
                                 <th>Ruangan</th>
-                                <th width="15%">Aksi</th>
+                                <th width="12%">Status</th>
+                                <th width="18%">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php $no = 1; foreach ($jadwal_hari_ini as $jadwal): ?>
+                                <?php $presensi = $status_presensi[$jadwal->id] ?? null; ?>
                                 <tr>
                                     <td><?= $no++; ?></td>
                                     <td><?= html_escape($jadwal->nama_mapel); ?></td>
                                     <td><?= html_escape($jadwal->nama_kelas); ?></td>
                                     <td><?= date('H:i', strtotime($jadwal->jam_mulai)) ?> - <?= date('H:i', strtotime($jadwal->jam_selesai)) ?></td>
                                     <td><?= html_escape($jadwal->ruangan ?? '-'); ?></td>
-                                    <td>
-                                        <a href="<?= site_url('guru/presensi/form/' . encrypt_id($jadwal->id)); ?>" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-edit me-1"></i>Input Presensi
-                                        </a>
+                                    <td class="text-center">
+                                        <?php if ($presensi): ?>
+                                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>Sudah</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary"><i class="fas fa-clock me-1"></i>Belum</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if ($presensi): ?>
+                                            <a href="<?= site_url('guru/presensi/edit/' . encrypt_id($presensi['id'])); ?>" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="<?= site_url('guru/presensi/form/' . encrypt_id($jadwal->id)); ?>" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-plus me-1"></i>Input
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -75,9 +90,6 @@
 </div>
 <script>
 $(document).ready(function() {
-    // Auto hide alert after 5 seconds
-    setTimeout(function() {
-        $('.alert').fadeOut('slow');
-    }, 5000);
+    setTimeout(function() { $('.alert').fadeOut('slow'); }, 5000);
 });
 </script>
