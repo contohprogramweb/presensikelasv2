@@ -84,12 +84,12 @@
                 </div>
                 <div class="card-body">
                     <?php if (isset($stats['approval_pending']) && $stats['approval_pending'] > 0): ?>
-                        <div class="alert alert-warning mb-0">
+                        <div class="alert alert-warning mb-0 alert-permanent">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             Terdapat <strong><?= $stats['approval_pending']; ?></strong> presensi Izin/Sakit yang menunggu approval.
                         </div>
                     <?php else: ?>
-                        <div class="alert alert-success mb-0">
+                        <div class="alert alert-success mb-0 alert-permanent">
                             <i class="fas fa-check-circle me-2"></i>
                             Tidak ada approval pending.
                         </div>
