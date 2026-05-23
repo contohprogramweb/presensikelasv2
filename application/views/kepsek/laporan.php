@@ -33,8 +33,8 @@
                                     <i class="bi bi-search"></i> Tampilkan
                                 </button>
                                 <?php if (!empty($statistik)): ?>
-                                    <a href="<?= site_url('kepsek/laporan/export_pdf?kelas='.$filter_kelas.'&start_date='.$filter_start.'&end_date='.$filter_end) ?>" class="btn btn-danger" target="_blank">
-                                        <i class="bi bi-file-pdf"></i> Export PDF
+                                    <a href="<?= site_url('kepsek/laporan/preview_pdf?kelas='.$filter_kelas.'&start_date='.$filter_start.'&end_date='.$filter_end) ?>" class="btn btn-danger" target="_blank">
+                                        <i class="bi bi-file-pdf"></i> PDF
                                     </a>
                                 <?php endif; ?>
                             </div>

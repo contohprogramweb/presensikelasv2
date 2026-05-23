@@ -123,6 +123,7 @@ $route['guru/presensi/update'] = 'guru/Presensi/update';
 $route['guru/presensi/(:any)'] = 'guru/Presensi/index/$1';
 $route['guru/rekap'] = 'guru/Rekap/index';
 $route['guru/rekap/export_pdf'] = 'guru/Rekap/export_pdf';
+$route['guru/rekap/preview_pdf'] = 'guru/Rekap/preview_pdf';
 
 /*
 |--------------------------------------------------------------------------
@@ -132,6 +133,7 @@ $route['guru/rekap/export_pdf'] = 'guru/Rekap/export_pdf';
 $route['kepsek/approval'] = 'kepsek/Approval/index';
 $route['kepsek/laporan'] = 'kepsek/Laporan/index';
 $route['kepsek/laporan/export_pdf'] = 'kepsek/Laporan/export_pdf';
+$route['kepsek/laporan/preview_pdf'] = 'kepsek/Laporan/preview_pdf';
 $route['kepsek/logapproval'] = 'kepsek/Logapproval/index';
 $route['kepsek/logapproval/ajax_list'] = 'kepsek/Logapproval/ajax_list';
 $route['kepsek/logapproval/export_excel'] = 'kepsek/Logapproval/export_excel';
