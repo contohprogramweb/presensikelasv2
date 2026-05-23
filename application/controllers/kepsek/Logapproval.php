@@ -37,6 +37,8 @@ class Logapproval extends MY_Controller {
      */
     public function index() {
         $this->data['content'] = 'kepsek/logapproval';
+        $this->data['csrf_name'] = $this->security->get_csrf_token_name();
+        $this->data['csrf_hash'] = $this->security->get_csrf_hash();
         $this->load->view('templates/template', $this->data);
     }
 

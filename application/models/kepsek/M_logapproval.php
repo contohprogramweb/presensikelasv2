@@ -69,6 +69,8 @@ class M_logapproval extends CI_Model {
     public function count_all()
     {
         $this->db->from('tb_approval a');
+        $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
+        $this->db->join('tb_siswa s', 's.id = p.id_siswa');
         return $this->db->count_all_results();
     }
 
