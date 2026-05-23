@@ -101,7 +101,7 @@ class Presensi extends MY_Controller {
         
         // Validasi input
         if (empty($id_jadwal) || empty($tanggal) || empty($materi_pelajaran)) {
-            $this->session->set_flashdata('error', 'Data tidak lengkap!');
+            $this->session->set_flashdata('error', 'Data tidak lengkap! Materi pelajaran wajib diisi.');
             redirect("guru/presensi/form/{$id_jadwal}");
             return;
         }
@@ -134,72 +134,24 @@ class Presensi extends MY_Controller {
         
         $id_guru = $guru->id;
         
-        // Cek apakah sudah ada presensi untuk jadwal dan tanggal ini
-        $existing_presensi = $this->M_presensi->get_presensi_by_jadwal_tanggal($id_jadwal, $tanggal);
+        // Siapkan data untuk model
+        $data_presensi = [
+            'tanggal' => $tanggal,
+            'materi_pelajaran' => $materi_pelajaran,
+            'id_guru' => $id_guru,
+            'siswa' => $siswa_data
+        ];
         
-        $this->db->trans_start();
+        // Gunakan method simpan_presensi di model
+        $result = $this->M_presensi->simpan_presensi($data_presensi, $id_jadwal);
         
-        $id_presensi = null;
-        
-        if ($existing_presensi) {
-            // UPDATE existing presensi
-            $id_presensi = $existing_presensi['id'];
-            
-            // Update materi pelajaran
-            $this->db->where('id', $id_presensi);
-            $this->db->update('tb_presensi', [
-                'materi_pelajaran' => $materi_pelajaran,
-                'id_guru' => $id_guru
-            ]);
-            
-            // Delete existing siswa presensi
-            $this->db->where('id_presensi', $id_presensi);
-            $this->db->delete('tb_presensi_siswa');
-            
-        } else {
-            // CREATE new presensi
-            $presensi_data = [
-                'id_jadwal' => $id_jadwal,
-                'id_guru' => $id_guru,
-                'materi_pelajaran' => $materi_pelajaran,
-                'tanggal' => $tanggal,
-                'waktu_input' => date('Y-m-d H:i:s'),
-                'created_at' => date('Y-m-d H:i:s')
-            ];
-            
-            $this->db->insert('tb_presensi', $presensi_data);
-            $id_presensi = $this->db->insert_id();
-        }
-        
-        // Insert data siswa presensi
-        if ($id_presensi && is_array($siswa_data)) {
-            foreach ($siswa_data as $id_siswa => $data_siswa) {
-                $status = isset($data_siswa['status']) ? $data_siswa['status'] : 'Hadir';
-                $keterangan = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
-                
-                $presensi_siswa_data = [
-                    'id_presensi' => $id_presensi,
-                    'id_siswa' => $id_siswa,
-                    'tanggal' => $tanggal,
-                    'status' => $status,
-                    'keterangan' => $keterangan,
-                    'created_at' => date('Y-m-d H:i:s')
-                ];
-                
-                $this->db->insert('tb_presensi_siswa', $presensi_siswa_data);
-            }
-        }
-        
-        $this->db->trans_complete();
-        
-        if ($this->db->trans_status() === FALSE) {
-            log_message('error', 'Transaksi database gagal saat menyimpan presensi');
-            $this->session->set_flashdata('error', 'Gagal menyimpan presensi!');
-            redirect("guru/presensi/form/{$id_jadwal}");
-        } else {
-            $action = $existing_presensi ? 'diperbarui' : 'disimpan';
-            $this->session->set_flashdata('success', "Presensi berhasil {$action}!");
+        if ($result['success']) {
+            $this->session->set_flashdata('success', $result['message']);
             redirect('guru/rekap');
+        } else {
+            log_message('error', 'Gagal menyimpan presensi: ' . $result['message']);
+            $this->session->set_flashdata('error', $result['message']);
+            redirect("guru/presensi/form/{$id_jadwal}");
         }
     }
     

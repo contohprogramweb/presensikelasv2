@@ -188,7 +188,8 @@ $(document).ready(function() {
                 icon: 'warning',
                 title: 'Peringatan',
                 text: 'Materi pelajaran wajib diisi!',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f39c12'
             });
             return false;
         }
@@ -211,25 +212,61 @@ $(document).ready(function() {
         // Tampilkan konfirmasi dengan ringkasan
         e.preventDefault();
         
-        var summaryHtml = '<div style="text-align: left;">' +
-            '<p><strong>Total Siswa:</strong> ' + totalSiswa + '</p>' +
-            '<p><span style="color: green;"><strong>Hadir:</strong> ' + hadirCount + '</span></p>' +
-            '<p><span style="color: blue;"><strong>Sakit:</strong> ' + sakitCount + '</span></p>' +
-            '<p><span style="color: orange;"><strong>Ijin:</strong> ' + izinCount + '</span></p>' +
-            '<p><span style="color: red;"><strong>Alpha:</strong> ' + alphaCount + '</span></p>' +
+        var summaryHtml = '<div style="text-align: left; padding: 10px;">' +
+            '<div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">' +
+                '<h6 style="margin-bottom: 10px; color: #495057;"><i class="fas fa-users"></i> Ringkasan Kehadiran</h6>' +
+                '<table style="width: 100%;">' +
+                    '<tr>' +
+                        '<td style="padding: 5px 0;"><span style="color: #28a745;"><i class="fas fa-check-circle"></i> <strong>Hadir:</strong></span></td>' +
+                        '<td style="padding: 5px 0; text-align: right;"><strong>' + hadirCount + '</strong> siswa</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td style="padding: 5px 0;"><span style="color: #17a2b8;"><i class="fas fa-bed"></i> <strong>Sakit:</strong></span></td>' +
+                        '<td style="padding: 5px 0; text-align: right;"><strong>' + sakitCount + '</strong> siswa</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td style="padding: 5px 0;"><span style="color: #fd7e14;"><i class="fas fa-file-alt"></i> <strong>Ijin:</strong></span></td>' +
+                        '<td style="padding: 5px 0; text-align: right;"><strong>' + izinCount + '</strong> siswa</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td style="padding: 5px 0;"><span style="color: #dc3545;"><i class="fas fa-times-circle"></i> <strong>Alpha:</strong></span></td>' +
+                        '<td style="padding: 5px 0; text-align: right;"><strong>' + alphaCount + '</strong> siswa</td>' +
+                    '</tr>' +
+                    '<tr style="border-top: 2px solid #dee2e6;">' +
+                        '<td style="padding: 10px 0 5px 0;"><strong>Total:</strong></td>' +
+                        '<td style="padding: 10px 0 5px 0; text-align: right;"><strong>' + totalSiswa + '</strong> siswa</td>' +
+                    '</tr>' +
+                '</table>' +
+            '</div>' +
+            '<p style="color: #6c757d; font-size: 14px;"><i class="fas fa-info-circle"></i> Pastikan data sudah benar sebelum menyimpan.</p>' +
             '</div>';
         
         Swal.fire({
-            title: 'Konfirmasi Presensi',
+            title: '<i class="fas fa-clipboard-check"></i> Konfirmasi Presensi',
             html: summaryHtml,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, Simpan!',
-            cancelButtonText: 'Batal'
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-save"></i> Ya, Simpan!',
+            cancelButtonText: '<i class="fas fa-times"></i> Batal',
+            reverseButtons: true,
+            focusConfirm: false,
+            preConfirm: () => {
+                return true;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    text: 'Data presensi sedang disimpan.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
                 // Submit form secara normal
                 $('#formPresensi')[0].submit();
             }
