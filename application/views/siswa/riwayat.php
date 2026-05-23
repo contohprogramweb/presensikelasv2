@@ -92,12 +92,13 @@
                     <thead class="table-light">
                         <tr>
                             <th width="5%">No</th>
-                            <th>Tanggal</th>
                             <th>Hari</th>
-                            <th>Jumlah Sesi</th>
-                            <th>Status</th>
+                            <th>Tanggal</th>
+                            <th>Jml Mapel/Sesi</th>
+                            <th>Status Presensi</th>
                             <th>Keterangan</th>
-                            <th>Approval</th>
+                            <th>Status Approval</th>
+                            <th>Alasan Penolakan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,11 +157,11 @@ $(document).ready(function() {
                 orderable: false
             },
             {
-                data: 'tanggal',
+                data: 'hari',
                 orderable: true
             },
             {
-                data: 'hari',
+                data: 'tanggal',
                 orderable: true
             },
             { 
@@ -177,6 +178,10 @@ $(document).ready(function() {
             },
             {
                 data: 'status_approval',
+                orderable: false
+            },
+            {
+                data: 'alasan_penolakan',
                 orderable: false
             }
         ],

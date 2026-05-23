@@ -133,7 +133,7 @@ class Riwayat extends MY_Controller {
                     }
                 }
                  
-                $keterangan = !empty($row['catatan_approval']) ? $row['catatan_approval'] : '-';
+                $keterangan = !empty($row['keterangan']) ? $row['keterangan'] : '-';
                 
                 // Tambahkan info jumlah sesi jika lebih dari 1
                 $jumlah_sesi_display = '';
@@ -141,14 +141,21 @@ class Riwayat extends MY_Controller {
                     $jumlah_sesi_display = ' <small class="text-muted">(' . $row['jumlah_sesi'] . ' sesi)</small>';
                 }
                 
+                // Alasan penolakan: hanya tampilkan jika status_approval ditolak
+                $alasan_penolakan = '-';
+                if (!empty($row['status_approval']) && strtolower($row['status_approval']) == 'ditolak') {
+                    $alasan_penolakan = !empty($row['catatan_penolakan']) ? $row['catatan_penolakan'] : 'Tanpa catatan';
+                }
+                
                 $output['data'][] = [
                     'no' => $no,
-                    'tanggal' => $tanggal_indo,
                     'hari' => $row['hari'] ?? '-',
+                    'tanggal' => $tanggal_indo,
                     'jumlah_sesi' => ($row['jumlah_sesi'] ?? 0) . $jumlah_sesi_display,
                     'status' => $status_badge,
                     'keterangan' => $keterangan,
-                    'status_approval' => $approval_status
+                    'status_approval' => $approval_status,
+                    'alasan_penolakan' => $alasan_penolakan
                 ];
             }
             
