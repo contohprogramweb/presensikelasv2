@@ -33,6 +33,13 @@ class Logapproval extends MY_Controller {
      * @return void
      */
     public function index() {
+        // Set default filter: awal bulan sampai hari ini
+        $tanggal_mulai = date('Y-m-01');
+        $tanggal_sampai = date('Y-m-d');
+        
+        $this->data['default_tanggal_mulai'] = $tanggal_mulai;
+        $this->data['default_tanggal_sampai'] = $tanggal_sampai;
+        
         $this->data['content'] = 'kepsek/logapproval';
         $this->data['csrf_name'] = $this->security->get_csrf_token_name();
         $this->data['csrf_hash'] = $this->security->get_csrf_hash();

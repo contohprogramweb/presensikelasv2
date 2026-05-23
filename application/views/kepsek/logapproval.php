@@ -16,11 +16,11 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label for="filter_tanggal_mulai" class="form-label">Tanggal Mulai</label>
-                        <input type="date" class="form-control" id="filter_tanggal_mulai" name="tanggal_mulai">
+                        <input type="date" class="form-control" id="filter_tanggal_mulai" name="tanggal_mulai" value="<?= $default_tanggal_mulai ?>">
                     </div>
                     <div class="col-md-3">
                         <label for="filter_tanggal_sampai" class="form-label">Tanggal Sampai</label>
-                        <input type="date" class="form-control" id="filter_tanggal_sampai" name="tanggal_sampai">
+                        <input type="date" class="form-control" id="filter_tanggal_sampai" name="tanggal_sampai" value="<?= $default_tanggal_sampai ?>">
                     </div>
                     <div class="col-md-3">
                         <label for="filter_status" class="form-label">Approval</label>
@@ -75,7 +75,11 @@
 var table;
 
 $(document).ready(function() {
-    // Initialize DataTables
+    // Set default filter values from PHP
+    var default_tanggal_mulai = '<?= $default_tanggal_mulai ?>';
+    var default_tanggal_sampai = '<?= $default_tanggal_sampai ?>';
+    
+    // Initialize DataTables with default filters
     table = $('#table_log').DataTable({
         processing: true,
         serverSide: true,
@@ -88,8 +92,8 @@ $(document).ready(function() {
             url: '<?= site_url('kepsek/logapproval/ajax_list') ?>',
             type: 'POST',
             data: function(d) {
-                d.tanggal_mulai = $('#filter_tanggal_mulai').val();
-                d.tanggal_sampai = $('#filter_tanggal_sampai').val();
+                d.tanggal_mulai = $('#filter_tanggal_mulai').val() || default_tanggal_mulai;
+                d.tanggal_sampai = $('#filter_tanggal_sampai').val() || default_tanggal_sampai;
                 d.status = $('#filter_status').val();
                 d.<?= $csrf_name ?> = '<?= $csrf_hash ?>';
             }

@@ -1,5 +1,50 @@
-```
-# Logs
-*.log
+```php
+# CodeIgniter specific ignores
+application/cache/
 application/logs/
+application/temp/
+
+# Dependencies
+vendor/
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and temp files
+*.log
+*.tmp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+target/
+*.o
+*.obj
+*.out
+
+# Python (if any Python files exist in the project)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Java (if any Java files exist in the project)
+*.class
+*.jar
+*.war
+*.ear
+*.log
 ```
