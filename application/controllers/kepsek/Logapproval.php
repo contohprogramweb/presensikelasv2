@@ -17,10 +17,7 @@ class Logapproval extends MY_Controller {
     public function __construct() {
         parent::__construct();
         
-        // Cek akses kepsek
-        if (!$this->cek_akses(array('kepsek'))) {
-            show_403();
-        }
+        $this->role_required = ['kepsek'];
         
         // Load model
         $this->load->model('kepsek/M_logapproval');
@@ -56,7 +53,7 @@ class Logapproval extends MY_Controller {
             $no++;
             $row = array();
             $row[] = $no;
-            $row[] = tanggal_indo($item->tanggal_approval, true);
+            $row[] = tanggal_indo($item->tanggal_approval);
             $row[] = $item->nama_siswa;
 			$row[] = $item->nama_kelas ?? '-';
             $row[] = badge_presensi($item->status_presensi);
