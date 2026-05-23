@@ -10,6 +10,12 @@ class Laporan extends MY_Controller {
     
     public function __construct() {
         parent::__construct();
+        
+        // Muat autoloader Composer untuk dompdf
+        if (file_exists(FCPATH . 'vendor/autoload.php')) {
+            require_once FCPATH . 'vendor/autoload.php';
+        }
+        
         $this->load->model('kepsek/M_laporan');
     }
     
@@ -43,7 +49,34 @@ class Laporan extends MY_Controller {
             $this->data['laporan'] = $this->M_laporan->get_laporan_detail($id_kelas, $start_date, $end_date);
         }
         
-         $this->load->view('templates/template', ['content' => 'kepsek/laporan'] + $this->data);
+        $this->render_template('kepsek/laporan', $this->data);
+    }
+    
+    /**
+     * Preview PDF laporan (tampilkan di browser)
+     */
+    public function preview_pdf() {
+        $id_kelas = $this->input->get('kelas');
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
+        
+        if (!$id_kelas || !$start_date || !$end_date) {
+            $this->session->set_flashdata('error', 'Filter tidak lengkap');
+            redirect('kepsek/laporan');
+        }
+        
+        $statistik = $this->M_laporan->get_statistik($id_kelas, $start_date, $end_date);
+        $laporan = $this->M_laporan->get_laporan_detail($id_kelas, $start_date, $end_date);
+        
+        $this->db->select('nama_kelas');
+        $kelas = $this->db->get_where('tb_kelas', ['id' => $id_kelas])->row();
+        
+        $html = $this->_generate_html($kelas->nama_kelas, $start_date, $end_date, $statistik, $laporan);
+        
+        $this->load->library('dompdf_generator');
+        
+        $filename = 'Laporan_Presensi_'.$kelas->nama_kelas.'_'.date('YmdHis').'.pdf';
+        $this->dompdf_generator->generate($html, $filename, 'A4', 'portrait', false);
     }
     
     /**
@@ -165,10 +198,10 @@ class Laporan extends MY_Controller {
             <tr>
                 <td>'.$no++.'</td>
                 <td>'.html_escape($l->nama_siswa).'</td>
-                <td align="center">'.$l->hadir.'</td>
-                <td align="center">'.$l->izin.'</td>
-                <td align="center">'.$l->sakit.'</td>
-                <td align="center">'.$l->alpa.'</td>
+                <td align="center"><span style="display:inline-block;padding:3px 8px;border-radius:3px;color:white;font-size:10px;background-color:#28a745;">'.$l->hadir.'</span></td>
+                <td align="center"><span style="display:inline-block;padding:3px 8px;border-radius:3px;color:white;font-size:10px;background-color:#17a2b8;">'.$l->izin.'</span></td>
+                <td align="center"><span style="display:inline-block;padding:3px 8px;border-radius:3px;color:black;font-size:10px;background-color:#ffc107;">'.$l->sakit.'</span></td>
+                <td align="center"><span style="display:inline-block;padding:3px 8px;border-radius:3px;color:white;font-size:10px;background-color:#dc3545;">'.$l->alpa.'</span></td>
                 <td align="center">'.$total.'</td>
                 <td align="center">'.$persen.'%</td>
             </tr>';
