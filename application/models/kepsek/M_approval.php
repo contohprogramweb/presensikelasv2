@@ -14,31 +14,19 @@ class M_approval extends CI_Model {
         $this->db->select('a.*, a.status_asli as status_presensi');
         $this->db->select('s.nama_lengkap as nama_siswa, k.nama_kelas');
         $this->db->select('g.nama_lengkap as nama_guru, u.nama_lengkap as user_nama');
+        $this->db->select('ps.status as status_siswa, ps.keterangan');
         $this->db->from('tb_approval a');
         $this->db->join('tb_siswa s', 's.id = a.id_siswa');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
         $this->db->join('tb_guru g', 'g.id = a.id_guru');
+        $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
+        $this->db->join('tb_presensi_siswa ps', 'ps.id_presensi = p.id AND ps.id_siswa = a.id_siswa', 'left');
         $this->db->order_by('a.tanggal', 'DESC');
         
         $query = $this->db->get();
         
-        // Jika butuh keterangan dari presensi_siswa, ambil terpisah
-        $result = [];
-        foreach ($query->result_array() as $row) {
-            // Ambil keterangan dari tb_presensi_siswa
-            $this->db->select('keterangan');
-            $this->db->from('tb_presensi_siswa ps');
-            $this->db->join('tb_presensi p', 'p.id = ps.id_presensi');
-            $this->db->where('ps.id_siswa', $row['id_siswa']);
-            $this->db->where('p.tanggal', $row['tanggal']);
-            $presensi = $this->db->get()->row_array();
-            
-            $row['keterangan'] = $presensi['keterangan'] ?? '';
-            $result[] = $row;
-        }
-        
-        return $result;
+        return $query->result_array();
     }
 
     public function approve($id_approval, $id_approver)
@@ -127,8 +115,8 @@ class M_approval extends CI_Model {
         $this->db->select('g.nama_lengkap as nama_guru, u.nama_lengkap as user_nama');
         $this->db->from('tb_approval a');
         $this->db->join('tb_presensi p', 'p.id = a.id_presensi');
-        $this->db->join('tb_presensi_siswa ps', 'ps.id_presensi = p.id');
-        $this->db->join('tb_siswa s', 's.id = ps.id_siswa');
+        $this->db->join('tb_presensi_siswa ps', 'ps.id_presensi = p.id AND ps.id_siswa = a.id_siswa', 'left');
+        $this->db->join('tb_siswa s', 's.id = a.id_siswa');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->join('tb_kelas k', 'k.id = s.id_kelas', 'left');
         $this->db->join('tb_jadwal j', 'j.id = p.id_jadwal');
