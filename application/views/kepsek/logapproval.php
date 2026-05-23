@@ -112,7 +112,7 @@ $(document).ready(function() {
             {data: 'keterangan'},
             {data: 'status_approval'},
             {
-                data: 'alasan_penolakan',
+                data: 'catatan_penolakan',
                 render: function(data, type, row) {
                     // Kolom Alasan hanya tampil jika approval "Ditolak"
                     if (row.status_approval && row.status_approval.includes('Ditolak')) {

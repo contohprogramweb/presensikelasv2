@@ -3,8 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class M_logapproval extends CI_Model {
 
-    var $column_order = array(null, 'a.tanggal_approval', 's.nama_lengkap', 'k.nama_kelas', 'ps.status', 'a.status_asli', 'ps.keterangan', 'a.status_approval', 'a.alasan_penolakan');
-    var $column_search = array('s.nama_lengkap', 'k.nama_kelas', 'ps.status', 'a.status_asli', 'ps.keterangan', 'a.status_approval', 'a.alasan_penolakan');
+    var $column_order = array(null, 'a.tanggal_approval', 's.nama_lengkap', 'k.nama_kelas', 'ps.status', 'a.status_asli', 'ps.keterangan', 'a.status_approval', 'a.catatan_penolakan');
+    var $column_search = array('s.nama_lengkap', 'k.nama_kelas', 'ps.status', 'a.status_asli', 'ps.keterangan', 'a.status_approval', 'a.catatan_penolakan');
     var $order = array('a.tanggal_approval' => 'DESC');
 
     public function __construct()
@@ -47,7 +47,7 @@ class M_logapproval extends CI_Model {
             $this->db->or_like('a.status_asli', $search);
             $this->db->or_like('ps.keterangan', $search);
             $this->db->or_like('a.status_approval', $search);
-            $this->db->or_like('a.alasan_penolakan', $search);
+            $this->db->or_like('a.catatan_penolakan', $search);
             $this->db->or_like('k.nama_kelas', $search);
             $this->db->group_end();
         }
