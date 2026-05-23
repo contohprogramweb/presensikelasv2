@@ -14,7 +14,7 @@ class M_riwayat extends CI_Model {
         log_message('debug', 'M_riwayat::get_riwayat_siswa_datatable - id_siswa: ' . $id_siswa . ', start_date: ' . $start_date . ', end_date: ' . $end_date);
         
         $this->db->select('ps.*, m.nama_mapel, j.hari');
-        $this->db->select('a.status_approval, a.catatan as catatan_approval');
+        $this->db->select('a.status_approval, a.catatan_penolakan as catatan_approval');
         $this->db->select('u.nama_lengkap as nama_guru');
         $this->db->select('p.materi_pelajaran');
         $this->db->from('tb_presensi_siswa ps');
@@ -23,7 +23,7 @@ class M_riwayat extends CI_Model {
         $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel', 'inner');
         $this->db->join('tb_guru g', 'g.id = j.id_guru', 'inner');
         $this->db->join('tb_user u', 'u.id = g.id_user', 'inner');
-        $this->db->join('tb_approval a', 'a.id_presensi = p.id', 'left');
+        $this->db->join('tb_approval a', 'a.id_presensi = p.id AND a.id_siswa = ps.id_siswa', 'left');
         $this->db->where('ps.id_siswa', $id_siswa);
         
         if ($start_date) {
