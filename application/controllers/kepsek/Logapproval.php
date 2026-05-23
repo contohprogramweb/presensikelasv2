@@ -82,10 +82,15 @@ class Logapproval extends MY_Controller {
      * @return void
      */
     public function export_excel() {
-        $filter = $this->input->get('filter');
+        $filter = array(
+            'tanggal_mulai' => $this->input->get('tanggal_mulai'),
+            'tanggal_sampai' => $this->input->get('tanggal_sampai'),
+            'status' => $this->input->get('status')
+        );
         
         $data['logs'] = $this->M_logapproval->get_all_logs($filter);
         $data['page_title'] = 'Log Approval Presensi';
+        $data['filter_info'] = $filter;
         
         // Load view untuk export
         $html = $this->load->view('kepsek/logapproval_excel', $data, TRUE);

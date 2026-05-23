@@ -136,6 +136,6 @@ function export_excel() {
         url += '?' + params.join('&');
     }
     
-    window.open(url, '_blank');
+    window.location.href = url;
 }
 </script>
