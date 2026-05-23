@@ -43,14 +43,38 @@ class M_approval extends CI_Model {
 
     public function approve($id_approval, $id_approver)
     {
-        $data = [
+        $this->db->trans_start();
+        
+        // Update approval status
+        $data_approval = [
             'status_approval' => 'disetujui',
             'tanggal_approval' => date('Y-m-d H:i:s'),
             'id_approver' => $id_approver
         ];
         
         $this->db->where('id', $id_approval);
-        return $this->db->update('tb_approval', $data);
+        $this->db->update('tb_approval', $data_approval);
+        
+        // Get presensi ID and siswa ID
+        $this->db->where('id', $id_approval);
+        $approval = $this->db->get('tb_approval')->row_array();
+        
+        if ($approval) {
+            // Get the presensi_siswa record
+            $this->db->where('id_presensi', $approval['id_presensi']);
+            $this->db->where('id_siswa', $approval['id_siswa']);
+            $presensi_siswa = $this->db->get('tb_presensi_siswa')->row_array();
+            
+            if ($presensi_siswa) {
+                // Update presensi_siswa status to Hadir
+                $this->db->where('id', $presensi_siswa['id']);
+                $this->db->update('tb_presensi_siswa', ['status' => 'Hadir']);
+            }
+        }
+        
+        $this->db->trans_complete();
+        
+        return $this->db->trans_status();
     }
 
     public function reject($id_approval, $id_approver, $catatan)
