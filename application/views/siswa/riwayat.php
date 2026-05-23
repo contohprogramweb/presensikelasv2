@@ -52,11 +52,11 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label for="filter_tanggal_mulai" class="form-label">Tanggal Mulai</label>
-                        <input type="date" class="form-control" id="filter_tanggal_mulai" name="tanggal_mulai">
+                        <input type="date" class="form-control" id="filter_tanggal_mulai" name="tanggal_mulai" value="<?= $tanggal_mulai_default ?>">
                     </div>
                     <div class="col-md-3">
                         <label for="filter_tanggal_sampai" class="form-label">Tanggal Sampai</label>
-                        <input type="date" class="form-control" id="filter_tanggal_sampai" name="tanggal_sampai">
+                        <input type="date" class="form-control" id="filter_tanggal_sampai" name="tanggal_sampai" value="<?= $tanggal_sampai_default ?>">
                     </div>
                     <div class="col-md-3">
                         <label for="filter_status" class="form-label">Status</label>
@@ -130,8 +130,8 @@ $(document).ready(function() {
             url: '<?= site_url('siswa/riwayat/ajax_list') ?>',
             type: 'POST',
             data: function(d) {
-                d.tanggal_mulai = $('#filter_tanggal_mulai').val();
-                d.tanggal_sampai = $('#filter_tanggal_sampai').val();
+                d.tanggal_mulai = $('#filter_tanggal_mulai').val() || '<?= $tanggal_mulai_default ?>';
+                d.tanggal_sampai = $('#filter_tanggal_sampai').val() || '<?= $tanggal_sampai_default ?>';
                 d.status = $('#filter_status').val();
             },
             error: function(xhr, errorStatus, errorThrown) {
