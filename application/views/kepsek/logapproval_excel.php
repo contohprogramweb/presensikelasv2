@@ -19,8 +19,7 @@
         .pengajuan { width: 8%; text-align: center; }
         .keterangan { width: 12%; }
         .approval { width: 8%; text-align: center; }
-        .alasan { width: 12%; }
-        .approver { width: 12%; }
+        .alasan { width: 15%; }
     </style>
 </head>
 <body>
@@ -50,7 +49,6 @@
                 <th class="keterangan">Keterangan</th>
                 <th class="approval">Approval</th>
                 <th class="alasan">Alasan</th>
-                <th class="approver">Approver</th>
             </tr>
         </thead>
         <tbody>
@@ -69,14 +67,13 @@
                     <td><?= htmlspecialchars($log['keterangan'] ?? '-') ?></td>
                     <td class="text-center"><?= htmlspecialchars($log['status_approval']) ?></td>
                     <td><?= ($log['status_approval'] === 'ditolak') ? htmlspecialchars($log['alasan_penolakan'] ?? '-') : '-' ?></td>
-                    <td><?= htmlspecialchars($log['approver_nama'] ?? 'System') ?></td>
                 </tr>
             <?php 
                 endforeach;
             else:
             ?>
                 <tr>
-                    <td colspan="10" class="text-center">Tidak ada data log approval</td>
+                    <td colspan="9" class="text-center">Tidak ada data log approval</td>
                 </tr>
             <?php endif; ?>
         </tbody>

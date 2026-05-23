@@ -67,8 +67,7 @@ class Logapproval extends MY_Controller {
                 'status_asli' => badge_presensi($item->status_asli),
                 'keterangan' => $item->keterangan ?? '-',
                 'status_approval' => badge_approval($item->status_approval),
-                'alasan_penolakan' => $item->alasan_penolakan ?? '-',
-                'nama_approver' => $item->nama_approver ?? 'System'
+                'alasan_penolakan' => $item->alasan_penolakan ?? '-'
             );
             
             $data[] = $row;
