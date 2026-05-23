@@ -110,6 +110,9 @@ class Riwayat extends MY_Controller {
             foreach ($list as $row) {
                 $no++;
                 
+                // Format tanggal Indonesia dari format Y-m-d
+                $tanggal_indo = date('d/m/Y', strtotime($row['tanggal']));
+                
                 $status_badge = '';
                 switch ($row['status']) {
                     case 'Hadir': $status_badge = '<span class="badge bg-success">Hadir</span>'; break;
@@ -130,15 +133,22 @@ class Riwayat extends MY_Controller {
                     }
                 }
                  
-				$materi = !empty($row['materi_pelajaran']) ? $row['materi_pelajaran'] : '-';
+                $materi = !empty($row['materi_pelajaran']) ? $row['materi_pelajaran'] : '-';
                 $keterangan = !empty($row['catatan_approval']) ? $row['catatan_approval'] : '-';
+                
+                // Tambahkan info jumlah sesi jika lebih dari 1
+                $nama_mapel_display = $row['nama_mapel'] ?? '-';
+                $nama_guru_display = $row['nama_guru'] ?? '-';
+                if (isset($row['jumlah_sesi']) && $row['jumlah_sesi'] > 1) {
+                    $nama_mapel_display .= ' <small class="text-muted">(' . $row['jumlah_sesi'] . ' sesi)</small>';
+                }
                 
                 $output['data'][] = [
                     'no' => $no,
-                    'tanggal' => tanggal_indo($row['tanggal']),
+                    'tanggal' => $tanggal_indo,
                     'hari' => $row['hari'] ?? '-',
-                    'nama_mapel' => $row['nama_mapel'] ?? '-',
-                    'nama_guru' => $row['nama_guru'] ?? '-',
+                    'nama_mapel' => $nama_mapel_display,
+                    'nama_guru' => $nama_guru_display,
                     'materi' => substr($materi, 0, 40) . (strlen($materi) > 40 ? '...' : ''),
                     'status' => $status_badge,
                     'keterangan' => $keterangan,
