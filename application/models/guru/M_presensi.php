@@ -221,6 +221,11 @@ class M_presensi extends CI_Model {
             $this->db->delete('tb_presensi_siswa');
             log_message('debug', 'M_presensi::simpan_presensi - Deleted existing siswa presensi');
             
+            // Delete existing approval records for this presensi (will recreate if needed)
+            $this->db->where('id_presensi', $final_id_presensi);
+            $this->db->delete('tb_approval');
+            log_message('debug', 'M_presensi::simpan_presensi - Deleted existing approval records');
+            
         } else {
             // CREATE new presensi
             $presensi_data = [
@@ -237,9 +242,11 @@ class M_presensi extends CI_Model {
             log_message('debug', 'M_presensi::simpan_presensi - Inserted new tb_presensi ID: ' . $final_id_presensi);
         }
         
-        // Insert data siswa presensi
+        // Insert data siswa presensi dan approval jika diperlukan
         if ($final_id_presensi && is_array($siswa_data) && count($siswa_data) > 0) {
             $insert_count = 0;
+            $approval_count = 0;
+            
             foreach ($siswa_data as $id_siswa => $data_siswa) {
                 $status = isset($data_siswa['status']) ? $data_siswa['status'] : 'Hadir';
                 $keterangan = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
@@ -255,8 +262,28 @@ class M_presensi extends CI_Model {
                 
                 $this->db->insert('tb_presensi_siswa', $presensi_siswa_data);
                 $insert_count++;
+                
+                // Jika status adalah Izin atau Sakit, buat record approval
+                if (in_array($status, ['Izin', 'Sakit'])) {
+                    $approval_data = [
+                        'id_presensi' => $final_id_presensi,
+                        'id_siswa' => $id_siswa,
+                        'id_guru' => $id_guru,
+                        'tanggal' => $tanggal,
+                        'status_asli' => $status,
+                        'status_approval' => 'pending',
+                        'created_at' => $created_at,
+                        'updated_at' => $created_at
+                    ];
+                    
+                    $this->db->insert('tb_approval', $approval_data);
+                    $approval_count++;
+                    log_message('debug', "M_presensi::simpan_presensi - Created approval record for siswa {$id_siswa} with status {$status}");
+                }
             }
+            
             log_message('debug', "M_presensi::simpan_presensi - Inserted {$insert_count} siswa presensi records");
+            log_message('info', "M_presensi::simpan_presensi - Created {$approval_count} approval records for pending validation");
         } else {
             log_message('warning', 'M_presensi::simpan_presensi - No siswa data to insert or final_id_presensi is null');
         }
@@ -300,6 +327,11 @@ class M_presensi extends CI_Model {
         $tanggal          = $data['tanggal'];
         $updated_at       = date('Y-m-d H:i:s');
 
+        // Get id_guru from presensi record
+        $this->db->where('id', $id_presensi);
+        $presensi = $this->db->get('tb_presensi')->row_array();
+        $id_guru = $presensi['id_guru'] ?? null;
+
         // Update header presensi
         $this->db->where('id', $id_presensi);
         $this->db->update('tb_presensi', [
@@ -310,6 +342,11 @@ class M_presensi extends CI_Model {
         $this->db->where('id_presensi', $id_presensi);
         $this->db->delete('tb_presensi_siswa');
 
+        // Hapus approval records lama (akan dibuat ulang jika diperlukan)
+        $this->db->where('id_presensi', $id_presensi);
+        $this->db->delete('tb_approval');
+
+        $approval_count = 0;
         foreach ($siswa_data as $id_siswa => $data_siswa) {
             $status      = isset($data_siswa['status'])     ? $data_siswa['status']                           : 'Hadir';
             $keterangan  = isset($data_siswa['keterangan']) ? htmlspecialchars(trim($data_siswa['keterangan'])) : null;
@@ -322,6 +359,24 @@ class M_presensi extends CI_Model {
                 'keterangan'  => $keterangan,
                 'created_at'  => $updated_at,
             ]);
+
+            // Jika status adalah Izin atau Sakit, buat record approval
+            if (in_array($status, ['Izin', 'Sakit']) && $id_guru) {
+                $approval_data = [
+                    'id_presensi' => $id_presensi,
+                    'id_siswa' => $id_siswa,
+                    'id_guru' => $id_guru,
+                    'tanggal' => $tanggal,
+                    'status_asli' => $status,
+                    'status_approval' => 'pending',
+                    'created_at' => $updated_at,
+                    'updated_at' => $updated_at
+                ];
+
+                $this->db->insert('tb_approval', $approval_data);
+                $approval_count++;
+                log_message('debug', "M_presensi::update_presensi - Created approval record for siswa {$id_siswa} with status {$status}");
+            }
         }
 
         $this->db->trans_complete();
@@ -331,7 +386,7 @@ class M_presensi extends CI_Model {
             return ['success' => false, 'message' => 'Gagal memperbarui presensi ke database!'];
         }
 
-        log_message('info', 'M_presensi::update_presensi - Berhasil update ID: ' . $id_presensi);
+        log_message('info', "M_presensi::update_presensi - Berhasil update ID: {$id_presensi}, created {$approval_count} approval records");
         return ['success' => true, 'message' => 'Presensi berhasil diperbarui!'];
     }
 
