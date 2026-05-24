@@ -485,14 +485,14 @@ class Jadwal extends MY_Controller {
                     $html .= '</div>';
                     
                     // Table for this day
-                    $html .= '<table border="1" cellpadding="5" style="width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px;">';
+                    $html .= '<table border="1" cellpadding="3" cellspacing="0" style="width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px;">';
                     $html .= '<thead>';
                     $html .= '<tr style="background-color: #f0f0f0;">';
-                    $html .= '<th style="width: 5%; text-align: center;">No</th>';
-                    $html .= '<th style="width: 15%;">Jam</th>';
-                    $html .= '<th style="width: 35%;">Mata Pelajaran</th>';
-                    $html .= '<th style="width: 35%;">Guru</th>';
-                    $html .= '<th style="width: 10%;">Ruangan</th>';
+                    $html .= '<th style="width: 5%; text-align: center; border: 1px solid #000; padding: 4px;">No</th>';
+                    $html .= '<th style="width: 15%; border: 1px solid #000; padding: 4px;">Jam</th>';
+                    $html .= '<th style="width: 35%; border: 1px solid #000; padding: 4px;">Mata Pelajaran</th>';
+                    $html .= '<th style="width: 35%; border: 1px solid #000; padding: 4px;">Guru</th>';
+                    $html .= '<th style="width: 10%; border: 1px solid #000; padding: 4px;">Ruangan</th>';
                     $html .= '</tr>';
                     $html .= '</thead>';
                     $html .= '<tbody>';
@@ -501,11 +501,11 @@ class Jadwal extends MY_Controller {
                     $no = 1;
                     foreach ($hari_data[$day] as $jadwal) {
                         $html .= '<tr>';
-                        $html .= '<td style="text-align: center;">' . $no++ . '</td>';
-                        $html .= '<td>' . $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai . '</td>';
-                        $html .= '<td>' . $jadwal->nama_mapel . '</td>';
-                        $html .= '<td>' . $jadwal->nama_guru . '</td>';
-                        $html .= '<td>' . ($jadwal->ruangan ?? '-') . '</td>';
+                        $html .= '<td style="text-align: center; border: 1px solid #000; padding: 4px;">' . $no++ . '</td>';
+                        $html .= '<td style="border: 1px solid #000; padding: 4px;">' . $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai . '</td>';
+                        $html .= '<td style="border: 1px solid #000; padding: 4px;">' . $jadwal->nama_mapel . '</td>';
+                        $html .= '<td style="border: 1px solid #000; padding: 4px;">' . $jadwal->nama_guru . '</td>';
+                        $html .= '<td style="border: 1px solid #000; padding: 4px;">' . ($jadwal->ruangan ?? '-') . '</td>';
                         $html .= '</tr>';
                     }
                     
