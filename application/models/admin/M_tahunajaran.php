@@ -181,4 +181,29 @@ class M_tahunajaran extends CI_Model {
     public function get_aktif() {
         return $this->db->get_where($this->table, ['status_aktif' => 1])->row();
     }
+    
+    /**
+     * Check if tahun ajaran is used in other tables
+     * @param int $id Tahun ajaran ID
+     * @return bool
+     */
+    public function is_used_in_other_tables($id) {
+        // Check in tb_kelas
+        $this->db->where('id_tahun_ajaran', $id);
+        $count_kelas = $this->db->count_all_results('tb_kelas');
+        
+        if ($count_kelas > 0) {
+            return true;
+        }
+        
+        // Check in tb_jadwal
+        $this->db->where('id_tahun_ajaran', $id);
+        $count_jadwal = $this->db->count_all_results('tb_jadwal');
+        
+        if ($count_jadwal > 0) {
+            return true;
+        }
+        
+        return false;
+    }
 }
