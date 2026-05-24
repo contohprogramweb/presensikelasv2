@@ -102,6 +102,15 @@
                 
             <?php endif; ?>
             
+            <!-- Mobile Only Menu (Edit Profile & Logout) -->
+            <div class="mobile-only-menu d-md-none mt-auto pt-3 border-top border-secondary">
+                <a class="nav-link" href="<?= site_url('auth/edit_profile'); ?>">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </a>
+                <a class="nav-link" href="<?= site_url('auth/logout'); ?>">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
             
         </nav>
     </div>
