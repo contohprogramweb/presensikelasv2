@@ -442,37 +442,83 @@ class Jadwal extends MY_Controller {
             $html .= '<p style="margin-bottom: 15px;"><strong>Filter:</strong> ' . implode(', ', $data['filter_info']) . '</p>';
         }
         
-        // Table header
-        $html .= '<table border="1" cellpadding="5" style="width: 100%; border-collapse: collapse; font-size: 10px;">';
-        $html .= '<thead>';
-        $html .= '<tr style="background-color: #f0f0f0;">';
-        $html .= '<th style="width: 5%; text-align: center;">No</th>';
-        $html .= '<th style="width: 15%;">Kelas</th>';
-        $html .= '<th style="width: 10%;">Hari</th>';
-        $html .= '<th style="width: 12%;">Jam</th>';
-        $html .= '<th style="width: 25%;">Mata Pelajaran</th>';
-        $html .= '<th style="width: 25%;">Guru</th>';
-        $html .= '<th style="width: 8%;">Ruangan</th>';
-        $html .= '</tr>';
-        $html .= '</thead>';
-        $html .= '<tbody>';
+        // Define day order
+        $days_order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         
-        // Table body
-        $no = 1;
+        // Group jadwal by hari and kelas
+        $grouped_jadwal = array();
         foreach ($jadwal_list as $jadwal) {
-            $html .= '<tr>';
-            $html .= '<td style="text-align: center;">' . $no++ . '</td>';
-            $html .= '<td>' . $jadwal->nama_kelas . '</td>';
-            $html .= '<td>' . $jadwal->hari . '</td>';
-            $html .= '<td>' . $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai . '</td>';
-            $html .= '<td>' . $jadwal->nama_mapel . '</td>';
-            $html .= '<td>' . $jadwal->nama_guru . '</td>';
-            $html .= '<td>' . ($jadwal->ruangan ?? '-') . '</td>';
-            $html .= '</tr>';
+            $kelas = $jadwal->nama_kelas;
+            $hari = $jadwal->hari;
+            
+            if (!isset($grouped_jadwal[$kelas])) {
+                $grouped_jadwal[$kelas] = array();
+            }
+            if (!isset($grouped_jadwal[$kelas][$hari])) {
+                $grouped_jadwal[$kelas][$hari] = array();
+            }
+            $grouped_jadwal[$kelas][$hari][] = $jadwal;
         }
         
-        $html .= '</tbody>';
-        $html .= '</table>';
+        // Sort jadwal within each day by jam_mulai
+        foreach ($grouped_jadwal as $kelas => &$hari_data) {
+            foreach ($hari_data as $hari => &$jadwal_array) {
+                usort($jadwal_array, function($a, $b) {
+                    return strcmp($a->jam_mulai, $b->jam_mulai);
+                });
+            }
+        }
+        
+        // Generate table per kelas and per hari
+        foreach ($grouped_jadwal as $kelas => $hari_data) {
+            // Kelas title
+            $html .= '<div style="background-color: #4CAF50; color: white; padding: 8px; font-weight: bold; font-size: 14px; margin-top: 20px; margin-bottom: 10px;">';
+            $html .= 'KELAS: ' . strtoupper($kelas);
+            $html .= '</div>';
+            
+            // Generate table for each day
+            foreach ($days_order as $day) {
+                if (isset($hari_data[$day]) && !empty($hari_data[$day])) {
+                    // Day header
+                    $html .= '<div style="background-color: #2196F3; color: white; padding: 6px; font-weight: bold; font-size: 12px; margin-top: 15px; margin-bottom: 8px;">';
+                    $html .= 'HARI ' . strtoupper($day);
+                    $html .= '</div>';
+                    
+                    // Table for this day
+                    $html .= '<table border="1" cellpadding="5" style="width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px;">';
+                    $html .= '<thead>';
+                    $html .= '<tr style="background-color: #f0f0f0;">';
+                    $html .= '<th style="width: 5%; text-align: center;">No</th>';
+                    $html .= '<th style="width: 15%;">Jam</th>';
+                    $html .= '<th style="width: 35%;">Mata Pelajaran</th>';
+                    $html .= '<th style="width: 35%;">Guru</th>';
+                    $html .= '<th style="width: 10%;">Ruangan</th>';
+                    $html .= '</tr>';
+                    $html .= '</thead>';
+                    $html .= '<tbody>';
+                    
+                    // Table body
+                    $no = 1;
+                    foreach ($hari_data[$day] as $jadwal) {
+                        $html .= '<tr>';
+                        $html .= '<td style="text-align: center;">' . $no++ . '</td>';
+                        $html .= '<td>' . $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai . '</td>';
+                        $html .= '<td>' . $jadwal->nama_mapel . '</td>';
+                        $html .= '<td>' . $jadwal->nama_guru . '</td>';
+                        $html .= '<td>' . ($jadwal->ruangan ?? '-') . '</td>';
+                        $html .= '</tr>';
+                    }
+                    
+                    $html .= '</tbody>';
+                    $html .= '</table>';
+                }
+            }
+        }
+        
+        // If no data
+        if (empty($jadwal_list)) {
+            $html .= '<p style="text-align: center; font-style: italic; margin-top: 30px;">Tidak ada data jadwal yang sesuai dengan filter.</p>';
+        }
         
         // Footer
         $html .= '<div style="margin-top: 20px; font-size: 9px; text-align: right;">';
