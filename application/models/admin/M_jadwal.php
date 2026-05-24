@@ -6,7 +6,7 @@ class M_jadwal extends CI_Model {
     private $table = 'tb_jadwal';
     private $column_order = array(null, 'k.nama_kelas', 'j.hari', 'j.jam_mulai', 'm.nama_mapel', 'u.nama_lengkap', 't.tahun_ajaran');
     private $column_search = array('k.nama_kelas', 'j.hari', 'm.nama_mapel', 'u.nama_lengkap', 't.tahun_ajaran');
-    private $order = array('j.hari' => 'ASC', 'j.jam_mulai' => 'ASC');
+    private $order = array('k.nama_kelas' => 'ASC', 'j.hari' => 'ASC', 'j.jam_mulai' => 'ASC');
 
     public function __construct()
     {
@@ -50,8 +50,9 @@ class M_jadwal extends CI_Model {
                 $_POST['order']['0']['dir']
             );
         } elseif (isset($this->order)) {
-            $order = $this->order;
-            $this->db->order_by(key($order), $order[key($order)]);
+            foreach ($this->order as $col => $dir) {
+                $this->db->order_by($col, $dir);
+            }
         }
     }
 
