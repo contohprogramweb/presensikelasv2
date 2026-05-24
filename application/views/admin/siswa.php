@@ -4,9 +4,6 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h3 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Kelola Siswa</h3>
                 <div class="d-flex gap-2">
-                    <a href="<?= site_url('admin/import/siswa') ?>" class="btn btn-success">
-                        <i class="fas fa-file-import me-1"></i> Import Excel
-                    </a>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSiswa" onclick="resetForm()">
                         <i class="fas fa-plus me-1"></i> Tambah Siswa
                     </button>
@@ -120,6 +117,26 @@
                             <input type="text" class="form-control" id="no_hp" name="no_hp">
                         </div>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">Password <span class="text-danger" id="password_required">*</span></label>
+                            <input type="password" class="form-control" id="password" name="password">
+                            <small class="text-muted" id="password_hint">Kosongkan jika tidak ingin mengubah password</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status Siswa <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="aktif">Aktif</option>
+                            <option value="nonaktif">Nonaktif</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -221,6 +238,16 @@ $(document).ready(function() {
     
     // Load kelas on page init
     loadKelasSelect();
+    
+    // Reset form function
+    window.resetForm = function() {
+        $('#formSiswa')[0].reset();
+        $('#id').val('');
+        $('#modalTitle').text('Tambah Siswa');
+        $('#password_required').show();
+        $('#password_hint').hide();
+        $('#password').attr('required', 'required');
+    };
 
     $('#formSiswa').submit(function(e) {
         e.preventDefault();
@@ -307,6 +334,12 @@ $(document).ready(function() {
                 $('#no_hp_orang_tua').val(response.data.no_hp_ortu);
                 $('#email').val(response.data.email || '');
                 $('#no_hp').val(response.data.no_hp || '');
+                $('#username').val(response.data.username || '');
+                $('#status').val(response.data.user_status || 'aktif');
+                $('#password').val('');
+                $('#password_required').hide();
+                $('#password_hint').show();
+                $('#password').removeAttr('required');
                 $('#modalSiswa').modal('show');
             } else {
                 Swal.fire({

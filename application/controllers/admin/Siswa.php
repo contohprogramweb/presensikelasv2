@@ -78,6 +78,9 @@ class Siswa extends MY_Controller {
         $this->form_validation->set_rules('nis', 'NIS', 'required|trim|is_unique[tb_siswa.nis]');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'required|in_list[L,P]');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim|is_unique[tb_user.username]');
+        $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
+        $this->form_validation->set_rules('status', 'Status', 'required|in_list[aktif,nonaktif]');
         
         if ($this->form_validation->run() == FALSE) {
             $this->output
@@ -86,9 +89,9 @@ class Siswa extends MY_Controller {
             return;
         }
         
-        $username = $this->input->post('nis');
-        $default_password = 'siswa123';
-        $hashed_password = password_hash($default_password, PASSWORD_BCRYPT);
+        $username = $this->input->post('username');
+        $password = $this->input->post('password');
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
         
         // Create user first
         $user_data = [
@@ -98,7 +101,7 @@ class Siswa extends MY_Controller {
             'email' => $this->input->post('email'),
             'no_hp' => $this->input->post('no_hp'),
             'role' => 'siswa',
-            'status' => 'aktif'
+            'status' => $this->input->post('status')
         ];
         
         $this->db->insert('tb_user', $user_data);
@@ -178,6 +181,8 @@ class Siswa extends MY_Controller {
         
         $this->form_validation->set_rules('nis', 'NIS', 'required|trim');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim');
+        $this->form_validation->set_rules('status', 'Status', 'required|in_list[aktif,nonaktif]');
         
         if ($this->form_validation->run() == FALSE) {
             $this->output
@@ -192,6 +197,17 @@ class Siswa extends MY_Controller {
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['status' => false, 'message' => 'NIS sudah digunakan oleh siswa lain', 'csrf_hash' => $this->security->get_csrf_hash()]));
+            return;
+        }
+        
+        // Check username uniqueness (exclude current user)
+        $username = $this->input->post('username');
+        $this->db->where('username', $username);
+        $this->db->where('id !=', $siswa['id_user']);
+        if ($this->db->get('tb_user')->num_rows() > 0) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => false, 'message' => 'Username sudah digunakan oleh user lain', 'csrf_hash' => $this->security->get_csrf_hash()]));
             return;
         }
         
@@ -210,10 +226,18 @@ class Siswa extends MY_Controller {
         
         // Update user info
         $user_data = [
+            'username' => $username,
             'nama_lengkap' => $this->input->post('nama'),
             'email' => $this->input->post('email'),
-            'no_hp' => $this->input->post('no_hp')
+            'no_hp' => $this->input->post('no_hp'),
+            'status' => $this->input->post('status')
         ];
+        
+        // Update password if provided
+        $password = $this->input->post('password');
+        if (!empty($password)) {
+            $user_data['password'] = password_hash($password, PASSWORD_BCRYPT);
+        }
         
         $this->db->trans_start();
         $this->M_siswa->update($id, $siswa_data);
