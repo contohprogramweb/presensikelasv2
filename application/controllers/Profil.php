@@ -80,6 +80,11 @@ class Profil extends MY_Controller {
             $config['max_size'] = 2048; // 2MB
             $config['file_name'] = $this->session->userdata('username') . '_' . time();
             
+            // Ensure upload directory exists
+            if (!file_exists($config['upload_path'])) {
+                mkdir($config['upload_path'], 0755, true);
+            }
+            
             $this->load->library('upload', $config);
             
             if (!$this->upload->do_upload('foto_profil')) {
@@ -92,8 +97,15 @@ class Profil extends MY_Controller {
             
             // Additional MIME type validation for security
             $allowed_mime_types = array('image/jpeg', 'image/png', 'image/jpg');
-            $file_info = new finfo(FILEINFO_MIME_TYPE);
-            $mime_type = $file_info->file($config['upload_path'] . $upload_data['file_name']);
+            
+            // Try to use finfo if available, otherwise use getimagesize
+            if (function_exists('finfo_open')) {
+                $file_info = new finfo(FILEINFO_MIME_TYPE);
+                $mime_type = $file_info->file($config['upload_path'] . $upload_data['file_name']);
+            } else {
+                $image_info = getimagesize($config['upload_path'] . $upload_data['file_name']);
+                $mime_type = $image_info['mime'];
+            }
             
             if (!in_array($mime_type, $allowed_mime_types)) {
                 // Delete invalid file
