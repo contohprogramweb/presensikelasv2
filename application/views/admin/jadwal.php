@@ -113,31 +113,12 @@
     </div>
 </div>
 
-<!-- Modal Delete -->
-<div class="modal fade" id="modal_delete" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Konfirmasi Hapus</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus jadwal ini?</p>
-                <p class="text-danger small"><strong>Peringatan:</strong> Data yang dihapus tidak dapat dikembalikan.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-danger" id="btn_confirm_delete">Hapus</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 var table;
-var delete_id = null;
 var current_kelas_id = null;
 var skip_dropdown_reload = false;
+var csrfName = '<?= $csrf_name ?>';
+var csrfHash = '<?= $csrf_hash ?>';
 
 $(document).ready(function() {
     // Initialize DataTables
@@ -153,7 +134,7 @@ $(document).ready(function() {
             url: '<?= site_url('admin/jadwal/ajax_list') ?>',
             type: 'POST',
             data: function(d) {
-                d.<?= $csrf_name ?> = '<?= $csrf_hash ?>';
+                d[csrfName] = csrfHash;
             }
         },
         columns: [
@@ -174,9 +155,68 @@ $(document).ready(function() {
         drawCallback: function() {
             // Refresh CSRF token
             $.getJSON('<?= site_url('security/get_csrf_hash') ?>', function(data) {
-                $('input[name="<?= $csrf_name ?>"]').val(data.csrf_hash);
+                csrfHash = data.csrf_hash;
+                $('input[name="' + csrfName + '"]').val(data.csrf_hash);
             });
         }
+    });
+
+    // Handle edit button click
+    $(document).on('click', '.edit-btn', function() {
+        var encrypted_id = $(this).data('id');
+        edit_jadwal(encrypted_id);
+    });
+
+    // Handle delete button click with SweetAlert
+    $(document).on('click', '.delete-btn', function() {
+        var encrypted_id = $(this).data('id');
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Jadwal ini akan dihapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?= site_url('admin/jadwal/ajax_delete') ?>/' + encodeURIComponent(encrypted_id),
+                    type: 'POST',
+                    data: {[csrfName]: csrfHash},
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.csrf_hash) {
+                            csrfHash = response.csrf_hash;
+                        }
+                        if (response.status) {
+                            table.ajax.reload(null, false);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Terhapus',
+                                text: response.message,
+                                timer: 2000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete Error:', xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal menghapus: ' + error
+                        });
+                    }
+                });
+            }
+        });
     });
 
     // Initialize Select2 without AJAX - will be populated manually
@@ -331,49 +371,30 @@ function edit_jadwal(encrypted_id) {
                         $('#ruangan').val(data.ruangan);
                     }, 100);
                 } else {
-                    showAlert('danger', response.message || 'Gagal mengambil data');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message || 'Gagal mengambil data'
+                    });
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Edit error:', status, error);
-                showAlert('danger', 'Terjadi kesalahan saat mengambil data');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan saat mengambil data'
+                });
             }
         });
     }).fail(function() {
-        showAlert('danger', 'Gagal memuat data dropdown');
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: 'Gagal memuat data dropdown'
+        });
     });
 }
-
-function delete_jadwal(encrypted_id) {
-    delete_id = encrypted_id;
-    $('#modal_delete').modal('show');
-}
-
-$('#btn_confirm_delete').click(function() {
-    if (!delete_id) return;
-    
-    $.ajax({
-        url: '<?= site_url('admin/jadwal/ajax_delete') ?>/' + delete_id,
-        type: 'POST',
-        data: {<?= $csrf_name ?>: '<?= $csrf_hash ?>'},
-        dataType: 'json',
-        success: function(response) {
-            $('#modal_delete').modal('hide');
-            if (response.status) {
-                showAlert('success', response.message);
-                table.ajax.reload(null, false);
-            } else {
-                showAlert('danger', response.message);
-            }
-            delete_id = null;
-        },
-        error: function() {
-            $('#modal_delete').modal('hide');
-            showAlert('danger', 'Terjadi kesalahan saat menghapus data');
-            delete_id = null;
-        }
-    });
-});
 
 $('#form_jadwal').submit(function(e) {
     e.preventDefault();
@@ -382,7 +403,7 @@ $('#form_jadwal').submit(function(e) {
     
     // Get current CSRF token
     var csrfData = {};
-    csrfData['<?= $csrf_name ?>'] = $('input[name="<?= $csrf_name ?>"]').val();
+    csrfData[csrfName] = csrfHash;
     
     $.ajax({
         url: url,
@@ -393,23 +414,40 @@ $('#form_jadwal').submit(function(e) {
             console.log('Response:', response);
             if (response.status) {
                 $('#modal_jadwal').modal('hide');
-                showAlert('success', response.message);
                 table.ajax.reload(null, false);
                 
                 // Refresh CSRF token after successful operation
                 $.getJSON('<?= site_url('security/get_csrf_hash') ?>', function(data) {
-                    $('input[name="<?= $csrf_name ?>"]').val(data.csrf_hash);
+                    csrfHash = data.csrf_hash;
+                });
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: response.message,
+                    timer: 2000
                 });
             } else {
+                // Update CSRF token
+                if (response.csrf_hash) {
+                    csrfHash = response.csrf_hash;
+                }
+                
                 if (response.error) {
                     // Show validation errors for specific fields
+                    $('.invalid-feedback').text('');
+                    $('.is-invalid').removeClass('is-invalid');
                     $.each(response.error, function(field, msg) {
                         $('#' + field).addClass('is-invalid');
                         $('#error_' + field).text(msg).show();
                     });
-                } else {
-                    showAlert('danger', response.message || 'Gagal menyimpan data');
                 }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: response.message || 'Validasi gagal'
+                });
             }
         },
         error: function(xhr) {
@@ -418,15 +456,34 @@ $('#form_jadwal').submit(function(e) {
                 var response = xhr.responseJSON;
                 if (response && response.error) {
                     // Show validation errors for specific fields
+                    $('.invalid-feedback').text('');
+                    $('.is-invalid').removeClass('is-invalid');
                     $.each(response.error, function(field, msg) {
                         $('#' + field).addClass('is-invalid');
                         $('#error_' + field).text(msg).show();
                     });
                 } else if (response && response.message) {
-                    showAlert('danger', response.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
                 }
             } else {
-                showAlert('danger', 'Terjadi kesalahan saat menyimpan data. Status: ' + xhr.status);
+                var errorMsg = 'Terjadi kesalahan saat menyimpan data.';
+                if (xhr.status === 403) {
+                    errorMsg += ' Error 403: Forbidden - Mungkin masalah CSRF token.';
+                } else if (xhr.status === 500) {
+                    errorMsg += ' Error 500: Server error.';
+                } else if (xhr.responseText) {
+                    errorMsg += ' Detail: ' + xhr.responseText.substring(0, 200);
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMsg
+                });
             }
         }
     });
