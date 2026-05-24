@@ -88,6 +88,37 @@
                         <label for="alamat" class="form-label">Alamat</label>
                         <textarea class="form-control" id="alamat" name="alamat" rows="2"></textarea>
                     </div>
+                    
+                    <hr class="my-4">
+                    <h6 class="mb-3"><i class="fas fa-user-cog me-2"></i>Informasi Akun</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <small class="text-muted">Username untuk login</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="status_aktif" class="form-label">Status Guru <span class="text-danger">*</span></label>
+                            <select class="form-select" id="status_aktif" name="status_aktif" required>
+                                <option value="">-- Pilih --</option>
+                                <option value="aktif">Aktif</option>
+                                <option value="nonaktif">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password">
+                            <small class="text-muted" id="password_hint">Kosongkan jika tidak ingin mengubah password</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label">Konfirmasi Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -218,6 +249,11 @@ $(document).ready(function() {
                 $('#email').val(response.data.email || '');
                 $('#no_hp').val(response.data.no_hp || '');
                 $('#alamat').val(response.data.alamat || '');
+                $('#username').val(response.data.username || '');
+                $('#status_aktif').val(response.data.user_status || 'aktif');
+                $('#password').val('');
+                $('#confirm_password').val('');
+                $('#password_hint').text('Kosongkan jika tidak ingin mengubah password');
                 $('#modalGuru').modal('show');
             } else {
                 Swal.fire({
