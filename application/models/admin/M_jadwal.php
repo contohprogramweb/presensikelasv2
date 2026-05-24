@@ -13,7 +13,7 @@ class M_jadwal extends CI_Model {
         parent::__construct();
     }
 
-    private function _get_datatables_query($id_tahun_ajaran = null)
+    private function _get_datatables_query($id_tahun_ajaran = null, $filter_id_kelas = null, $filter_hari = null)
     {
         $this->db->select('j.*, k.nama_kelas, u.nama_lengkap as nama_guru, m.nama_mapel, t.tahun_ajaran as tahun_ajaran');
         $this->db->from($this->table . ' j');
@@ -25,6 +25,15 @@ class M_jadwal extends CI_Model {
         
         if ($id_tahun_ajaran) {
             $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
+        }
+        
+        // Apply filters
+        if (!empty($filter_id_kelas)) {
+            $this->db->where('j.id_kelas', $filter_id_kelas);
+        }
+        
+        if (!empty($filter_hari)) {
+            $this->db->where('j.hari', $filter_hari);
         }
         
         $i = 0;
@@ -56,9 +65,9 @@ class M_jadwal extends CI_Model {
         }
     }
 
-    public function get_datatables($id_tahun_ajaran = null)
+    public function get_datatables($id_tahun_ajaran = null, $filter_id_kelas = null, $filter_hari = null)
     {
-        $this->_get_datatables_query($id_tahun_ajaran);
+        $this->_get_datatables_query($id_tahun_ajaran, $filter_id_kelas, $filter_hari);
         
         if ($_POST['length'] != -1) {
             $this->db->limit($_POST['length'], $_POST['start']);
@@ -68,7 +77,7 @@ class M_jadwal extends CI_Model {
         return $query->result();
     }
 
-    public function count_all($id_tahun_ajaran = null)
+    public function count_all($id_tahun_ajaran = null, $filter_id_kelas = null, $filter_hari = null)
     {
         $this->db->from($this->table . ' j');
         $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
@@ -81,12 +90,21 @@ class M_jadwal extends CI_Model {
             $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
         }
         
+        // Apply filters
+        if (!empty($filter_id_kelas)) {
+            $this->db->where('j.id_kelas', $filter_id_kelas);
+        }
+        
+        if (!empty($filter_hari)) {
+            $this->db->where('j.hari', $filter_hari);
+        }
+        
         return $this->db->count_all_results();
     }
 
-    public function count_filtered($id_tahun_ajaran = null)
+    public function count_filtered($id_tahun_ajaran = null, $filter_id_kelas = null, $filter_hari = null)
     {
-        $this->_get_datatables_query($id_tahun_ajaran);
+        $this->_get_datatables_query($id_tahun_ajaran, $filter_id_kelas, $filter_hari);
         return $this->db->get()->num_rows();
     }
 
@@ -186,5 +204,44 @@ class M_jadwal extends CI_Model {
         }
         
         return $this->db->get()->result_array();
+    }
+
+    /**
+     * Get all jadwal for PDF generation with optional filters
+     * 
+     * @param int $id_tahun_ajaran
+     * @param int $filter_id_kelas
+     * @param string $filter_hari
+     * @return array
+     */
+    public function get_all_jadwal($id_tahun_ajaran = null, $filter_id_kelas = null, $filter_hari = null)
+    {
+        $this->db->select('j.*, k.nama_kelas, u.nama_lengkap as nama_guru, m.nama_mapel, t.tahun_ajaran as tahun_ajaran');
+        $this->db->from($this->table . ' j');
+        $this->db->join('tb_kelas k', 'k.id = j.id_kelas');
+        $this->db->join('tb_guru g', 'g.id = j.id_guru');
+        $this->db->join('tb_user u', 'u.id = g.id_user');
+        $this->db->join('tb_mata_pelajaran m', 'm.id = j.id_mapel');
+        $this->db->join('tb_tahun_ajaran t', 't.id = j.id_tahun_ajaran');
+        
+        if ($id_tahun_ajaran) {
+            $this->db->where('j.id_tahun_ajaran', $id_tahun_ajaran);
+        }
+        
+        // Apply filters
+        if (!empty($filter_id_kelas)) {
+            $this->db->where('j.id_kelas', $filter_id_kelas);
+        }
+        
+        if (!empty($filter_hari)) {
+            $this->db->where('j.hari', $filter_hari);
+        }
+        
+        // Order by kelas, hari, jam_mulai
+        $this->db->order_by('k.nama_kelas', 'ASC');
+        $this->db->order_by('j.hari', 'ASC');
+        $this->db->order_by('j.jam_mulai', 'ASC');
+        
+        return $this->db->get()->result();
     }
 }

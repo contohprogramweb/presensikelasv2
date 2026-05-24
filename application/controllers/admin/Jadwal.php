@@ -45,6 +45,38 @@ class Jadwal extends MY_Controller {
         // Data tahun ajaran aktif sudah tersedia dari MY_Controller
         $this->data['tahun_ajaran'] = $this->tahun_ajaran_aktif;
         
+        // Get filter parameters
+        $filter_id_kelas = $this->input->get('id_kelas');
+        $filter_hari = $this->input->get('hari');
+        
+        // Load kelas list for filter dropdown
+        $this->data['kelas_list'] = $this->M_kelas->get_active_classes();
+        
+        // Set filter data for view
+        $this->data['filter_id_kelas'] = $filter_id_kelas;
+        $this->data['filter_hari'] = $filter_hari;
+        
+        // Build filter info and params
+        $filter_info = array();
+        $filter_params = array();
+        
+        if (!empty($filter_id_kelas)) {
+            $kelas_data = $this->M_kelas->get_by_id($filter_id_kelas);
+            if ($kelas_data) {
+                $filter_info[] = 'Kelas: ' . $kelas_data->nama_kelas;
+                $filter_params['id_kelas'] = $filter_id_kelas;
+            }
+        }
+        
+        if (!empty($filter_hari)) {
+            $filter_info[] = 'Hari: ' . $filter_hari;
+            $filter_params['hari'] = $filter_hari;
+        }
+        
+        $this->data['filter_info'] = !empty($filter_info) ? implode(', ', $filter_info) : '';
+        $this->data['filter_params'] = $filter_params;
+        $this->data['show_pdf_button'] = !empty($filter_params);
+        
         $this->data['content'] = 'admin/jadwal';
         $this->load->view('templates/template', $this->data);
     }
@@ -55,7 +87,11 @@ class Jadwal extends MY_Controller {
      * @return void
      */
     public function ajax_list() {
-        $list = $this->M_jadwal->get_datatables($this->tahun_ajaran_aktif->id);
+        // Get filter parameters from POST
+        $filter_id_kelas = $this->input->post('id_kelas');
+        $filter_hari = $this->input->post('hari');
+        
+        $list = $this->M_jadwal->get_datatables($this->tahun_ajaran_aktif->id, $filter_id_kelas, $filter_hari);
         $data = array();
         
         foreach ($list as $item) {
@@ -78,8 +114,8 @@ class Jadwal extends MY_Controller {
         
         $output = array(
             "draw" => $_POST['draw'],
-            "recordsTotal" => $this->M_jadwal->count_all($this->tahun_ajaran_aktif->id),
-            "recordsFiltered" => $this->M_jadwal->count_filtered($this->tahun_ajaran_aktif->id),
+            "recordsTotal" => $this->M_jadwal->count_all($this->tahun_ajaran_aktif->id, $filter_id_kelas, $filter_hari),
+            "recordsFiltered" => $this->M_jadwal->count_filtered($this->tahun_ajaran_aktif->id, $filter_id_kelas, $filter_hari),
             "data" => $data,
         );
         
@@ -342,5 +378,112 @@ class Jadwal extends MY_Controller {
         return TRUE;
     }
 
-     
+    /**
+     * Generate PDF jadwal dengan filter
+     * 
+     * @return void
+     */
+    public function generate_pdf() {
+        // Get filter parameters
+        $filter_id_kelas = $this->input->get('id_kelas');
+        $filter_hari = $this->input->get('hari');
+        
+        // Load data with filters
+        $jadwal_list = $this->M_jadwal->get_all_jadwal($this->tahun_ajaran_aktif->id, $filter_id_kelas, $filter_hari);
+        
+        // Prepare data for PDF
+        $data = array(
+            'jadwal_list' => $jadwal_list,
+            'tahun_ajaran' => $this->tahun_ajaran_aktif,
+            'filter_info' => array(),
+            'generated_date' => date('d F Y H:i:s')
+        );
+        
+        // Build filter info
+        if (!empty($filter_id_kelas)) {
+            $kelas_data = $this->M_kelas->get_by_id($filter_id_kelas);
+            if ($kelas_data) {
+                $data['filter_info'][] = 'Kelas: ' . $kelas_data->nama_kelas;
+            }
+        }
+        
+        if (!empty($filter_hari)) {
+            $data['filter_info'][] = 'Hari: ' . $filter_hari;
+        }
+        
+        // Load PDF library (TCPDF)
+        require_once(APPPATH . '../vendor/autoload.php');
+        
+        // Create PDF
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        
+        // Set document information
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Sistem Presensi Kelas');
+        $pdf->SetTitle('Jadwal Pelajaran');
+        $pdf->SetSubject('Jadwal Pelajaran');
+        
+        // Remove default header/footer
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        
+        // Set margins
+        $pdf->SetMargins(15, 20, 15);
+        $pdf->SetAutoPageBreak(TRUE, 15);
+        
+        // Add page
+        $pdf->AddPage();
+        
+        // Build HTML content
+        $html = '<h2 style="text-align: center; margin-bottom: 10px;">JADWAL PELAJARAN</h2>';
+        $html .= '<h4 style="text-align: center; margin-bottom: 20px;">Tahun Ajaran ' . $this->tahun_ajaran_aktif->tahun_ajaran . ' (Semester ' . $this->tahun_ajaran_aktif->semester . ')</h4>';
+        
+        if (!empty($data['filter_info'])) {
+            $html .= '<p style="margin-bottom: 15px;"><strong>Filter:</strong> ' . implode(', ', $data['filter_info']) . '</p>';
+        }
+        
+        // Table header
+        $html .= '<table border="1" cellpadding="5" style="width: 100%; border-collapse: collapse; font-size: 10px;">';
+        $html .= '<thead>';
+        $html .= '<tr style="background-color: #f0f0f0;">';
+        $html .= '<th style="width: 5%; text-align: center;">No</th>';
+        $html .= '<th style="width: 15%;">Kelas</th>';
+        $html .= '<th style="width: 10%;">Hari</th>';
+        $html .= '<th style="width: 12%;">Jam</th>';
+        $html .= '<th style="width: 25%;">Mata Pelajaran</th>';
+        $html .= '<th style="width: 25%;">Guru</th>';
+        $html .= '<th style="width: 8%;">Ruangan</th>';
+        $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody>';
+        
+        // Table body
+        $no = 1;
+        foreach ($jadwal_list as $jadwal) {
+            $html .= '<tr>';
+            $html .= '<td style="text-align: center;">' . $no++ . '</td>';
+            $html .= '<td>' . $jadwal->nama_kelas . '</td>';
+            $html .= '<td>' . $jadwal->hari . '</td>';
+            $html .= '<td>' . $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai . '</td>';
+            $html .= '<td>' . $jadwal->nama_mapel . '</td>';
+            $html .= '<td>' . $jadwal->nama_guru . '</td>';
+            $html .= '<td>' . ($jadwal->ruangan ?? '-') . '</td>';
+            $html .= '</tr>';
+        }
+        
+        $html .= '</tbody>';
+        $html .= '</table>';
+        
+        // Footer
+        $html .= '<div style="margin-top: 20px; font-size: 9px; text-align: right;">';
+        $html .= 'Dicetak pada: ' . $data['generated_date'];
+        $html .= '</div>';
+        
+        // Output HTML
+        $pdf->writeHTML($html, true, false, true, false, '');
+        
+        // Close and output PDF
+        $filename = 'jadwal_pelajaran_' . date('YmdHis') . '.pdf';
+        $pdf->Output($filename, 'I');
+    }
 }

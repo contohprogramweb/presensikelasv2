@@ -13,10 +13,87 @@
     <!-- Alert -->
     <div id="alert_placeholder"></div>
 
+    <!-- Form Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <i class="fas fa-filter me-1"></i> Filter Jadwal
+        </div>
+        <div class="card-body">
+            <form id="form_filter" method="get" action="<?= site_url('admin/jadwal') ?>">
+                <input type="hidden" name="<?= $csrf_name ?>" value="<?= $csrf_hash ?>">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="filter_kelas" class="form-label">Kelas</label>
+                        <select class="form-select select2-filter" id="filter_kelas" name="id_kelas" style="width: 100%">
+                            <option value="">-- Semua Kelas --</option>
+                            <?php if(isset($kelas_list) && is_array($kelas_list)): ?>
+                                <?php foreach($kelas_list as $k): ?>
+                                    <option value="<?= $k->id ?>" <?= (isset($filter_id_kelas) && $filter_id_kelas == $k->id) ? 'selected' : '' ?>><?= $k->nama_kelas ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="filter_hari" class="form-label">Hari</label>
+                        <select class="form-select" id="filter_hari" name="hari">
+                            <option value="">-- Semua Hari --</option>
+                            <option value="Senin" <?= (isset($filter_hari) && $filter_hari == 'Senin') ? 'selected' : '' ?>>Senin</option>
+                            <option value="Selasa" <?= (isset($filter_hari) && $filter_hari == 'Selasa') ? 'selected' : '' ?>>Selasa</option>
+                            <option value="Rabu" <?= (isset($filter_hari) && $filter_hari == 'Rabu') ? 'selected' : '' ?>>Rabu</option>
+                            <option value="Kamis" <?= (isset($filter_hari) && $filter_hari == 'Kamis') ? 'selected' : '' ?>>Kamis</option>
+                            <option value="Jumat" <?= (isset($filter_hari) && $filter_hari == 'Jumat') ? 'selected' : '' ?>>Jumat</option>
+                            <option value="Sabtu" <?= (isset($filter_hari) && $filter_hari == 'Sabtu') ? 'selected' : '' ?>>Sabtu</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-info text-white">
+                            <i class="fas fa-search me-1"></i> Tampilkan
+                        </button>
+                        <a href="<?= site_url('admin/jadwal') ?>" class="btn btn-secondary">
+                            <i class="fas fa-redo me-1"></i> Reset
+                        </a>
+                        <?php if(isset($show_pdf_button) && $show_pdf_button): ?>
+                        <button type="button" onclick="openPDF()" class="btn btn-danger">
+                            <i class="fas fa-file-pdf me-1"></i> PDF
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+function openPDF() {
+    var idKelas = $('#filter_kelas').val();
+    var hari = $('#filter_hari').val();
+    var params = [];
+    
+    if (idKelas) {
+        params.push('id_kelas=' + encodeURIComponent(idKelas));
+    }
+    if (hari) {
+        params.push('hari=' + encodeURIComponent(hari));
+    }
+    
+    var queryString = params.join('&');
+    var url = '<?= site_url('admin/jadwal/generate_pdf') ?>';
+    
+    if (queryString) {
+        url += '?' + queryString;
+    }
+    
+    window.open(url, '_blank');
+}
+</script>
+
     <!-- Tabel Jadwal -->
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
             <i class="fas fa-table me-1"></i> Daftar Jadwal Pelajaran - Tahun Ajaran <?= $tahun_ajaran->tahun_ajaran ?> (Semester <?= $tahun_ajaran->semester ?>)
+            <?php if(isset($filter_info) && !empty($filter_info)): ?>
+                <span class="float-end">(<?= $filter_info ?>)</span>
+            <?php endif; ?>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -135,6 +212,8 @@ $(document).ready(function() {
             type: 'POST',
             data: function(d) {
                 d[csrfName] = csrfHash;
+                d.id_kelas = $('#filter_kelas').val();
+                d.hari = $('#filter_hari').val();
             }
         },
         columns: [
@@ -223,6 +302,21 @@ $(document).ready(function() {
     $('.select2').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#modal_jadwal'),
+        language: {
+            noResults: function() {
+                return "Tidak ada data ditemukan";
+            },
+            searching: function() {
+                return "Sedang mencari...";
+            }
+        },
+        placeholder: '-- Pilih --',
+        allowClear: true
+    });
+    
+    // Initialize Select2 for filter
+    $('.select2-filter').select2({
+        theme: 'bootstrap-5',
         language: {
             noResults: function() {
                 return "Tidak ada data ditemukan";
