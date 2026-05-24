@@ -42,14 +42,20 @@ class Tahunajaran extends MY_Controller {
                 ? '<span class="badge bg-success">Aktif</span>' 
                 : '<span class="badge bg-secondary">Tidak Aktif</span>';
             
+            // Cek apakah tahun ajaran ini digunakan di tabel lain
+            $is_used = $this->M_tahunajaran->is_used_in_other_tables($ta->id);
+            
             $action_btn = '
                 <button class="btn btn-sm btn-warning" onclick="edit_tahunajaran(\''.encrypt_id($ta->id).'\')" title="Edit">
                     <i class="fas fa-pencil-alt"></i>
                 </button>
-                '.($ta->status_aktif != 1 ? '
+                '.($ta->status_aktif != 1 && !$is_used ? '
                 <button class="btn btn-sm btn-danger" onclick="delete_tahunajaran(\''.encrypt_id($ta->id).'\')" title="Hapus">
                     <i class="fas fa-trash"></i>
-                </button>' : '').'
+                </button>' : ($ta->status_aktif != 1 || $is_used ? '
+                <button class="btn btn-sm btn-danger" disabled title="Tahun ajaran sedang digunakan atau aktif" style="pointer-events: none; opacity: 0.5;">
+                    <i class="fas fa-trash"></i>
+                </button>' : '')).'
             ';
             
             $data[] = [
