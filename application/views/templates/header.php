@@ -184,9 +184,14 @@
                 <i class="fas fa-bars"></i>
             </button>
             
-            <a class="navbar-brand fw-bold" href="<?= site_url('dashboard'); ?>">
+            <a class="navbar-brand fw-bold d-none d-md-block" href="<?= site_url('dashboard'); ?>">
                 <i class="fas fa-school me-2"></i>Sistem Presensi Kelas
             </a>
+            
+            <!-- Mobile title centered -->
+            <span class="navbar-text text-white fw-bold mx-auto d-md-none position-absolute start-50 translate-middle-x">
+                Sistem Presensi Kelas
+            </span>
             
             <span class="navbar-text text-white d-none d-md-block">
                 <?= isset($tahun_ajaran) ? 'T.A. ' . $tahun_ajaran->tahun_ajaran . ' Semester ' . $tahun_ajaran->semester : ''; ?>
