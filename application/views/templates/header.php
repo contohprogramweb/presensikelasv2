@@ -45,6 +45,7 @@
             margin-left: var(--sidebar-width);
             padding: 20px;
             margin-top: 56px;
+            margin-bottom: 60px;
             transition: all 0.3s;
         }
         
@@ -113,13 +114,6 @@
             text-overflow: ellipsis;
         }
         
-        .content-wrapper {
-            margin-left: var(--sidebar-width);
-            padding: 20px;
-            margin-top: 56px;
-            transition: all 0.3s;
-        }
-        
         .card {
             border: none;
             box-shadow: 0 0 10px rgba(0,0,0,.05);
@@ -144,6 +138,7 @@
             
             .content-wrapper {
                 margin-left: 0;
+                margin-bottom: 60px;
             }
         }
 
@@ -152,7 +147,7 @@
             padding: 16px 20px;
             background-color: #fff;
             border-top: 1px solid #e9ecef;
-            position: sticky;
+            position: fixed;
             bottom: 0;
             width: calc(100% - var(--sidebar-width));
             z-index: 100;
@@ -164,7 +159,7 @@
                 width: 100%;
             }
         }
-
+        
         /* Konsistensi card-header untuk semua halaman admin */
         .card-header {
             font-weight: 600;
