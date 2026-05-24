@@ -1,3 +1,1 @@
-The modified file 'application/controllers/guru/Jadwal.php' is a source code file and does not require any special gitignore rules. Since there are no build artifacts, dependencies, or temporary files in the changes, no additional gitignore rules are needed.
-
-Therefore, the optimized .gitignore content remains empty.
+Nothing should be ignored since only a PHP template file was modified and no build artifacts, dependencies, or temporary files were detected in the changes.
