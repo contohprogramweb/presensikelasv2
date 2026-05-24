@@ -76,25 +76,28 @@ class Guru extends MY_Controller {
         $this->form_validation->set_rules('nip', 'NIP', 'required|trim|is_unique[tb_guru.nip]');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'required|in_list[L,P]');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim|is_unique[tb_user.username]');
+        $this->form_validation->set_rules('status_aktif', 'Status', 'required|in_list[aktif,nonaktif]');
+        $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
+        $this->form_validation->set_rules('confirm_password', 'Konfirmasi Password', 'required|matches[password]');
         
         if ($this->form_validation->run() == FALSE) {
             echo json_encode(['status' => false, 'message' => validation_errors()]);
             return;
         }
         
-        $username = $this->input->post('nip');
-        $default_password = 'guru123';
-        $hashed_password = password_hash($default_password, PASSWORD_BCRYPT);
+        $password = $this->input->post('password');
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
         
         // Create user first
         $user_data = [
-            'username' => $username,
+            'username' => $this->input->post('username'),
             'password' => $hashed_password,
             'nama_lengkap' => $this->input->post('nama'),
             'email' => $this->input->post('email'),
             'no_hp' => $this->input->post('no_hp'),
             'role' => 'guru',
-            'status' => 'aktif'
+            'status' => $this->input->post('status_aktif')
         ];
         
         $this->db->insert('tb_user', $user_data);
@@ -175,6 +178,15 @@ class Guru extends MY_Controller {
         
         $this->form_validation->set_rules('nip', 'NIP', 'required|trim');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim');
+        $this->form_validation->set_rules('status_aktif', 'Status', 'required|in_list[aktif,nonaktif]');
+        
+        // Validasi password hanya jika diisi
+        $password = $this->input->post('password');
+        if (!empty($password)) {
+            $this->form_validation->set_rules('password', 'Password', 'min_length[6]');
+            $this->form_validation->set_rules('confirm_password', 'Konfirmasi Password', 'matches[password]');
+        }
         
         if ($this->form_validation->run() == FALSE) {
             echo json_encode(['status' => false, 'message' => validation_errors()]);
@@ -205,6 +217,20 @@ class Guru extends MY_Controller {
             return;
         }
         
+        // Cek username unique (kecuali untuk user yang sama)
+        $username = $this->input->post('username');
+        $this->db->where('username', $username);
+        $this->db->where('id !=', $guru['id_user']);
+        if ($this->db->get('tb_user')->num_rows() > 0) {
+            echo json_encode([
+                'status' => false, 
+                'message' => 'Username sudah digunakan oleh user lain',
+                'csrf_name' => $this->security->get_csrf_token_name(),
+                'csrf_hash' => $this->security->get_csrf_hash()
+            ]);
+            return;
+        }
+        
         $guru_data = [
             'nip' => $this->input->post('nip'),
             'nama_lengkap' => $this->input->post('nama'),
@@ -216,10 +242,17 @@ class Guru extends MY_Controller {
         
         // Update user info
         $user_data = [
+            'username' => $username,
             'nama_lengkap' => $this->input->post('nama'),
             'email' => $this->input->post('email'),
-            'no_hp' => $this->input->post('no_hp')
+            'no_hp' => $this->input->post('no_hp'),
+            'status' => $this->input->post('status_aktif')
         ];
+        
+        // Update password jika diisi
+        if (!empty($password)) {
+            $user_data['password'] = password_hash($password, PASSWORD_BCRYPT);
+        }
         
         $this->db->trans_start();
         $this->M_guru->update($id, $guru_data);
