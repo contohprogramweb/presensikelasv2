@@ -69,11 +69,9 @@ class Jadwal extends MY_Controller {
             $row->nama_guru = $item->nama_guru;
             $row->tahun_ajaran = $item->tahun_ajaran;
             
-            // Action buttons
-            $row->action = '<div class="btn-group" role="group">';
-            $row->action .= '<button type="button" class="btn btn-sm btn-info" onclick="edit_jadwal(\'' . encrypt_id($item->id) . '\')" title="Edit"><i class="fas fa-edit"></i></button>';
-            $row->action .= ' <button type="button" class="btn btn-sm btn-danger" onclick="delete_jadwal(\'' . encrypt_id($item->id) . '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
-            $row->action .= '</div>';
+            // Action buttons - same style as guru
+            $row->action = '<button class="btn btn-sm btn-warning edit-btn" data-id="' . encrypt_id($item->id) . '"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="' . encrypt_id($item->id) . '"><i class="fas fa-trash"></i></button>';
             
             $data[] = $row;
         }
