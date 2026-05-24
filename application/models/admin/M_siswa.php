@@ -33,7 +33,7 @@ class M_siswa extends CI_Model {
 
     public function get_by_id($id)
     {
-        $this->db->select('s.*, u.email, u.no_hp, u.nama_lengkap');
+        $this->db->select('s.*, u.email, u.no_hp, u.nama_lengkap, u.username, u.status as user_status');
         $this->db->from($this->table . ' s');
         $this->db->join('tb_user u', 'u.id = s.id_user');
         $this->db->where('s.id', $id);

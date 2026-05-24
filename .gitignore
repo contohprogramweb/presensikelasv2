@@ -1,1 +1,1 @@
-(application/controllers/admin/Guru.php, application/models/admin/M_guru.php, application/views/admin/guru.php)
+Nothing should be ignored since the changes only include PHP source files (.php) which are core application files and not build artifacts, dependencies, or temporary files.
