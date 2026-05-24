@@ -86,7 +86,20 @@ class Jadwal extends MY_Controller {
         
         // Build HTML content
         $html = '<h2 style="text-align: center; margin-bottom: 10px;">JADWAL MENGAJAR GURU</h2>';
-        $html .= '<h4 style="text-align: center; margin-bottom: 20px;">' . strtoupper($guru->nama_guru) . '</h4>';
+        
+        // Info Guru
+        $html .= '<table border="0" cellpadding="3" cellspacing="0" style="width: 100%; font-size: 11px; margin-bottom: 20px;">';
+        $html .= '<tr>';
+        $html .= '<td style="width: 20%; font-weight: bold;">Nama Guru</td>';
+        $html .= '<td style="width: 2%;">:</td>';
+        $html .= '<td style="width: 78%;">' . strtoupper($guru->nama_lengkap) . '</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td style="font-weight: bold;">NIP</td>';
+        $html .= '<td>:</td>';
+        $html .= '<td>' . ($guru->nip ?? '-') . '</td>';
+        $html .= '</tr>';
+        $html .= '</table>';
         
         // Define day order
         $days_order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -109,6 +122,13 @@ class Jadwal extends MY_Controller {
             });
         }
         
+        // Column widths (must be consistent for th and td)
+        $col_width_no = '5%';
+        $col_width_jam = '15%';
+        $col_width_mapel = '30%';
+        $col_width_kelas = '35%';
+        $col_width_ruangan = '15%';
+        
         // Generate table per hari
         foreach ($days_order as $day) {
             if (isset($grouped_jadwal[$day]) && !empty($grouped_jadwal[$day])) {
@@ -121,11 +141,11 @@ class Jadwal extends MY_Controller {
                 $html .= '<table border="1" cellpadding="3" cellspacing="0" style="width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px;">';
                 $html .= '<thead>';
                 $html .= '<tr style="background-color: #f0f0f0;">';
-                $html .= '<th style="width: 5%; text-align: center; border: 1px solid #000; padding: 4px;">No</th>';
-                $html .= '<th style="width: 15%; border: 1px solid #000; padding: 4px;">Jam</th>';
-                $html .= '<th style="width: 30%; border: 1px solid #000; padding: 4px;">Mata Pelajaran</th>';
-                $html .= '<th style="width: 35%; border: 1px solid #000; padding: 4px;">Kelas</th>';
-                $html .= '<th style="width: 15%; border: 1px solid #000; padding: 4px;">Ruangan</th>';
+                $html .= '<th style="width: ' . $col_width_no . '; text-align: center; border: 1px solid #000; padding: 4px;">No</th>';
+                $html .= '<th style="width: ' . $col_width_jam . '; border: 1px solid #000; padding: 4px;">Jam</th>';
+                $html .= '<th style="width: ' . $col_width_mapel . '; border: 1px solid #000; padding: 4px;">Mata Pelajaran</th>';
+                $html .= '<th style="width: ' . $col_width_kelas . '; border: 1px solid #000; padding: 4px;">Kelas</th>';
+                $html .= '<th style="width: ' . $col_width_ruangan . '; border: 1px solid #000; padding: 4px;">Ruangan</th>';
                 $html .= '</tr>';
                 $html .= '</thead>';
                 $html .= '<tbody>';
@@ -134,11 +154,11 @@ class Jadwal extends MY_Controller {
                 $no = 1;
                 foreach ($grouped_jadwal[$day] as $jadwal) {
                     $html .= '<tr>';
-                    $html .= '<td style="text-align: center; border: 1px solid #000; padding: 4px;">' . $no++ . '</td>';
-                    $html .= '<td style="border: 1px solid #000; padding: 4px;">' . $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai . '</td>';
-                    $html .= '<td style="border: 1px solid #000; padding: 4px;">' . $jadwal->nama_mapel . '</td>';
-                    $html .= '<td style="border: 1px solid #000; padding: 4px;">' . $jadwal->nama_kelas . '</td>';
-                    $html .= '<td style="border: 1px solid #000; padding: 4px;">' . ($jadwal->ruangan ?? '-') . '</td>';
+                    $html .= '<td style="width: ' . $col_width_no . '; text-align: center; border: 1px solid #000; padding: 4px;">' . $no++ . '</td>';
+                    $html .= '<td style="width: ' . $col_width_jam . '; border: 1px solid #000; padding: 4px;">' . $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai . '</td>';
+                    $html .= '<td style="width: ' . $col_width_mapel . '; border: 1px solid #000; padding: 4px;">' . $jadwal->nama_mapel . '</td>';
+                    $html .= '<td style="width: ' . $col_width_kelas . '; border: 1px solid #000; padding: 4px;">' . $jadwal->nama_kelas . '</td>';
+                    $html .= '<td style="width: ' . $col_width_ruangan . '; border: 1px solid #000; padding: 4px;">' . ($jadwal->ruangan ?? '-') . '</td>';
                     $html .= '</tr>';
                 }
                 
@@ -161,7 +181,7 @@ class Jadwal extends MY_Controller {
         $pdf->writeHTML($html, true, false, true, false, '');
         
         // Close and output PDF
-        $filename = 'jadwal_mengajar_' . strtolower(str_replace(' ', '_', $guru->nama_guru)) . '_' . date('YmdHis') . '.pdf';
+        $filename = 'jadwal_mengajar_' . strtolower(str_replace(' ', '_', $guru->nama_lengkap)) . '_' . date('YmdHis') . '.pdf';
         $pdf->Output($filename, 'I');
     }
 }

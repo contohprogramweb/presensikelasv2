@@ -1,14 +1,3 @@
-# Examples
+The modified file 'application/controllers/guru/Jadwal.php' is a source code file and does not require any special gitignore rules. Since there are no build artifacts, dependencies, or temporary files in the changes, no additional gitignore rules are needed.
 
-    Input:
-    ### Added files:
-    [src/main.py, README.md, config.json]
-
-    ### Deleted files:
-    [old/unused.py]
-    ### Modified files:
-    [utils.py]
-    ###current .gitignore Content
-    (empty)
-    Expected Output:
-    (empty — output nothing)
+Therefore, the optimized .gitignore content remains empty.
